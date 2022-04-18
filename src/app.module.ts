@@ -7,6 +7,7 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import { MembersModule } from './modules/members/members.module';
 import { ViewsModule } from './modules/views/views.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { GitInfoModule } from './modules/git-info/git-info.module';
 import typeOrmConfig from './config/database';
 
 @Module({
@@ -19,6 +20,7 @@ import typeOrmConfig from './config/database';
     MembersModule,
     ViewsModule,
     TasksModule,
+    GitInfoModule,
   ],
   controllers: [],
   providers: [],
