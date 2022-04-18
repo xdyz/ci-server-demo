@@ -1,26 +1,81 @@
-import { Injectable } from '@nestjs/common';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { RolesEntity } from 'src/entities';
+import { Repository } from 'typeorm';
+import { CreateRoleDto } from './dtos/create-role.dto';
+import { UpdateRoleDto } from './dtos/update-role.dto';
 
 @Injectable()
 export class RolesService {
-  create(createRoleDto: CreateRoleDto) {
-    return 'This action adds a new role';
+  @InjectRepository(RolesEntity)
+  private readonly rolesRepository: Repository<RolesEntity>;
+
+  async getRole(id) {
+    const role = await this.rolesRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    return role;
   }
 
-  findAll() {
-    return `This action returns all roles`;
+  async getRoles({ project_id, page, per_page }) {
+    page = parseInt(page) || 1;
+    per_page = parseInt(per_page) || 10;
+    const [data, total] = await this.rolesRepository.findAndCount({
+      where: { project_id },
+      order: { id: 'DESC' },
+      take: per_page,
+      skip: (page - 1) * per_page,
+    });
+    return {
+      data,
+      total,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
+  // { name, privileges, project_root }
+  async updateRole(id, updateRoleDto) {
+    try {
+      const role = await this.rolesRepository.save({ id, ...updateRoleDto });
+      return {
+        data: role,
+      };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
+  async deleteRole(id) {
+    try {
+      await this.rolesRepository.delete(id);
+      return {};
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  // { name, privileges, project_root, project_id }
+  async createRole(createRoleDto) {
+    try {
+      const role = await this.rolesRepository.create(createRoleDto);
+      const data = await this.rolesRepository.save(role);
+      return {
+        data,
+      };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getAllRoles({ project_id }) {
+    const data = await this.rolesRepository.find({
+      where: { project_id },
+      order: { id: 'DESC' },
+    });
+
+    return {
+      data,
+    };
   }
 }

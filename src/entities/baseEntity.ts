@@ -4,7 +4,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
+  // DeleteDateColumn,
 } from 'typeorm';
 
 @Entity()

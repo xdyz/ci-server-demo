@@ -6,7 +6,7 @@ const typeOrmConfig: TypeOrmModuleOptions = {
   port: 3306,
   username: 'root',
   password: '123456',
-  database: 'nestjs',
+  database: 'nest',
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
   synchronize: true,
 };
