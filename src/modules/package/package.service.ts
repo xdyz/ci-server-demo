@@ -190,9 +190,7 @@ export class PackageService {
       .andWhere('b.created_at <= :to', { to })
       .getMany();
     const result = await this.cacultePackageDayDuration(from, to, packages);
-    return {
-      data: result,
-    };
+    return result;
   }
 
   getPackageReportRate = async function ({ project_id }, { from, to }) {
@@ -415,12 +413,12 @@ export class PackageService {
   }
 
   // 读取unity 日志
-  readUnityLog = async (log_url = '') => {
+  async readUnityLog(log_url = '') {
     if (!log_url) return { body: '' };
     const res = await got.get(log_url);
 
     return res;
-  };
+  }
   // 获取unity 日志
   getBuildUnityLog = async (url, project_id) => {
     // const [manuals] = await app.mysql.query(packageErrorManualConstants.SELECT_PACKAGE_ERROR_MANUAL_BY_PROJECT_ID_AND_TAGS, [project_id, 'Unity']);

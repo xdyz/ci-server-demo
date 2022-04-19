@@ -17,6 +17,7 @@ import { ParameterCoverageModule } from './modules/parameter-coverage/parameter-
 import { ServerManagersModule } from './modules/server-managers/server-managers.module';
 import { TestErrorManualModule } from './modules/test-error-manual/test-error-manual.module';
 import { PackageModule } from './modules/package/package.module';
+import { ResourceModule } from './modules/resource/resource.module';
 import typeOrmConfig from './config/database';
 
 @Module({
@@ -39,6 +40,7 @@ import typeOrmConfig from './config/database';
     ServerManagersModule,
     TestErrorManualModule,
     PackageModule,
+    ResourceModule,
   ],
   controllers: [],
   providers: [],
