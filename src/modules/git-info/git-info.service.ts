@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GitInfoEntity } from 'src/entities';
 import { Repository } from 'typeorm';
@@ -63,10 +63,14 @@ export class GitInfoService {
   // { name, url, git_project_id, tag, token, ssh, git_url = {} }
   async createGitInfo({ project_id }, createGitInfoDto) {
     try {
-      let { git_url, ...rest } = createGitInfoDto;
+      let { git_url } = createGitInfoDto;
       git_url = this.judgeChildStyle(git_url);
 
-      const gitInfo = await this.gitInfoRepository.create({ git_url, ...rest });
+      const gitInfo = await this.gitInfoRepository.create({
+        ...createGitInfoDto,
+        project_id,
+        git_url,
+      });
       const result = await this.gitInfoRepository.save(gitInfo);
 
       return {
@@ -84,19 +88,17 @@ export class GitInfoService {
   async updateGitInfo(id, updateGitInfoDto) {
     try {
       await this.getGitInfo(id);
-      let { git_url, ...rest } = updateGitInfoDto;
+      let { git_url } = updateGitInfoDto;
       git_url = this.judgeChildStyle(git_url);
       const gitInfo = await this.gitInfoRepository.save({
+        ...updateGitInfoDto,
         git_url,
-        ...rest,
         id,
       });
 
-      return {
-        data: gitInfo,
-      };
+      return gitInfo;
     } catch (error) {
-      app.sentry.captureException(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

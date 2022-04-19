@@ -8,6 +8,15 @@ import { MembersModule } from './modules/members/members.module';
 import { ViewsModule } from './modules/views/views.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { GitInfoModule } from './modules/git-info/git-info.module';
+import { JenkinsInfoModule } from './modules/jenkins-info/jenkins-info.module';
+import { MenusModule } from './modules/menus/menus.module';
+import { MinioModule } from './modules/minio/minio.module';
+import { NotifyModule } from './modules/notify/notify.module';
+import { PackageErrorManualModule } from './modules/package-error-manual/package-error-manual.module';
+import { ParameterCoverageModule } from './modules/parameter-coverage/parameter-coverage.module';
+import { ServerManagersModule } from './modules/server-managers/server-managers.module';
+import { TestErrorManualModule } from './modules/test-error-manual/test-error-manual.module';
+import { PackageModule } from './modules/package/package.module';
 import typeOrmConfig from './config/database';
 
 @Module({
@@ -21,6 +30,15 @@ import typeOrmConfig from './config/database';
     ViewsModule,
     TasksModule,
     GitInfoModule,
+    JenkinsInfoModule,
+    MenusModule,
+    MinioModule,
+    NotifyModule,
+    PackageErrorManualModule,
+    ParameterCoverageModule,
+    ServerManagersModule,
+    TestErrorManualModule,
+    PackageModule,
   ],
   controllers: [],
   providers: [],

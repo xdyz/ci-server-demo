@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Post,
   Put,
@@ -43,8 +44,14 @@ export class GitInfoController {
   //     }
   // });
   @Post()
-  async createGitInfo(@Body() createGitInfoDto: any) {
-    return await this.gitInfoService.createGitInfo(createGitInfoDto);
+  async createGitInfo(
+    @Headers('project_id') project_id: string,
+    @Body() createGitInfoDto: any,
+  ) {
+    return await this.gitInfoService.createGitInfo(
+      { project_id: +project_id },
+      createGitInfoDto,
+    );
   }
 
   // app.get('/', {
@@ -54,8 +61,8 @@ export class GitInfoController {
   //     }
   // });
   @Get()
-  async getGitInfos() {
-    return await this.gitInfoService.getGitInfos();
+  async getGitInfos(@Headers('project_id') project_id: string) {
+    return await this.gitInfoService.getGitInfos({ project_id: +project_id });
   }
 
   // app.get('/:id/branchs', {
