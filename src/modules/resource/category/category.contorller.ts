@@ -20,9 +20,9 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 @Controller('category')
 @ApiTags('检查分类')
 @UseInterceptors(ClassSerializerInterceptor)
-export class CategoryController {
+export class ResourceCategoryController {
   constructor(
-    private readonly ResourceCategoryService: ResourceCategoryService,
+    private readonly resourceCategoryService: ResourceCategoryService,
   ) {}
 
   // @Get()
@@ -65,7 +65,7 @@ export class CategoryController {
     @Body() body: any,
   ) {
     const user = { ...req.user, projectId: +projectId };
-    return await this.ResourceCategoryService.insertClassification(user, body);
+    return await this.resourceCategoryService.insertClassification(user, body);
   }
 
   // app.put('/:id', {
@@ -83,7 +83,7 @@ export class CategoryController {
     @Body() body: any,
   ) {
     // const user = { ...req.user , projectId: +projectId};
-    return await this.ResourceCategoryService.updateClassification(id, body);
+    return await this.resourceCategoryService.updateClassification(id, body);
   }
 
   // app.delete('/:id', {
@@ -100,7 +100,7 @@ export class CategoryController {
     @Param('id') id: string,
   ) {
     // const user = { ...req.user , projectId: +projectId};
-    return await this.ResourceCategoryService.deleteClassification(+id);
+    return await this.resourceCategoryService.deleteClassification(+id);
   }
 
   // app.post('/extra', {
@@ -117,7 +117,7 @@ export class CategoryController {
     @Body() body: any,
   ) {
     const user = { ...req.user, projectId: +projectId };
-    return await this.ResourceCategoryService.setClassificationExtra(
+    return await this.resourceCategoryService.setClassificationExtra(
       user,
       body,
     );

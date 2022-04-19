@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ResourceService } from './resource.service';
-import { ResourceController } from './resource.controller';
 import { RouterModule } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
@@ -10,6 +8,7 @@ import {
   ResourceInstanceItemsEntity,
   ResourceTermsEntity,
 } from 'src/entities';
+import { ResourceCategoryController } from './category/category.contorller';
 
 @Module({
   imports: [
@@ -27,7 +26,7 @@ import {
       ResourceTermsEntity,
     ]),
   ],
-  controllers: [ResourceController],
-  providers: [ResourceService],
+  controllers: [ResourceCategoryController],
+  providers: [],
 })
 export class ResourceModule {}
