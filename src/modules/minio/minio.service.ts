@@ -2,11 +2,18 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ProjectsService } from '../projects/projects.service';
 import { CreateMinioDto } from './dtos/create-minio.dto';
 import { UpdateMinioDto } from './dtos/update-minio.dto';
-
+import { MinioService as MinioClientService } from 'nestjs-minio-client';
 @Injectable()
 export class MinioService {
   @Inject()
   private readonly projectService: ProjectsService;
+
+  @Inject()
+  private readonly minioClientService: MinioClientService;
+
+  public get client() {
+    return this.minioClientService.client;
+  }
 
   /**
    * 获取上传到minio 文件系统的一个 限时的url
@@ -20,10 +27,10 @@ export class MinioService {
       const project = await this.projectService.getOneProject(project_id);
       const { label } = project.data;
       // 策略为post 上传
-      const policy = await app.minio.newPostPolicy();
+      const policy = await this.client.newPostPolicy();
       policy.setBucket('devops');
       policy.setKey(`${pathDir}/${label}/${fileName}`);
-      const data = await app.minio.presignedPostPolicy(policy);
+      const data = await this.client.presignedPostPolicy(policy);
 
       return {
         data,
@@ -51,7 +58,7 @@ export class MinioService {
       const project = await this.projectService.getOneProject(project_id);
       const { label } = project.data;
 
-      const stream = await app.minio.listObjects(
+      const stream = await this.client.listObjects(
         'devops',
         `${pathDir}/${label}`,
         true,
@@ -70,7 +77,7 @@ export class MinioService {
   // 生成一个下载地址
   async presignedGetObject({ pathDir }) {
     try {
-      const data = await app.minio.presignedGetObject('devops', pathDir);
+      const data = await this.client.presignedGetObject('devops', pathDir);
       return data;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -101,7 +108,7 @@ export class MinioService {
   // 直接上传文件至文件系统 通过stream 流的方式进行
   async putObject({ val, pathDir }) {
     try {
-      await app.minio.putObject('devops', pathDir, val);
+      await this.client.putObject('devops', pathDir, val);
       return;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -128,7 +135,7 @@ export class MinioService {
   // 通过stream 的方式获取到文件内容
   async getObject(pathDir) {
     try {
-      const filePromise = app.minio.getObject('devops', pathDir);
+      const filePromise = this.client.getObject('devops', pathDir);
       const result = await this.getFile(await filePromise);
 
       return {
