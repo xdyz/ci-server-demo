@@ -18,6 +18,7 @@ import { ServerManagersModule } from './modules/server-managers/server-managers.
 import { TestErrorManualModule } from './modules/test-error-manual/test-error-manual.module';
 import { PackageModule } from './modules/package/package.module';
 import { ResourceModule } from './modules/resource/resource.module';
+import { AutoTestModule } from './modules/auto-test/auto-test.module';
 import typeOrmConfig from './config/database';
 
 @Module({
@@ -41,6 +42,7 @@ import typeOrmConfig from './config/database';
     TestErrorManualModule,
     PackageModule,
     ResourceModule,
+    AutoTestModule,
   ],
   controllers: [],
   providers: [],

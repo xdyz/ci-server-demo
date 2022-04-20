@@ -57,7 +57,7 @@ export class NotifyService {
     }
   };
 
-  tryGetMedia = async (type, formData, corpid, corpsecret) => {
+  async tryGetMedia(type, formData, corpid, corpsecret) {
     const res = await got.post(
       `${this.weixinUrl}/media/upload?access_token=${this.access_token}&type=${type}`,
       {
@@ -82,9 +82,9 @@ export class NotifyService {
         return await this.tryGetMedia(type, formData, corpid, corpsecret);
       }, 3000);
     }
-  };
+  }
 
-  weixinNotify = async (touser, { msgtype, content }) => {
+  async weixinNotify(touser, { msgtype, content }) {
     if (![...this.msgtypeContent, ...this.msgtypeFile].includes(msgtype))
       return;
     // 根据类型获取微信通知信息
@@ -125,9 +125,9 @@ export class NotifyService {
       pushMsg[msgtype] = { media_id: uploadRes.media_id };
     }
     await this.tryPushMsg(pushMsg, corpid, corpsecret);
-  };
+  }
 
-  tryPushMsg = async (pushMsg, corpid, corpsecret) => {
+  async tryPushMsg(pushMsg, corpid, corpsecret) {
     const res = await got.post(
       `${this.weixinUrl}/message/send?access_token=${this.access_token}`,
       { json: pushMsg },
@@ -150,7 +150,7 @@ export class NotifyService {
         await this.tryPushMsg(pushMsg, corpid, corpsecret);
       }, 3000);
     }
-  };
+  }
 
   async getOneIMById(id) {
     // const [chats] = await app.mysql.query(notifyConstants.SELECT_NOTIFY_BY_ID, [id]);

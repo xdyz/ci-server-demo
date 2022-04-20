@@ -1,12 +1,24 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ResourceCategoryEntity, ResourceInstanceItemsEntity, ResourceTermsEntity } from 'src/entities';
+import {
+  ResourceCategoryEntity,
+  ResourceCategoryExtraEntity,
+  ResourceInstanceItemsEntity,
+  ResourceTermsEntity,
+} from 'src/entities';
 import { getConnection, Like, Repository } from 'typeorm';
+import { ResourceCategoryService } from '../category/category.service';
 
 @Injectable()
 export class ResourceTermsService {
+  @Inject()
+  private resourceCategoryService: ResourceCategoryService;
+
   @InjectRepository(ResourceTermsEntity)
   private readonly resourceTermsRepository: Repository<ResourceTermsEntity>;
+
+  @InjectRepository(ResourceCategoryExtraEntity)
+  private readonly categoryExtraRepository: Repository<ResourceCategoryExtraEntity>;
 
   async dealWithQuery(params = {}) {
     const result = {};
@@ -157,32 +169,31 @@ export class ResourceTermsService {
           //   category_uid,
           // );
 
-          const cateData = await queryRunner.manager.findOne(ResourceCategoryEntity,{
-            select: ['id','category_uid'],
-            where: {
-              project_id,
-              category_uid,
+          const cateData = await queryRunner.manager.findOne(
+            ResourceCategoryEntity,
+            {
+              select: ['id', 'category_uid'],
+              where: {
+                project_id,
+                category_uid,
+              },
             },
-          });
-          if (cateData) {
-            cates = cateData.id;
-          } else {
-            const cate = await queryRunner.manager.save(
-              new ClassificationEntity({
+          );
+
+          if (!cateData) {
+            // cates = await resourceService.insertClassification(
+            //   { project_id },
+            //   { category_uid, category_name },
+            // );
+            const cate = await queryRunner.manager.create(
+              ResourceCategoryEntity,
+              {
                 project_id,
                 category_uid,
                 category_name,
-              }),
+              },
             );
-            cates = cate.id;
-          }
-        }
-          })
-          if (!cateData) {
-            cates = await resourceService.insertClassification(
-              { project_id },
-              { category_uid, category_name },
-            );
+            cates = await queryRunner.manager.save(cate);
           }
 
           if (el.detect_paths) {
@@ -191,14 +202,32 @@ export class ResourceTermsService {
           if (el.filter_paths) {
             el.filter_paths = el.filter_paths.join(',');
           }
-          el.category_id = cateData ? cateData.id : cates.data.id;
+          el.category_id = cateData ? cateData.id : cates.id;
           if (el.rule_uid) {
-            const hasTerm = await this.getOneResourceTermByUid(
-              { project_id },
-              el.rule_uid,
+            // const hasTerm = await this.getOneResourceTermByUid(
+            //   { project_id },
+            //   el.rule_uid,
+            // );
+            const hasTerm = await queryRunner.manager.findOne(
+              ResourceTermsEntity,
+              {
+                select: ['id'],
+                where: {
+                  project_id,
+                  rule_uid: el.rule_uid,
+                },
+              },
             );
             if (!hasTerm) {
-              await this.insertResourceTerms({ project_id }, el);
+              // await this.insertResourceTerms({ project_id }, el);
+              const term = await queryRunner.manager.create(
+                ResourceTermsEntity,
+                {
+                  project_id,
+                  ...el,
+                },
+              );
+              await queryRunner.manager.save(term);
             }
           }
         }
@@ -207,18 +236,38 @@ export class ResourceTermsService {
       if (params && params.length !== 0) {
         for (let x = 0; x < params.length; x++) {
           const pars = params[x];
-          const cateData = await getOneClassificationByUid(
-            project_id,
-            pars.category_uid,
-          );
-          await resourceService.setClassificationExtra(
-            { project_id },
+          // const cateData = await getOneClassificationByUid(
+          //   project_id,
+          //   pars.category_uid,
+          // );
+          const cateData = await queryRunner.manager.findOne(
+            ResourceCategoryEntity,
             {
+              select: ['id', 'category_uid'],
+              where: {
+                project_id,
+                category_uid: pars.category_uid,
+              },
+            },
+          );
+          // await resourceService.setClassificationExtra(
+          //   { project_id },
+          //   {
+          //     category_id: cateData.id,
+          //     category_uid: pars.category_uid,
+          //     global_params: pars.global_params,
+          //   },
+          // );
+          const extra = await queryRunner.manager.create(
+            ResourceCategoryExtraEntity,
+            {
+              project_id,
               category_id: cateData.id,
               category_uid: pars.category_uid,
               global_params: pars.global_params,
             },
           );
+          await queryRunner.manager.save(extra);
         }
       }
 
@@ -231,5 +280,81 @@ export class ResourceTermsService {
     }
 
     return {};
+  }
+
+  async getParamsFromExtra(ids, project_id) {
+    // const [params] = await app.mysql.query(resourceConstants.SELECT_RESOURCE_CATEGORY_EXTRA_BY_PROJECT_ID_AND_CATEGORY_ID, [ids, project_id]);
+    const data = await this.categoryExtraRepository
+      .createQueryBuilder('category_extra')
+      .where('category_extra.category_id IN (:ids)', { ids })
+      .andWhere('category_extra.project_id = :project_id', { project_id })
+      .getMany();
+    return data;
+  }
+
+  /**
+   * Unity 同步数据时 处理数据的方式
+   * @param {*} data
+   * @returns
+   */
+  async dealWithAllTermsToUnity(data = [], project_id) {
+    let rules = [];
+    let params = [];
+    if (data.length === 0)
+      return {
+        rules,
+        params,
+      };
+    const categoryIds = [];
+    try {
+      rules = await Promise.all(
+        data.map(async (item) => {
+          const { category_id, filter_paths, detect_paths, ...rest } = item;
+          categoryIds.push(category_id);
+          const { category_uid, category_name } =
+            await this.resourceCategoryService.getOneClassificationById(
+              category_id,
+            );
+          return {
+            category_name,
+            category_uid,
+            filter_paths: filter_paths ? filter_paths.split(',') : [],
+            detect_paths: detect_paths ? detect_paths.split(',') : [],
+            ...rest,
+          };
+        }),
+      );
+
+      params = await this.getParamsFromExtra(categoryIds, project_id);
+    } catch (error) {}
+
+    return {
+      rules,
+      params,
+    };
+  }
+
+  /**
+   * 获取所有的检查项的数据 同步给Unity
+   * @returns
+   */
+
+  async getAllResourceTermsToUnity({ project_id }) {
+    // const [terms] = await app.mysql.query(resourceConstants.SELECT_RESOURCE_TERMS_BY_PROJECT_ID, [[project_id, 0]]);
+
+    // const terms = await termsRepository.find({
+    //   where: {
+    //     project_id: [project_id, 0]
+    //   }
+    // });
+    const terms = await this.resourceTermsRepository
+      .createQueryBuilder('terms')
+      .where('terms.project_id in (:project_id)', {
+        project_id: [project_id, 0],
+      })
+      .getMany();
+
+    const data = await this.dealWithAllTermsToUnity(terms, project_id);
+    return data;
   }
 }

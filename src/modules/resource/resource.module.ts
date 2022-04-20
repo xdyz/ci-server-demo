@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
+  BuildsEntity,
   ResourceCategoryEntity,
   ResourceCategoryExtraEntity,
   ResourceInstanceEntity,
@@ -9,6 +10,15 @@ import {
   ResourceTermsEntity,
 } from 'src/entities';
 import { ResourceCategoryController } from './category/category.contorller';
+import { ResourceCategoryService } from './category/category.service';
+import { ResourceInstancesController } from './instances/instances.controller';
+import { ResourceInstancesService } from './instances/instances.service';
+import { ResourceInstanceItemsController } from './items/items.controller';
+import { ResourceInstanceItemsService } from './items/items.service';
+import { ResourceRecordsController } from './records/records.controller';
+import { ResourceRecordsService } from './records/records.service';
+import { ResourceTermsController } from './terms/terms.controller';
+import { ResourceTermsService } from './terms/terms.service';
 
 @Module({
   imports: [
@@ -24,9 +34,22 @@ import { ResourceCategoryController } from './category/category.contorller';
       ResourceInstanceEntity,
       ResourceInstanceItemsEntity,
       ResourceTermsEntity,
+      BuildsEntity,
     ]),
   ],
-  controllers: [ResourceCategoryController],
-  providers: [],
+  controllers: [
+    ResourceCategoryController,
+    ResourceTermsController,
+    ResourceInstancesController,
+    ResourceInstanceItemsController,
+    ResourceRecordsController,
+  ],
+  providers: [
+    ResourceCategoryService,
+    ResourceTermsService,
+    ResourceInstancesService,
+    ResourceInstanceItemsService,
+    ResourceRecordsService,
+  ],
 })
 export class ResourceModule {}

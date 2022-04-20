@@ -27,7 +27,7 @@ export class ResourceCategoryController {
 
   // @Get()
   // @ApiOperation({ summary: '获取所有分类信息' })
-  // async findAll(@Headers('projectId') projectId: string) {
+  // async findAll(@Headers('project_id') projectId: string) {
   //   return await this.categoryService.findAllCategoryByProjectId(+projectId);
   // }
 
@@ -41,11 +41,11 @@ export class ResourceCategoryController {
   @ApiOperation({ summary: '获取所有分类信息' })
   async getResourceClassification(
     @Request() req: any,
-    @Headers('projectId') projectId: string,
+    @Headers('project_id') projectId: string,
     @Query() query: any,
   ) {
     const user = { ...req.user, projectId: +projectId };
-    return await this.ResourceCategoryService.getResourceClassification(
+    return await this.resourceCategoryService.getResourceClassification(
       user,
       query,
     );
@@ -61,7 +61,7 @@ export class ResourceCategoryController {
   @ApiOperation({ summary: '新增分类' })
   async insertClassification(
     @Request() req: any,
-    @Headers('projectId') projectId: string,
+    @Headers('project_id') projectId: string,
     @Body() body: any,
   ) {
     const user = { ...req.user, projectId: +projectId };
@@ -78,7 +78,7 @@ export class ResourceCategoryController {
   @ApiOperation({ summary: '更新分类' })
   async updateClassification(
     // @Request() req: any,
-    // @Headers('projectId') projectId: string,
+    // @Headers('project_id') projectId: string,
     @Param('id') id: string,
     @Body() body: any,
   ) {
@@ -96,7 +96,7 @@ export class ResourceCategoryController {
   @ApiOperation({ summary: '删除分类' })
   async deleteClassification(
     // @Request() req: any,
-    // @Headers('projectId') projectId: string,
+    // @Headers('project_id') projectId: string,
     @Param('id') id: string,
   ) {
     // const user = { ...req.user , projectId: +projectId};
@@ -113,7 +113,7 @@ export class ResourceCategoryController {
   @ApiOperation({ summary: '设置分类额外信息' })
   async setClassificationExtra(
     @Request() req: any,
-    @Headers('projectId') projectId: string,
+    @Headers('project_id') projectId: string,
     @Body() body: any,
   ) {
     const user = { ...req.user, projectId: +projectId };

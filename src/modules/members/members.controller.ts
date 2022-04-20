@@ -20,7 +20,7 @@ export class MembersController {
 
   @Get()
   async getAllMembers(
-    @Headers('projectId') projectId: string,
+    @Headers('project_id') projectId: string,
     @Query() query: any,
   ) {
     const { project_id, ...rest } = query;

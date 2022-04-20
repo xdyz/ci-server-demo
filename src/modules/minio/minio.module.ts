@@ -4,8 +4,9 @@ import { MinioController } from './minio.controller';
 import { ProjectsService } from '../projects/projects.service';
 
 @Module({
-  exports: [ProjectsService],
+  imports: [ProjectsService],
   controllers: [MinioController],
   providers: [MinioService],
+  exports: [MinioService],
 })
 export class MinioModule {}

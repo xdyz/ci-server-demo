@@ -12,5 +12,6 @@ import { BuildsEntity, TasksEntity } from 'src/entities';
   ],
   controllers: [PackageController],
   providers: [PackageService],
+  exports: [PackageService],
 })
 export class PackageModule {}

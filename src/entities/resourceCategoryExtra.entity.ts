@@ -8,7 +8,7 @@ export default class ResourceCategoryExtraEntity extends BaseEntity {
     name: 'category_id',
     nullable: false,
   })
-  categoryId: number;
+  category_id: number;
 
   @Column({
     type: 'varchar',
@@ -16,14 +16,14 @@ export default class ResourceCategoryExtraEntity extends BaseEntity {
     name: 'category_uid',
     nullable: false,
   })
-  categoryUid: string;
+  category_uid: string;
 
   @Column({
     type: 'json',
     name: 'global_params',
     nullable: false,
   })
-  globalParams: any;
+  global_params: any;
 
   @Column({
     type: 'int',

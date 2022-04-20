@@ -20,7 +20,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 @Controller('category')
 @ApiTags('检查分类')
 @UseInterceptors(ClassSerializerInterceptor)
-export class ResourceCategoryController {
+export class ResourceTermsController {
   constructor(private readonly resourceTermsService: ResourceTermsService) {}
 
   // app.get('/', {
@@ -33,7 +33,7 @@ export class ResourceCategoryController {
   @ApiOperation({ summary: '获取所有检查项信息' })
   async getResourceTerms(
     @Request() req: any,
-    @Headers('projectId') project_id: string,
+    @Headers('project_id') project_id: string,
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
