@@ -1,9 +1,15 @@
 import { Module } from '@nestjs/common';
-import { PipelinesService } from './pipeline-list/pipelines.service';
-import { PipelinesController } from './pipeline-list/pipelines.controlleroller';
+import { PipelinesListService } from './pipeline-list/pipeline-list.service';
+import { PipelinesListController } from './pipeline-list/pipeline-list.controller';
 import { RouterModule } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PipelineRecordsEntity, PipelinesEntity } from 'src/entities';
+import { PipelinesRecordsController } from './records/records.controller';
+import { PipelinesRecordsService } from './records/records.service';
+import { TasksService } from '../tasks/tasks.service';
+import { JenkinsInfoService } from '../jenkins-info/jenkins-info.service';
+import { PipelinesRecordsReportController } from './report/report.controller';
+import { PipelinesRecordsReportService } from './report/report.service';
 
 @Module({
   imports: [
@@ -14,8 +20,18 @@ import { PipelineRecordsEntity, PipelinesEntity } from 'src/entities';
       },
     ]),
     TypeOrmModule.forFeature([PipelinesEntity, PipelineRecordsEntity]),
+    TasksService,
+    JenkinsInfoService,
   ],
-  controllers: [PipelinesController],
-  providers: [PipelinesService],
+  controllers: [
+    PipelinesListController,
+    PipelinesRecordsController,
+    PipelinesRecordsReportController,
+  ],
+  providers: [
+    PipelinesListService,
+    PipelinesRecordsService,
+    PipelinesRecordsReportService,
+  ],
 })
 export class PipelinesModule {}
