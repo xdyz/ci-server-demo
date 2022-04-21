@@ -19,11 +19,25 @@ import { TestErrorManualModule } from './modules/test-error-manual/test-error-ma
 import { PackageModule } from './modules/package/package.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { AutoTestModule } from './modules/auto-test/auto-test.module';
-import typeOrmConfig from './config/database';
-
+import typeOrmConfig from './config/database.config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PipelinesModule } from './modules/pipelines/pipelines.module';
 @Module({
   imports: [
-    TypeOrmModule.forRoot(typeOrmConfig),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [
+        'src/config/dev/.env',
+        `src/config/dev/.env.${process.env.NODE_ENV}`,
+      ],
+      expandVariables: true,
+      load: [typeOrmConfig],
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        configService.get('typeorm'),
+    }),
     AuthModule,
     UsersModule,
     RolesModule,
@@ -43,6 +57,7 @@ import typeOrmConfig from './config/database';
     PackageModule,
     ResourceModule,
     AutoTestModule,
+    PipelinesModule,
   ],
   controllers: [],
   providers: [],

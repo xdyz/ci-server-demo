@@ -44,7 +44,7 @@ export class AutoTestController {
   // });
   @Get('report/result/noauth')
   async getReportResultNoAuth(@Body() body: any) {
-    const query = await this.autoTestService.parseTimeToSeconds(body);
+    const query = await parseTimeToSeconds(body);
     return await this.autoTestService.getReportResult(query);
   }
 
@@ -134,7 +134,7 @@ export class AutoTestController {
   // });
   @Put('update/suits/:build_id')
   async updateResultSuits(
-    // @Param('build_id') build_id: string,
+    @Param('build_id') build_id: string,
     // @Headers('project_id') project_id: string,
     @Body() body: any,
   ) {
