@@ -4,7 +4,7 @@ import { ImManagerEntity } from 'src/entities';
 import { Repository } from 'typeorm';
 import { CreateNotifyDto } from './dtos/create-notify.dto';
 import { UpdateNotifyDto } from './dtos/update-notify.dto';
-
+import got from 'got';
 @Injectable()
 export class NotifyService {
   @InjectRepository(ImManagerEntity)

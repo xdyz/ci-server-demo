@@ -5,7 +5,7 @@ import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.servic
 import { PackageErrorManualService } from 'src/modules/package-error-manual/package-error-manual.service';
 import { Repository } from 'typeorm';
 import { BuildsService } from '../builds/builds.service';
-
+import got from 'got';
 @Injectable()
 export class TasksForeignService {
   @Inject()
@@ -159,7 +159,7 @@ export class TasksForeignService {
     const res = await got.get(
       `${baseUrl}/job/${job_name}/${number}/consoleText`,
     );
-    const jenkinsLog = res ? res.body : '';
+    const jenkinsLog = res?.body ? res.body : '';
 
     manuals.forEach((item) => {
       if (jenkinsLog.includes(item.key_words)) {

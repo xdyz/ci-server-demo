@@ -135,6 +135,6 @@ export class PackageErrorManualService {
         project_id,
       },
     });
-    return { manuals };
+    return manuals;
   }
 }

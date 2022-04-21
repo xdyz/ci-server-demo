@@ -9,7 +9,7 @@ import { UpdatePipelineDto } from './dto/update-pipeline.dto';
 import { PipelinesRecordsService } from '../records/records.service';
 import { TasksService } from 'src/modules/tasks/tasks.service';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
-
+import got from 'got';
 @Injectable()
 export class PipelinesListService {
   @Inject()
