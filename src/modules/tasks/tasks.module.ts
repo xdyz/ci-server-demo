@@ -1,9 +1,15 @@
 import { Module } from '@nestjs/common';
-import { TasksService } from './tasks.service';
-import { TasksController } from './tasks.controller';
+import { TasksService } from './list/tasks.service';
+import { TasksController } from './list/tasks.controller';
 import { RouterModule } from '@nestjs/core';
 import { JenkinsInfoService } from '../jenkins-info/jenkins-info.service';
 import { PackageErrorManualService } from '../package-error-manual/package-error-manual.service';
+import { ResourceInstanceItemsService } from '../resource/items/items.service';
+import { MinioService } from '../minio/minio.service';
+import { ProjectsService } from '../projects/projects.service';
+import { GitInfoService } from '../git-info/git-info.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { BuildsEntity, TasksEntity, UsersEntity } from 'src/entities';
 
 @Module({
   imports: [
@@ -13,8 +19,13 @@ import { PackageErrorManualService } from '../package-error-manual/package-error
         module: TasksModule,
       },
     ]),
+    TypeOrmModule.forFeature([TasksEntity, BuildsEntity, UsersEntity]),
     JenkinsInfoService,
     PackageErrorManualService,
+    ResourceInstanceItemsService,
+    MinioService,
+    ProjectsService,
+    GitInfoService,
   ],
   controllers: [TasksController],
   providers: [TasksService],

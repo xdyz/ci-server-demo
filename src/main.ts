@@ -28,6 +28,8 @@ async function bootstrap() {
   //swagger配置
   startSwagger(app);
 
+  await app.init(); // 初始化完成 缓存完成
+
   await app.listen(3000);
 }
 

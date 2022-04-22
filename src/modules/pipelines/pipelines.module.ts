@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PipelineRecordsEntity, PipelinesEntity } from 'src/entities';
 import { PipelinesRecordsController } from './records/records.controller';
 import { PipelinesRecordsService } from './records/records.service';
-import { TasksService } from '../tasks/tasks.service';
+import { TasksService } from '../tasks/list/tasks.servicervice';
 import { JenkinsInfoService } from '../jenkins-info/jenkins-info.service';
 import { PipelinesRecordsReportController } from './report/report.controller';
 import { PipelinesRecordsReportService } from './report/report.service';

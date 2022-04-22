@@ -10,7 +10,7 @@ export class PackageErrorManualService {
   @InjectRepository(PackageErrorManualEntity)
   private readonly packageErrorManualRepository: Repository<PackageErrorManualEntity>;
 
-  dealWithQuery = (params = {}) => {
+  dealWithQuery(params = {}) {
     const result = {};
     Object.keys(params).forEach((key) => {
       const val = params[key];
@@ -20,7 +20,7 @@ export class PackageErrorManualService {
     });
 
     return result;
-  };
+  }
 
   async getOneManualErrorById(id) {
     const manual = await this.packageErrorManualRepository.find({
@@ -79,9 +79,7 @@ export class PackageErrorManualService {
         ...createManualError,
       });
       const result = await this.packageErrorManualRepository.save(manual);
-      return {
-        data: result,
-      };
+      return result;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

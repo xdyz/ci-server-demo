@@ -21,7 +21,7 @@ export class PackageService {
   @InjectRepository(TasksEntity)
   private readonly tasksRepository: Repository<TasksEntity>;
 
-  dealWithQuery = (params = {}) => {
+  dealWithQuery(params = {}) {
     const result = {};
     Object.keys(params).forEach((key) => {
       const val = params[key];
@@ -31,14 +31,14 @@ export class PackageService {
     });
 
     return result;
-  };
+  }
 
   async getPackages({ project_id }, { page, size, status, ...rest }) {
     page = parseInt(page) || 1;
     size = parseInt(size) || 10;
     const queries = this.dealWithQuery(rest);
 
-    const [builds, count] = await this.buildsRepository
+    const [builds, total] = await this.buildsRepository
       .createQueryBuilder('b')
       .leftJoinAndMapOne('b.user', 'UsersEntity', 'u', 'b.user_id = u.id')
       .where('b.project_id = :project_id', { project_id })
@@ -50,8 +50,8 @@ export class PackageService {
       .limit(size)
       .getManyAndCount();
     return {
-      data: builds,
-      total: count,
+      builds,
+      total,
     };
   }
 
@@ -62,13 +62,11 @@ export class PackageService {
       .addSelect('UNIX_TIMESTAMP(b.created_at) as created_at')
       .where('b.id = :id', { id })
       .getOne();
-    return {
-      data,
-    };
+    return data;
   }
 
   // 计算安装包的平均耗时
-  cacultePackageDayDuration = async (from, to, packages) => {
+  async cacultePackageDayDuration(from, to, packages) {
     let data = [];
     const oneDaySecond = 24 * 60 * 60;
     let curDay = Number(from);
@@ -123,10 +121,10 @@ export class PackageService {
       endCurDay = curDay + oneDaySecond - 1;
     }
     return data;
-  };
+  }
 
   // 计算成功率
-  cacultePackageDayRate = async (from, to, packages) => {
+  async cacultePackageDayRate(from, to, packages) {
     let data = [];
     const oneDaySecond = 24 * 60 * 60;
     let curDay = Number(from);
@@ -178,7 +176,7 @@ export class PackageService {
       endCurDay = curDay + oneDaySecond - 1;
     }
     return data;
-  };
+  }
 
   async getPackageReportDuration({ project_id }, { from, to }) {
     // const [packages] = await app.mysql.query(packagesConstants.SELECT_PACKAGE_BUILDS_BY_DATE, [from, to, PACKAGE, project_id]);
@@ -193,7 +191,7 @@ export class PackageService {
     return result;
   }
 
-  getPackageReportRate = async function ({ project_id }, { from, to }) {
+  async getPackageReportRate({ project_id }, { from, to }) {
     // const [packages] = await app.mysql.query(packagesConstants.SELECT_PACKAGE_BUILDS_BY_DATE, [from, to, PACKAGE, project_id]);
     const packages = await this.buildsRepository
       .createQueryBuilder('b')
@@ -203,13 +201,11 @@ export class PackageService {
       .andWhere('b.created_at <= :to', { to })
       .getMany();
     const result = await this.cacultePackageDayRate(from, to, packages);
-    return {
-      data: result,
-    };
-  };
+    return result;
+  }
 
   // 计算通过数 和 未通过数
-  caculatePassAndNotPass = (selBuilds) => {
+  caculatePassAndNotPass(selBuilds) {
     const result = {
       passCount: 0,
       notPassCount: 0,
@@ -220,7 +216,7 @@ export class PackageService {
     result.notPassCount = selBuilds.filter((item) => item.status > 2).length;
 
     return result;
-  };
+  }
 
   async getPackageReportResult({ project_id, from, to }) {
     // const [packBuilds] = await app.mysql.query(packagesConstants.SELECT_PACKAGE_BUILDS_BY_DATE, [from, to, PACKAGE, project_id]);
@@ -239,7 +235,7 @@ export class PackageService {
   }
 
   // 计算每天的日期两个分类的数据 通过和不通过数
-  caculteTiemCategory = (from, to, packBuilds) => {
+  caculteTiemCategory(from, to, packBuilds) {
     const oneDaySecond = 24 * 60 * 60;
     let curDay = Number(from);
     let endCurDay = curDay + oneDaySecond - 1;
@@ -294,7 +290,7 @@ export class PackageService {
     }
 
     return data;
-  };
+  }
 
   async getPackageReportCategory({ project_id }, { from, to }) {
     // const [packBuilds] = await app.mysql.query(packagesConstants.SELECT_PACKAGE_BUILDS_BY_DATE, [from, to, PACKAGE, project_id]);
@@ -307,9 +303,7 @@ export class PackageService {
       .getMany();
     const result = this.caculteTiemCategory(from, to, packages);
 
-    return {
-      data: result,
-    };
+    return result;
   }
 
   async getFailureHistoryData({ project_id }, { from, to }) {
@@ -367,7 +361,7 @@ export class PackageService {
     return keysArr;
   };
 
-  caculteTopFive = async (errorManuals = []) => {
+  async caculteTopFive(errorManuals = []) {
     let result = [];
     try {
       if (errorManuals.length === 0) return result;
@@ -393,7 +387,7 @@ export class PackageService {
     } catch (error) {
       return result;
     }
-  };
+  }
 
   async getTopFiveErrorManuals({ project_id }, { from, to }) {
     // const [errorManuals] = await app.mysql.query(packagesConstants.SELECT_PACKAGE_BUILDS_BY_DATE, [from, to, PACKAGE, project_id]);
@@ -407,9 +401,7 @@ export class PackageService {
 
     const data = await this.caculteTopFive(packages);
 
-    return {
-      data,
-    };
+    return data;
   }
 
   // 读取unity 日志
@@ -515,13 +507,9 @@ export class PackageService {
         unityLogUrl.url,
       );
     } catch (error) {
-      return {
-        data: result,
-      };
+      return result;
     }
 
-    return {
-      data: result,
-    };
+    return result;
   }
 }

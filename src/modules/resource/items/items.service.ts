@@ -1,7 +1,11 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ResourceInstanceItemsEntity } from 'src/entities';
+import {
+  ResourceCategoryExtraEntity,
+  ResourceInstanceItemsEntity,
+} from 'src/entities';
 import { getConnection, Like, Repository } from 'typeorm';
+import { ResourceCategoryService } from '../category/category.service';
 import { ResourceTermsService } from '../terms/terms.service';
 
 @Injectable()
@@ -9,8 +13,14 @@ export class ResourceInstanceItemsService {
   @Inject()
   private readonly resourceTermsService: ResourceTermsService;
 
+  @Inject()
+  private readonly resourceCategoryService: ResourceCategoryService;
+
   @InjectRepository(ResourceInstanceItemsEntity)
   private readonly resourceInstanceItemRepository: Repository<ResourceInstanceItemsEntity>;
+
+  @InjectRepository(ResourceCategoryExtraEntity)
+  private readonly resourceCategoryExtraRepository: Repository<ResourceCategoryExtraEntity>;
 
   async dealWithQuery(params = {}) {
     const result = {};
@@ -227,5 +237,90 @@ export class ResourceInstanceItemsService {
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async getParamsFromExtra(ids, project_id) {
+    // const [params] = await app.mysql.query(resourceConstants.SELECT_RESOURCE_CATEGORY_EXTRA_BY_PROJECT_ID_AND_CATEGORY_ID, [ids, project_id]);
+    const data = await this.resourceCategoryExtraRepository
+      .createQueryBuilder('category_extra')
+      .where('category_extra.category_id IN (:ids)', { ids })
+      .andWhere('category_extra.project_id = :project_id', { project_id })
+      .getMany();
+
+    return data;
+  }
+
+  /**
+   * 给Jenkins 传递的数据
+   * @param {*} data
+   * @returns
+   */
+  async dealWithAllTermsToJenkins(data = [], project_id) {
+    let configs = [];
+    let params = [];
+    if (data.length === 0)
+      return {
+        configs,
+        params,
+      };
+    try {
+      const categoryIds = [];
+      configs = await Promise.all(
+        data.map(async (item) => {
+          const {
+            term_id,
+            threshold_value,
+            filter_paths,
+            detect_paths,
+            filter_regex,
+          } = item;
+          const term = await this.resourceTermsService.getOneResourceTerm(
+            term_id,
+          );
+          const { category_id, rule_uid } = term;
+          categoryIds.push(category_id);
+          const { category_uid } =
+            await this.resourceCategoryService.getOneClassificationById(
+              category_id,
+            );
+          return {
+            rule_uid,
+            category_uid,
+            filter_paths: filter_paths ? filter_paths.split(',') : [],
+            detect_paths: detect_paths ? detect_paths.split(',') : [],
+            threshold_value,
+            filter_regex,
+          };
+        }),
+      );
+
+      params = await this.getParamsFromExtra(categoryIds, project_id);
+    } catch (error) {
+      // app.utils.log.error('transform_to_jenkins', error);
+    }
+
+    return {
+      configs,
+      params,
+    };
+  }
+
+  /**
+   * 根据实例id 获取实例下所有的检查项  to Jenkins
+   * @param {number} instance_id
+   * @returns
+   */
+  async getAllResourceInstancesItems(instance_id, project_id) {
+    // const [items] = await app.mysql.query(resourceConstants.SELECT_RESOURCE_INSTANCE_ITEMS_BY_INSTANCE_ID_AND_ENABLED, [instance_id, 1]);
+    const items = await this.resourceInstanceItemRepository.find({
+      where: {
+        instance_id,
+        enabled: 1,
+      },
+    });
+
+    const data = await this.dealWithAllTermsToJenkins(items, project_id);
+
+    return data;
   }
 }

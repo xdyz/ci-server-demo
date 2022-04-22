@@ -22,6 +22,8 @@ import { AutoTestModule } from './modules/auto-test/auto-test.module';
 import typeOrmConfig from './config/database.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PipelinesModule } from './modules/pipelines/pipelines.module';
+import minioConfig from './config/minio.config';
+import sentryConfig from './config/sentry.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,7 +33,7 @@ import { PipelinesModule } from './modules/pipelines/pipelines.module';
         `src/config/dev/.env.${process.env.NODE_ENV}`,
       ],
       expandVariables: true,
-      load: [typeOrmConfig],
+      load: [typeOrmConfig, minioConfig, sentryConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],

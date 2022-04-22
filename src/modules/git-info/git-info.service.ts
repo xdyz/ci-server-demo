@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GitInfoEntity } from 'src/entities';
 import { Repository } from 'typeorm';
-
+import got from 'got';
 @Injectable()
 export class GitInfoService {
   @InjectRepository(GitInfoEntity)
@@ -127,7 +127,7 @@ export class GitInfoService {
    * 健壮子仓库数据格式
    * @param {object} git_url
    */
-  judgeChildStyle = (git_url) => {
+  judgeChildStyle(git_url) {
     if (!git_url) {
       return {};
     }
@@ -172,5 +172,34 @@ export class GitInfoService {
     }
     git_url.child = newChild;
     return git_url;
-  };
+  }
+
+  async updateBranchMap(repoBranchesUrl, branchMap) {
+    let page = 1;
+    let branches = JSON.parse(
+      (await got.get(`${repoBranchesUrl}&per_page=100&page=${page}`)).body,
+    );
+    while (branches.length > 0) {
+      for (const branch of branches) {
+        branchMap[branch.name] = 1;
+      }
+      if (branches.length === 100) {
+        ++page;
+        branches = JSON.parse(
+          (await got.get(`${repoBranchesUrl}&per_page=100&page=${page}`)).body,
+        );
+      } else {
+        break;
+      }
+    }
+  }
+
+  async fetchBranches({ url, git_project_id, token }) {
+    const repoBranchesUrl = `${url}/api/v4/projects/${git_project_id}/repository/branches?private_token=${token}`;
+    let branches = [];
+    const branchMap = {};
+    await this.updateBranchMap(repoBranchesUrl, branchMap);
+    branches = Object.keys(branchMap);
+    return branches;
+  }
 }

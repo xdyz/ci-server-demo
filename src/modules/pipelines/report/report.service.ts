@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PipelineRecordsEntity, PipelinesEntity } from 'src/entities';
-import { TasksService } from 'src/modules/tasks/tasks.service';
+import { TasksService } from '../../tasks/list/tasks.service';
 import { Repository } from 'typeorm';
 import { PipelinesListService } from '../pipeline-list/pipeline-list.service';
 
@@ -241,7 +241,7 @@ export class PipelinesRecordsReportService {
         })
         .getMany();
       const arr = this.dealWithTaskStatistic(records);
-      const { data: tasks } = await this.tasksService.getAllTasks({
+      const tasks = await this.tasksService.getAllTasks({
         project_id,
       });
 
@@ -255,7 +255,7 @@ export class PipelinesRecordsReportService {
     }
   }
 
-  dealWithTaskDayRate = (records) => {
+  dealWithTaskDayRate(records) {
     const data = records.map((record) => {
       const { total, passCount } = this.dealWithTaskStatistic([record]);
 
@@ -267,7 +267,7 @@ export class PipelinesRecordsReportService {
     });
 
     return data;
-  };
+  }
 
   async getPipelineRecordsTaskRateDay(
     { project_id },
@@ -309,7 +309,7 @@ export class PipelinesRecordsReportService {
     return duration;
   };
 
-  dealWithStatisticTaskDuration = (tasks, records) => {
+  dealWithStatisticTaskDuration(tasks, records) {
     const result = [];
     if (tasks.length === 0 || records.length === 0) return result;
     tasks.forEach((task) => {
@@ -343,7 +343,7 @@ export class PipelinesRecordsReportService {
     const fiveArr = result.sort((a, b) => b.duration - a.duration).slice(0, 5);
 
     return fiveArr;
-  };
+  }
 
   async getTaskTopFiveDuration({ project_id }, { from, to, create_users }) {
     try {
@@ -357,7 +357,7 @@ export class PipelinesRecordsReportService {
         })
         .getMany();
 
-      const { data: tasks } = await this.tasksService.getAllTasks({
+      const tasks = await this.tasksService.getAllTasks({
         project_id,
       });
 
@@ -369,7 +369,7 @@ export class PipelinesRecordsReportService {
     }
   }
 
-  aggregationRecordNodes = (pid, records) => {
+  aggregationRecordNodes(pid, records) {
     let result = [];
     if (!records || records.length === 0) return result;
     if (records.length === 0) return result;
@@ -381,9 +381,9 @@ export class PipelinesRecordsReportService {
     });
 
     return result;
-  };
+  }
 
-  dealWithTaskPipeRelation = (tasks, pipelines, records) => {
+  dealWithTaskPipeRelation(tasks, pipelines, records) {
     const result = [];
     if (!tasks || !pipelines || !records) return result;
     const curPipelines = pipelines.map((item) => {
@@ -417,14 +417,14 @@ export class PipelinesRecordsReportService {
     });
 
     return result;
-  };
+  }
 
   async getTaskAndPipelineRelation({ project_id }, { from, to, create_users }) {
     try {
-      const { data: tasks } = await this.tasksService.getAllTasks({
+      const tasks = await this.tasksService.getAllTasks({
         project_id,
       });
-      const { data: pipelines } =
+      const pipelines =
         await this.pipelinesListService.getAllPipelinesByProjectId({
           project_id,
         });
@@ -555,7 +555,7 @@ export class PipelinesRecordsReportService {
   }
   async getTaskInPipelineRecords({ project_id }, { from, to, create_users }) {
     try {
-      const { data: tasks } = await this.tasksService.getAllTasks({
+      const tasks = await this.tasksService.getAllTasks({
         project_id,
       });
       const pipelines =

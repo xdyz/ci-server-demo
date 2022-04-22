@@ -95,15 +95,15 @@ export class PackageController {
   // });
   @Get('report/result')
   async getPackageReportResult(
-    @Request() req,
+    // @Request() req,
     @Headers('project_id') project_id: string,
     @Query() getPackageDto: any,
   ) {
-    const user = { ...req.user, project_id: +project_id };
-    return await this.packageService.getPackageReportResult(
-      user,
-      getPackageDto,
-    );
+    // const user = { ...req.user, project_id: +project_id };
+    return await this.packageService.getPackageReportResult({
+      project_id: +project_id,
+      ...getPackageDto,
+    });
   }
 
   // app.get('/report/result/noauth', {

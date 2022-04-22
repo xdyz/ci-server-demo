@@ -7,7 +7,7 @@ import moment from 'moment';
 import { CreatePipelineDto } from './dto/create-pipeline.dto';
 import { UpdatePipelineDto } from './dto/update-pipeline.dto';
 import { PipelinesRecordsService } from '../records/records.service';
-import { TasksService } from 'src/modules/tasks/tasks.service';
+import { TasksService } from 'src/modules/tasks/list/tasks.servicervice';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
 import got from 'got';
 @Injectable()
@@ -641,7 +641,7 @@ export class PipelinesListService {
     //   contexts: record
     // });
 
-    const startNode = await this.dealWithBeforeExcute(record.data, userId);
+    const startNode = await this.dealWithBeforeExcute(record, userId);
 
     // return {
     //   data:startNode

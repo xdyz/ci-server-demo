@@ -224,9 +224,7 @@ export class ServerManagersService {
       builds,
       project_id,
     );
-    return {
-      data: result,
-    };
+    return result;
   }
 
   dealWithCategoryLatest = async (selBuilds, project_id) => {
@@ -276,8 +274,6 @@ export class ServerManagersService {
       .where('t.rn = :rn', { rn: 1 })
       .getMany();
     const result = await this.dealWithCategoryLatest(builds, project_id);
-    return {
-      data: result,
-    };
+    return result;
   }
 }

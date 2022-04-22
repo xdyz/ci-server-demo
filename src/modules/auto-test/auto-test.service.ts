@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BuildsEntity } from 'src/entities';
-import { Between, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { MinioService } from '../minio/minio.service';
-import { TasksService } from '../tasks/tasks.service';
+import { TasksService } from '../tasks/list/tasks.service';
+import { TestErrorManualService } from '../test-error-manual/test-error-manual.service';
 import { CreateAutoTestDto } from './dtos/create-auto-test.dto';
 import { UpdateAutoTestDto } from './dtos/update-auto-test.dto';
 
@@ -14,6 +15,9 @@ export class AutoTestService {
 
   @Inject()
   private readonly minioService: MinioService;
+
+  @Inject()
+  private readonly testErrorManualSerivce: TestErrorManualService;
 
   @InjectRepository(BuildsEntity)
   private readonly buildsRepository: Repository<BuildsEntity>;
@@ -124,7 +128,7 @@ export class AutoTestService {
       );
       const arr = await this.getDayCategoryFailCases(
         curDayData,
-        categries.data,
+        categries,
         curDay,
       );
       data = [...data, ...arr];
@@ -193,7 +197,7 @@ export class AutoTestService {
       );
       const arr = await this.getDayCategoryTotalCases(
         curDayData,
-        categries.data,
+        categries,
         curDay,
       );
       data = [...data, ...arr];
@@ -220,7 +224,7 @@ export class AutoTestService {
     };
   }
 
-  dealWithCategoryLatest = async (selBuilds, project_id) => {
+  async dealWithCategoryLatest(selBuilds, project_id) {
     const result = await Promise.all(
       selBuilds.map(async (item) => {
         const task = await this.tasksService.getAllTasksByTagsAndName(
@@ -233,8 +237,8 @@ export class AutoTestService {
           : null;
         return {
           id: item.id,
-          task_id: task && task.data ? task.data.id : undefined,
-          name: task && task.data ? task.data.display_name : undefined,
+          task_id: task?.id ?? undefined,
+          name: task?.display_name ?? undefined,
           job_name: item.job_name,
           created_at: item.created_at,
           testModules:
@@ -249,7 +253,7 @@ export class AutoTestService {
 
     const data = result.filter((res) => res.task_id !== undefined);
     return data;
-  };
+  }
 
   async getCategoryLatestBuild({ project_id }) {
     // const [ builds ] = await app.mysql.query(autoTestConstants.SELECT_AUTO_TEST_LAST_BUILD, [ 'test', project_id, 1 ]);
@@ -280,7 +284,7 @@ export class AutoTestService {
     };
   }
 
-  selTopNums = (allFailTypes) => {
+  selTopNums(allFailTypes) {
     const typesMap = new Map();
     allFailTypes.forEach((item) => {
       if (!typesMap.has(item)) {
@@ -303,7 +307,7 @@ export class AutoTestService {
       .slice(0, 5);
 
     return result;
-  };
+  }
 
   async caculateTopFive(selBuilds, project_id) {
     if (selBuilds.length === 0) return [];
@@ -324,12 +328,13 @@ export class AutoTestService {
 
     const result = await Promise.all(
       topFiveCodes.map(async (item) => {
-        const manual = await testErrorManualService.getManualErrorsByErrorCode(
-          item.error_code,
-          project_id,
-        );
+        const manual =
+          await this.testErrorManualSerivce.getManualErrorsByErrorCode(
+            item.error_code,
+            project_id,
+          );
         return {
-          ...manual.data,
+          ...manual,
           nums: item.nums,
         };
       }),
@@ -409,7 +414,7 @@ export class AutoTestService {
     return result;
   };
 
-  differentCategoryRate = async (from, to, selBuilds, project_id) => {
+  async differentCategoryRate(from, to, selBuilds, project_id) {
     try {
       const oneDaySeconds = 24 * 60 * 60;
       let curDay = Number(from);
@@ -427,7 +432,7 @@ export class AutoTestService {
         );
         const arr = await this.getDayCategoryRate(
           curDayData,
-          categries.data,
+          categries,
           curDay,
         );
         data = [...data, ...arr];
@@ -440,7 +445,7 @@ export class AutoTestService {
     } catch (error) {
       return {};
     }
-  };
+  }
 
   getReportBuildRate = async ({ project_id }, { from, to }) => {
     // const [ builds ] = await app.mysql.query(autoTestConstants.SELECT_AUTO_TEST_RESULT_BY_BUILD_TYPE_PRJECT_ID, [ 'test', project_id, from, to ]);

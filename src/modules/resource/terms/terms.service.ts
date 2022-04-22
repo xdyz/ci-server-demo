@@ -6,7 +6,7 @@ import {
   ResourceInstanceItemsEntity,
   ResourceTermsEntity,
 } from 'src/entities';
-import { getConnection, Like, Repository } from 'typeorm';
+import { getConnection, In, Like, Repository } from 'typeorm';
 import { ResourceCategoryService } from '../category/category.service';
 
 @Injectable()
@@ -40,6 +40,17 @@ export class ResourceTermsService {
   async getOneResourceTerm(id) {
     // const [terms] = await app.mysql.query(resourceConstants.SELECT_RESOURCE_TERMS_BY_ID, [id]);
     const term = await this.resourceTermsRepository.findOne(id);
+
+    return term;
+  }
+
+  async getOneResourceTermByUid({ project_id }, uid) {
+    const term = await this.resourceTermsRepository.findOne({
+      where: {
+        rule_uid: uid,
+        project_id: In([project_id, 0]),
+      },
+    });
 
     return term;
   }

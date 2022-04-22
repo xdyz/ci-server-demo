@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ViewsService } from './views.service';
 import { ViewsController } from './views.controller';
-import { TasksService } from '../tasks/tasks.service';
+import { TasksService } from '../tasks/list/tasks.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TasksEntity, ViewsEntity } from 'src/entities';
 
 @Module({
-  exports: [TasksService],
+  imports: [TypeOrmModule.forFeature([ViewsEntity, TasksEntity]), TasksService],
+  exports: [ViewsService],
   controllers: [ViewsController],
   providers: [ViewsService],
 })

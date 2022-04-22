@@ -10,11 +10,11 @@ export class ParameterCoverageService {
   @InjectRepository(ParameterCoverageEntity)
   private readonly parameterCoverageRepository: Repository<ParameterCoverageEntity>;
 
-  getOneParameterCoverage = async function (id) {
+  async getOneParameterCoverage(id) {
     // const [ result ] = await app.mysql.query(parameterCoverageConstants.SELECT_PARAMETER_COVERAGE_BY_ID, [ id ]);
     const result = await this.parameterCoverageRepository.findOne(id);
     return result;
-  };
+  }
 
   // Get all parameter coverage
   async getParameterCoverage({ project_id }) {

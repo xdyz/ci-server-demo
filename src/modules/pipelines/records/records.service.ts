@@ -81,6 +81,20 @@ export class PipelinesRecordsService {
     }
   }
 
+  // 更新执行记录
+  // { record_id, nodes, status, duration }
+  async updatePipelineRecord({ record_id, ...updatePipeRecordDto }) {
+    try {
+      await this.pipelineRecordsRepository.save({
+        id: record_id,
+        ...updatePipeRecordDto,
+      });
+      return {};
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   // 重试节点
   async restartPipelineRecord({ user_id }, id) {
     try {
