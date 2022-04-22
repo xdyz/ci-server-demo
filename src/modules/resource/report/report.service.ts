@@ -9,7 +9,7 @@ import { ResourceTermsService } from '../terms/terms.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import moment from 'moment';
-
+import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class ResourceReportService {
   @Inject()
@@ -208,7 +208,9 @@ export class ResourceReportService {
     const dcBuild = await this.buildsRepository
       .createQueryBuilder('b')
       .where('b.project_id = :project_id', { project_id })
-      .andWhere('b.build_type = :build_type', { build_type: CHECK })
+      .andWhere('b.build_type = :build_type', {
+        build_type: utils.buildTypes.CHECK,
+      })
       .andWhere('b.created_at >= :startDay', { startDay })
       .andWhere('b.created_at <= :endDay', { endDay })
       .andWhere('b.status = :status', { status: 2 })
@@ -260,7 +262,7 @@ export class ResourceReportService {
         project_id,
       });
     // 这里可以先去获取所有的实例，然后求出实例当天最晚跑的那一次记录
-    const checkTypes = app.utils.check_types.filter(
+    const checkTypes = utils.checkTypes.filter(
       (item) => item.value.length !== 0,
     );
     while (curDate >= from && curDate <= to) {
@@ -362,7 +364,7 @@ export class ResourceReportService {
   }
 
   async fusionDiffertCategoryItems(checks) {
-    const effectiveTypes = app.utils.check_types.filter(
+    const effectiveTypes = utils.checkTypes.filter(
       (item) => item.value.length !== 0,
     );
     const res = [];
@@ -385,7 +387,7 @@ export class ResourceReportService {
         project_id,
       });
     // 这里可以先去获取所有的实例，然后求出实例当天最晚跑的那一次记录
-    const checkTypes = app.utils.check_types.filter(
+    const checkTypes = utils.checkTypes.filter(
       (item) => item.value.length !== 0,
     );
 
@@ -440,7 +442,7 @@ export class ResourceReportService {
       const build = await this.buildsRepository.findOne({
         where: {
           project_id,
-          build_type: CHECK,
+          build_type: utils.buildTypes.CHECK,
           status: 2,
         },
         order: {

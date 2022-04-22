@@ -3,13 +3,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BuildsEntity, TasksEntity, UsersEntity } from 'src/entities';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
 import { ResourceInstanceItemsService } from 'src/modules/resource/items/items.service';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import got from 'got';
 import { MinioService } from 'src/modules/minio/minio.service';
 import { ProjectsService } from 'src/modules/projects/projects.service';
 import { GitInfoService } from 'src/modules/git-info/git-info.service';
+
+import * as utils from 'src/utils/index.utils';
+import { TasksService } from '../list/tasks.service';
+
 @Injectable()
 export class BuildsService {
+  @Inject()
+  private readonly tasksService: TasksService;
+
   @Inject()
   private readonly jenkinsInfoService: JenkinsInfoService;
 
@@ -89,7 +96,7 @@ export class BuildsService {
       project_id,
       build_type,
     } = build;
-    const task = taskMap[task_id];
+    const task = this.tasksService.taskMap[task_id];
 
     // 这个需要取jenkins check job_name
     await this.addBuildBadge(id, branch);
@@ -158,7 +165,7 @@ export class BuildsService {
 
     let jenkinsBuild = null;
 
-    if (build_type === SERVER) {
+    if (build_type === utils.buildTypes.SERVER) {
       jenkinsBuild = await this.jenkinsInfoService.buildJobQuery(
         baseUrl,
         jenkinsJobName,
@@ -192,9 +199,9 @@ export class BuildsService {
 
   // 根据类型判断  jb 完成之后 执行哪些函数方法 处理结果
   async afterFunRun(build_type, resultParams) {
-    if (build_type === CHECK) {
+    if (build_type === utils.buildTypes.CHECK) {
       await this.afterCheckJob(resultParams);
-    } else if (build_type === ASSET_BUNDLE) {
+    } else if (build_type === utils.buildTypes.ASSET_BUNDLE) {
       await this.afterAssetBundleJob(resultParams);
     } else {
       await this.afterOtherJob(resultParams);
@@ -247,7 +254,7 @@ export class BuildsService {
     await this.updateBuildFilePath(id, filePath);
     await this.updateBuildStatus(
       id,
-      app.utils.check_status.convertJenkinsStatusToInt(jenkinsBuild.result),
+      utils.convertJenkinsStatusToInt(jenkinsBuild.result),
     );
   }
 
@@ -313,7 +320,7 @@ export class BuildsService {
     await this.updateBuildFilePath(id, filePath);
     await this.updateBuildStatus(
       id,
-      app.utils.check_status.convertJenkinsStatusToInt(jenkinsBuild.result),
+      utils.convertJenkinsStatusToInt(jenkinsBuild.result),
     );
   }
 
@@ -321,7 +328,7 @@ export class BuildsService {
   async afterOtherJob({ id, jenkinsBuild }) {
     await this.updateBuildStatus(
       id,
-      app.utils.check_status.convertJenkinsStatusToInt(jenkinsBuild.result),
+      utils.convertJenkinsStatusToInt(jenkinsBuild.result),
     );
   }
 
@@ -332,7 +339,8 @@ export class BuildsService {
       );
     }
     build.progress_estimate =
-      build.duration / taskMap[build.task_id].average_duration;
+      build.duration /
+      this.tasksService.taskMap[build.task_id].average_duration;
     build.badges = build.badges.split(',').filter(Boolean);
     // if (build.user_id > 0) {
     //   const [users] = await app.mysql.query(usersConstants.SELECT_ONE_USER_BY_ID, [build.user_id]);
@@ -356,7 +364,7 @@ export class BuildsService {
       );
     }
     // const build = builds[0];
-    // const task = taskMap[taskId];
+    const task = this.tasksService.taskMap[taskId];
     // const { jenkinsUrl } = await getOneJenkinsInfoBYTask(task.jenkins_id);
     const { jenkinsUrl } =
       await this.jenkinsInfoService.getOneJenkinsInfoBYTask(task.jenkins_id);
@@ -394,14 +402,14 @@ export class BuildsService {
   }
 
   async insertBuild(userId, taskId, parameters) {
-    const task = taskMap[taskId];
+    const task = this.tasksService.taskMap[taskId];
     if (!task) {
       throw new Error(`Task '${taskId}' not found.`);
     }
     if (!task.enabled) {
       throw new Error(`Task '${taskId}' is disabled.`);
     }
-    const taskExtra = taskExtraMap[taskId];
+    const taskExtra = this.tasksService.taskExtraMap[taskId];
     // const jobName = task.name;
     // const buildType = task.view_name;
 
@@ -437,10 +445,10 @@ export class BuildsService {
       executionMap: {},
     };
     // 这里暂时其实都可以注释掉了 不需要通知updataView 了
-    for (const view of taskExtra.views) {
-      ++view.executing_build_count;
-      app.ci.emit('updateView', view);
-    }
+    // for (const view of taskExtra.views) {
+    //   ++view.executing_build_count;
+    //   app.ci.emit('updateView', view);
+    // }
     task.last_build = build;
     app.ci.emit('createBuild', build);
     return build;
@@ -451,7 +459,7 @@ export class BuildsService {
     if (!build) {
       throw new Error(`Build '${buildId}' not found.`);
     }
-    const task = taskMap[build.task_id];
+    const task = this.tasksService.taskMap[build.task_id];
     if (!task) {
       throw new Error(`Task '${build.task_id}' not found.`);
     }
@@ -502,7 +510,7 @@ export class BuildsService {
     const { parameters, id, job_name, task_id, build_type, project_id } = build;
     const project = await this.projectsService.getOneProject(project_id);
     const { label } = project.data;
-    const task = taskMap[task_id];
+    const task = this.tasksService.taskMap[task_id];
     // 复制项目uid
     parameters['project_uid'] = label;
 
@@ -543,7 +551,7 @@ export class BuildsService {
   // server 类型的job执行之前
   async beforeServerJob(build) {
     const { task_id, build_type, id, parameters, job_name, project_id } = build;
-    const task = taskMap[task_id];
+    const task = this.tasksService.taskMap[task_id];
     if (parameters && parameters.branch) {
       await this.addBuildBadge(build.id, parameters.branch);
     }
@@ -557,7 +565,7 @@ export class BuildsService {
   // before Other 类型的job 执行之前
   async beforeOtherJob(build) {
     const { task_id, build_type, id, parameters, job_name, project_id } = build;
-    const task = taskMap[task_id];
+    const task = this.tasksService.taskMap[task_id];
     if (parameters && parameters.branch) {
       await this.addBuildBadge(build.id, parameters.branch);
     }
@@ -580,7 +588,7 @@ export class BuildsService {
       throw new Error(`Build '${buildId}' not found.`);
     }
     // const build = builds[0];
-    const task = taskMap[build.task_id];
+    const task = this.tasksService.taskMap[build.task_id];
     if (!task) {
       throw new Error(`Task '${build.task_id}' not found.`);
     }
@@ -601,7 +609,7 @@ export class BuildsService {
     if (build.status !== 0) {
       throw new Error(`Build '${buildId}' alread started.`);
     }
-    const task = taskMap[build.task_id];
+    const task = this.tasksService.taskMap[build.task_id];
     if (!task) {
       throw new Error(`Task '${build.task_id}' not found.`);
     }
@@ -633,16 +641,16 @@ export class BuildsService {
       // }
 
       switch (build.build_type) {
-        case CHECK:
+        case utils.buildTypes.CHECK:
           await this.beforeCheckJob(build);
           break;
-        case ASSET_BUNDLE:
+        case utils.buildTypes.ASSET_BUNDLE:
           await this.beforeAssetBundleJob(build);
           break;
-        case SERVER:
+        case utils.buildTypes.SERVER:
           await this.beforeServerJob(build);
           break;
-        case PACKAGE || TEST:
+        case utils.buildTypes.PACKAGE || utils.buildTypes.TEST:
           await this.beforeOtherJob(build);
           break;
         default:
@@ -721,5 +729,42 @@ export class BuildsService {
       builds,
       total,
     };
+  }
+
+  async startTask(taskEven) {
+    try {
+      const taksData = taskEven.taksData;
+      const userId = taskEven.userId;
+
+      const data = await this.createBuild(
+        taksData.id,
+        taksData.parameters,
+        userId,
+      );
+      return data;
+    } catch (error) {
+      return {};
+    }
+  }
+
+  async getBuildCustomData(build_id) {
+    // const [builds] = await app.mysql.query(tasksConstants.SELECT_BUILD_BY_ID, [build_id]);
+    const { file_path } = await this.buildsRepository.findOne({
+      where: { id: build_id },
+    });
+    // const build = builds[0];
+    // const { custom_data } = build;
+    // const { file_path } = builds[0];
+    // const customData = custom_data ? JSON.parse(custom_data) : null;
+    let report = null;
+    if (file_path) {
+      try {
+        // report = JSON.parse(await readFile(customData.report_url));
+        report = (await this.minioService.getObject(file_path)).data;
+      } catch (error) {
+        report = null;
+      }
+    }
+    return report;
   }
 }

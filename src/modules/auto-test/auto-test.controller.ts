@@ -14,7 +14,7 @@ import {
 import { AutoTestService } from './auto-test.service';
 import { CreateAutoTestDto } from './dtos/create-auto-test.dto';
 import { UpdateAutoTestDto } from './dtos/update-auto-test.dto';
-
+import * as utils from 'src/utils/index.utils';
 @Controller('auto_test')
 export class AutoTestController {
   constructor(private readonly autoTestService: AutoTestService) {}
@@ -44,8 +44,8 @@ export class AutoTestController {
   // });
   @Get('report/result/noauth')
   async getReportResultNoAuth(@Body() body: any) {
-    const query = await parseTimeToSeconds(body);
-    return await this.autoTestService.getReportResult(query);
+    const query = await utils.parseTimeToSeconds(body);
+    return await this.autoTestService.getReportResult(query as any);
   }
 
   // app.get('/report/fail_case/trend', {

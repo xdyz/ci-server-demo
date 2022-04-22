@@ -7,7 +7,7 @@ import { TasksService } from '../tasks/list/tasks.service';
 import { TestErrorManualService } from '../test-error-manual/test-error-manual.service';
 import { CreateAutoTestDto } from './dtos/create-auto-test.dto';
 import { UpdateAutoTestDto } from './dtos/update-auto-test.dto';
-
+import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class AutoTestService {
   @Inject()
@@ -118,7 +118,7 @@ export class AutoTestService {
     let data = [];
     // 获取自动化测试分类
     const categries = await this.tasksService.getAllTasksByTags(
-      utils.build_types.TEST,
+      utils.buildTypes.TEST,
       project_id,
     );
     while (curDay >= from && curDay <= to) {
@@ -187,7 +187,7 @@ export class AutoTestService {
     let data = [];
     // 获取自动化测试分类
     const categries = await this.tasksService.getAllTasksByTags(
-      utils.build_types.TEST,
+      utils.buildTypes.TEST,
       project_id,
     );
     while (curDay >= from && curDay <= to) {
@@ -229,7 +229,7 @@ export class AutoTestService {
       selBuilds.map(async (item) => {
         const task = await this.tasksService.getAllTasksByTagsAndName(
           item.job_name,
-          utils.build_types.TEST,
+          utils.buildTypes.TEST,
           project_id,
         );
         const customData = item.custom_data
@@ -270,7 +270,7 @@ export class AutoTestService {
           )
           .from('builds', 'u')
           .where('build_type = :build_type', {
-            build_type: utils.build_types.TEST,
+            build_type: utils.buildTypes.TEST,
           })
           .andWhere('project_id = :project_id', { project_id });
         return subQuery;
@@ -348,7 +348,7 @@ export class AutoTestService {
     // const [ builds ] = await app.mysql.query(autoTestConstants.SELECT_AUTO_TEST_BY_BUILD_TYPE_PROJECT_ID, [ 'test', project_id ]);
     const builds = await this.buildsRepository.find({
       where: {
-        build_type: utils.build_types.TEST,
+        build_type: utils.buildTypes.TEST,
         project_id,
       },
     });
@@ -422,7 +422,7 @@ export class AutoTestService {
       let data = [];
       // 获取自动化测试分类
       const categries = await this.tasksService.getAllTasksByTags(
-        utils.build_types.TEST,
+        utils.buildTypes.TEST,
         project_id,
       );
       while (curDay >= from && curDay <= to) {

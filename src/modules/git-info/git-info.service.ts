@@ -108,19 +108,25 @@ export class GitInfoService {
    * @returns
    */
   async deleteGitInfo(id) {
-    await this.getGitInfo(id);
-    // await app.mysql.query('DELETE FROM git_info WHERE id = ?', [id]);
-    await this.gitInfoRepository.delete(id);
-    return {};
+    try {
+      await this.getGitInfo(id);
+      // await app.mysql.query('DELETE FROM git_info WHERE id = ?', [id]);
+      await this.gitInfoRepository.delete(id);
+      return {};
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async getGitInfoBranches(id) {
-    const info = await this.getGitInfo(id);
-    // const { url, git_project_id, token } = info.data;
-    const branchs = await utils.getBranches(info.data);
-    return {
-      data: branchs,
-    };
+    try {
+      const info = await this.getGitInfo(id);
+      // const { url, git_project_id, token } = info.data;
+      const branchs = await this.fetchBranches(info.data);
+      return branchs;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**

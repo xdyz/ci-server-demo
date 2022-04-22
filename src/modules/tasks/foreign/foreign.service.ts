@@ -6,6 +6,8 @@ import { PackageErrorManualService } from 'src/modules/package-error-manual/pack
 import { Repository } from 'typeorm';
 import { BuildsService } from '../builds/builds.service';
 import got from 'got';
+import * as utils from 'src/utils/index.utils';
+
 @Injectable()
 export class TasksForeignService {
   @Inject()
@@ -54,7 +56,7 @@ export class TasksForeignService {
     let waitTime = 1000;
     let jobRes, job;
     do {
-      await app.utils.sleep(waitTime);
+      await utils.sleep(waitTime);
       waitTime = Math.min(this.maxWaitTime || 16 * 1000, waitTime * 2);
       const replaceJobName = job_name.replaceAll('/', '/job/');
       jobRes = await got.get(
@@ -130,7 +132,7 @@ export class TasksForeignService {
       const parameters = this.getBuildParameters(
         buildResultParse?.actions ?? [],
       );
-      const status = await app.utils.check_status.convertJenkinsStatusToInt(
+      const status = await utils.convertJenkinsStatusToInt(
         buildResultParse.result,
       );
 
@@ -298,15 +300,19 @@ export class TasksForeignService {
         duration: Math.ceil(duration / 1000) || 0,
         parameters: JSON.stringify(parameters),
         badges: badges,
-        build_type: PACKAGE,
+        build_type: utils.buildTypes.PACKAGE,
         platform: result.platform,
         project_id,
         file_path: reportUrl,
         error_manual_ids: endManuals.length !== 0 ? endManuals.join(',') : '',
       };
 
-      if (selBuild && selBuild.id && executingBuildMap[selBuild.id]) {
-        await addBuildBadge(selBuild.id, badges);
+      if (
+        selBuild &&
+        selBuild.id &&
+        this.buildsServices.executingBuildMap[selBuild.id]
+      ) {
+        await this.buildsServices.addBuildBadge(selBuild.id, badges);
       }
 
       return selBuild && selBuild.id

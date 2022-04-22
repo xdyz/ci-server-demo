@@ -19,7 +19,52 @@ export class TasksService implements OnModuleInit {
   taskMap = {};
 
   async onModuleInit() {
-    // await initializeTaskMap();
+    await this.initializeTasks();
+  }
+
+  async initializeTask(task) {
+    this.taskMap[task.id] = task;
+    const taskExtra = {
+      // parameters: [], //构建参数
+      executingBuilds: [], //执行构建的结果
+      // eventListenersMap: {}, //事件侦听列表
+      // crons: [], //时间触发列表
+      last_build: null, // 最近构建数据 运用任务列表的 最近构建耗时
+      // views: [], //任务类型视图 任务列表左边的大类任务视图数据，记录该大类任务的数量 executing_build_count 发布更新事件
+      // error: false, //标记任务脚本是否有错误（无法正常运行）
+    };
+    this.taskExtraMap[task.id] = taskExtra;
+
+    task.enabled = !!task.enabled;
+
+    // task.last_build = await this.getLastBuild(task.id); //最近构建
+  }
+
+  async initializeTasks() {
+    // if (!app?.taskMap) {
+    //   app.decorate('taskMap', {
+    //     getter() {
+    //       return taskMap;
+    //     }
+    //   });
+    //   app.decorate('taskExtraMap', {
+    //     getter() {
+    //       return taskExtraMap;
+    //     }
+    //   });
+    // }
+    // taskMap = {}; // 任务
+    // taskExtraMap = {}; //执行构建的方法
+    // executingBuildMap = {};//构建结果 build 数据
+    // executingBuildExtraMap = {}; //构建构成的错误日志，构建阶段信息
+    // const [tasks] = await app.mysql.query(tasksConstants.SELECT_TASKS_NO_CONDITION, []);
+    const tasks = await this.tasksRepository.find();
+    for (const task of tasks) {
+      await this.initializeTask(task);
+    }
+    // scheduler.scheduleJob('*/1 * * * *', function () {
+    //   app.utils.log.upFloder();
+    // });
   }
 
   dealWithQuery(params = {}) {
@@ -61,8 +106,8 @@ export class TasksService implements OnModuleInit {
     // await app.mysql.query(tasksConstants.DELETE_TASK_BY_ID, [taskId]);
     try {
       await this.tasksRepository.delete({ id });
-      // delete taskMap[taskId];
-      // delete taskExtraMap[taskId];
+      delete this.taskMap[id];
+      delete this.taskExtraMap[id];
       return;
     } catch (error) {
       // app.sentry.captureException(error);
@@ -115,10 +160,6 @@ export class TasksService implements OnModuleInit {
   // 获取所有的tasks 或者根据条件进行筛选的
   async getAllTasks({ project_id }, queries = {}) {
     const params = this.dealWithQuery(queries);
-    // const whereSql = queryKeys.length !== 0 ? `AND ${queryKeys.join(' AND ')}` : '';
-    // const [tasks] = await app.mysql.query(
-    //   `${tasksConstants.SELECT_TASKS_BY_PROJECT_ID} ${whereSql}
-    //     `, [project_id, ...queryValues]);
     const tasks = await this.tasksRepository.find({
       where: {
         project_id,

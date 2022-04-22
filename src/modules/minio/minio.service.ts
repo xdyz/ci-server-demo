@@ -3,6 +3,7 @@ import { ProjectsService } from '../projects/projects.service';
 import { CreateMinioDto } from './dtos/create-minio.dto';
 import { UpdateMinioDto } from './dtos/update-minio.dto';
 import { MinioService as MinioClientService } from 'nestjs-minio-client';
+import moment from 'moment';
 @Injectable()
 export class MinioService {
   @Inject()

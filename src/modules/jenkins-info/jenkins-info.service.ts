@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateJenkinsInfoDto } from './dtos/create-jenkins-info.dto';
 import { UpdateJenkinsInfoDto } from './dtos/update-jenkins-info.dto';
 import got from 'got';
+import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class JenkinsInfoService {
   @InjectRepository(JenkinsInfoEntity)
@@ -155,7 +156,7 @@ export class JenkinsInfoService {
   async waitUntilJobStart(baseUrl, build) {
     let queueItemRes, queueItem;
     do {
-      await sleep(1000);
+      await utils.sleep(1000);
       queueItemRes = await got.get(
         `${baseUrl}/queue/item/${build.queueItemNumber}/api/json`,
       );
@@ -221,7 +222,7 @@ export class JenkinsInfoService {
     );
 
     do {
-      await sleep(waitTime);
+      await utils.sleep(waitTime);
       waitTime = Math.min(this.maxWaitTime || 16 * 1000, waitTime * 2);
       jobRes = await got.get(
         `${baseUrl}/job/${replaceJobName}/${build.number}/api/json`,

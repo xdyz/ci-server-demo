@@ -7,6 +7,7 @@ import { PackageErrorManualService } from '../package-error-manual/package-error
 import { CreatePackageDto } from './dtos/create-package.dto';
 import { UpdatePackageDto } from './dtos/update-package.dto';
 import got from 'got';
+import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class PackageService {
   @Inject()
@@ -44,7 +45,9 @@ export class PackageService {
       .where('b.project_id = :project_id', { project_id })
       .andWhere('b.status = :status', { status })
       .andWhere(queries)
-      .andWhere('b.build_type = :build_type', { build_type: PACKAGE })
+      .andWhere('b.build_type = :build_type', {
+        build_type: utils.buildTypes.PACKAGE,
+      })
       .orderBy('b.created_at', 'DESC')
       .offset((page - 1) * size)
       .limit(size)
@@ -183,7 +186,9 @@ export class PackageService {
     const packages = await this.buildsRepository
       .createQueryBuilder('b')
       .where('b.project_id = :project_id', { project_id })
-      .andWhere('b.build_type = :build_type', { build_type: PACKAGE })
+      .andWhere('b.build_type = :build_type', {
+        build_type: utils.buildTypes.PACKAGE,
+      })
       .andWhere('b.created_at >= :from', { from })
       .andWhere('b.created_at <= :to', { to })
       .getMany();
@@ -196,7 +201,9 @@ export class PackageService {
     const packages = await this.buildsRepository
       .createQueryBuilder('b')
       .where('b.project_id = :project_id', { project_id })
-      .andWhere('b.build_type = :build_type', { build_type: PACKAGE })
+      .andWhere('b.build_type = :build_type', {
+        build_type: utils.buildTypes.PACKAGE,
+      })
       .andWhere('b.created_at >= :from', { from })
       .andWhere('b.created_at <= :to', { to })
       .getMany();
@@ -223,7 +230,9 @@ export class PackageService {
     const [packages, count] = await this.buildsRepository
       .createQueryBuilder('b')
       .where('b.project_id = :project_id', { project_id })
-      .andWhere('b.build_type = :build_type', { build_type: PACKAGE })
+      .andWhere('b.build_type = :build_type', {
+        build_type: utils.buildTypes.PACKAGE,
+      })
       .andWhere('b.created_at >= :from', { from })
       .andWhere('b.created_at <= :to', { to })
       .getManyAndCount();
@@ -297,7 +306,9 @@ export class PackageService {
     const packages = await this.buildsRepository
       .createQueryBuilder('b')
       .where('b.project_id = :project_id', { project_id })
-      .andWhere('b.build_type = :build_type', { build_type: PACKAGE })
+      .andWhere('b.build_type = :build_type', {
+        build_type: utils.buildTypes.PACKAGE,
+      })
       .andWhere('b.created_at >= :from', { from })
       .andWhere('b.created_at <= :to', { to })
       .getMany();
@@ -314,7 +325,9 @@ export class PackageService {
       .addSelect('u.nickname')
       .addSelect('UNIX_TIMESTAMP(b.created_at) as created_at')
       .where('b.project_id = :project_id', { project_id })
-      .andWhere('b.build_type = :build_type', { build_type: PACKAGE })
+      .andWhere('b.build_type = :build_type', {
+        build_type: utils.buildTypes.PACKAGE,
+      })
       .andWhere('b.status >= :status', { status: 3 })
       .andWhere('b.created_at >= :from', { from })
       .andWhere('b.created_at <= :to', { to })
@@ -394,7 +407,9 @@ export class PackageService {
     const packages = await this.buildsRepository
       .createQueryBuilder('b')
       .where('b.project_id = :project_id', { project_id })
-      .andWhere('b.build_type = :build_type', { build_type: PACKAGE })
+      .andWhere('b.build_type = :build_type', {
+        build_type: utils.buildTypes.PACKAGE,
+      })
       .andWhere('b.created_at >= :from', { from })
       .andWhere('b.created_at <= :to', { to })
       .getMany();

@@ -7,16 +7,17 @@ import moment from 'moment';
 import { CreatePipelineDto } from './dto/create-pipeline.dto';
 import { UpdatePipelineDto } from './dto/update-pipeline.dto';
 import { PipelinesRecordsService } from '../records/records.service';
-import { TasksService } from 'src/modules/tasks/list/tasks.servicervice';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
 import got from 'got';
+import { BuildsService } from 'src/modules/tasks/builds/builds.service';
+import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class PipelinesListService {
   @Inject()
   private readonly pipelinesRecordsService: PipelinesRecordsService;
 
   @Inject()
-  private readonly tasksService: TasksService;
+  private readonly buildsService: BuildsService;
 
   @Inject()
   private readonly jenkinsInfoService: JenkinsInfoService;
@@ -419,15 +420,15 @@ export class PipelinesListService {
           val = node.node.data.parameters[element.parent_key];
         } else {
           if (!resultData[node.build_id]) {
-            await app.utils.sleep(10 * 1000);
-            const res = await this.tasksService.getBuildCustomData(
+            await utils.sleep(10 * 1000);
+            const res = await this.buildsService.getBuildCustomData(
               node.build_id,
             );
             // app.sentry.captureMessage(`resultFile: ${node.build_id}`, {
             //   level: 'info',
             //   contexts: res.data,
             // });
-            resultData[node.build_id] = res.data;
+            resultData[node.build_id] = res;
           }
           val = objectPath.get(
             resultData[node.build_id],
@@ -449,7 +450,7 @@ export class PipelinesListService {
   //执行节点任务
   async startTask(executeNode, user_id) {
     try {
-      await app.utils.sleep(120000 * executeNode.index);
+      await utils.sleep(120000 * executeNode.index);
       const taksData = executeNode.node.data;
 
       // 如果当前这个节点已经正在跑了 就不要再次跑了
@@ -457,11 +458,11 @@ export class PipelinesListService {
         return;
       }
 
-      const buildData = await this.tasksService.startTask({
+      const buildData = await this.buildsService.startTask({
         taksData: taksData,
         userId: user_id,
       });
-      const build_id = buildData?.data?.['id'];
+      const build_id = buildData?.['id'];
       // app.sentry.captureMessage(`startTask: ${build_id}`, {
       //   level: 'info',
       //   contexts: buildData.data
@@ -717,7 +718,7 @@ export class PipelinesListService {
             currentNode['status'] = 0;
             currentNode.node.data.build = null;
             //开始运行节点
-            await app.utils.sleep(waitTime * 10 * 1000);
+            await utils.sleep(waitTime * 10 * 1000);
             this.startExecuteNode(currentNode, userId);
             waitTime += 1;
           }
