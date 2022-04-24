@@ -5,6 +5,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 import { TasksEntity } from 'src/entities';
 import { Like, Repository } from 'typeorm';
 import { CreateTaskDto } from './dtos/create-task.dto';
@@ -12,6 +13,10 @@ import { UpdateTaskDto } from './dtos/update-task.dto';
 
 @Injectable()
 export class TasksService implements OnModuleInit {
+  sentryClient: any;
+  constructor(@InjectSentry() private readonly sentryService: SentryService) {
+    this.sentryClient = sentryService.instance();
+  }
   @InjectRepository(TasksEntity)
   private readonly tasksRepository: Repository<TasksEntity>;
 
@@ -111,6 +116,7 @@ export class TasksService implements OnModuleInit {
       return;
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       // throw new Error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

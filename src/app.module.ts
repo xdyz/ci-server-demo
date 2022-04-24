@@ -25,6 +25,7 @@ import { PipelinesModule } from './modules/pipelines/pipelines.module';
 import minioConfig from './config/minio.config';
 import sentryConfig from './config/sentry.config';
 import { WsModule } from './modules/websocket/ws.module';
+import { SentryModule } from '@ntegral/nestjs-sentry';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -40,6 +41,10 @@ import { WsModule } from './modules/websocket/ws.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
         configService.get('typeorm'),
+    }),
+    SentryModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => configService.get('sentry'),
     }),
     AuthModule,
     UsersModule,

@@ -19,8 +19,14 @@ import { BuildsService } from 'src/modules/tasks/builds/builds.service';
 import * as utils from 'src/utils/index.utils';
 import { WsService } from 'src/modules/websocket/ws.service';
 import { NotifyService } from 'src/modules/notify/notify.service';
+import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 @Injectable()
 export class PipelinesListService implements OnModuleInit {
+  sentryClient: any;
+  constructor(@InjectSentry() private readonly sentryService: SentryService) {
+    this.sentryClient = sentryService.instance();
+  }
+
   @Inject()
   private readonly pipelinesRecordsService: PipelinesRecordsService;
 
@@ -37,7 +43,7 @@ export class PipelinesListService implements OnModuleInit {
   private readonly wsService: WsService;
 
   @InjectRepository(PipelinesEntity)
-  private readonly pipelinesRepository: Repository<PipelinesEntity>;
+  private pipelinesRepository: Repository<PipelinesEntity>;
 
   public pipelinesData = {};
   public executeNodes = {};
@@ -206,6 +212,9 @@ export class PipelinesListService implements OnModuleInit {
     //   level: 'info',
     //   contexts: eventData
     // });
+    this.sentryClient.captureMessage(`任务结束 ${eventData.id}`, {
+      contexts: eventData,
+    });
     //是否是管线里面执行任务
     const build_id = eventData.id;
     const executeNode = this.executeNodes[build_id + ''];
@@ -233,6 +242,9 @@ export class PipelinesListService implements OnModuleInit {
     //   level: 'info',
     //   contexts: eventData
     // });
+    this.sentryClient.captureMessage(`builEnd: ${build_id}`, {
+      contexts: eventData,
+    });
     // 如果当前节点执行成功了，那么就可以串行执行下面的子节点
     if (status === 2) {
       this.startExecuteNode(executeNode, piplineData.userId);
@@ -241,6 +253,9 @@ export class PipelinesListService implements OnModuleInit {
       //   level: 'info',
       //   contexts: executeNode
       // });
+      this.sentryClient.captureMessage(`builEnd: ${build_id}`, {
+        contexts: executeNode,
+      });
       // 当前节点执行失败，将其子节点状态均设置为5 也就是不可执行的状态
       this.setFailurChildNotAllow(executeNode);
     }
@@ -286,6 +301,9 @@ export class PipelinesListService implements OnModuleInit {
       //   level: 'info',
       //   contexts: piplineData,
       // });
+      this.sentryClient.captureMessage(`builEnd: ${build_id}`, {
+        contexts: piplineData,
+      });
     }
     this.upPipline(piplineData.data);
 
@@ -490,6 +508,7 @@ export class PipelinesListService implements OnModuleInit {
       return info;
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -500,7 +519,7 @@ export class PipelinesListService implements OnModuleInit {
       return data;
     } catch (error) {
       // app.sentry.captureException(error);
-      throw new Error(error);
+      this.sentryClient.captureException(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -513,6 +532,7 @@ export class PipelinesListService implements OnModuleInit {
       };
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -632,6 +652,7 @@ export class PipelinesListService implements OnModuleInit {
       });
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       return {
         data: paramters,
       };
@@ -714,6 +735,10 @@ export class PipelinesListService implements OnModuleInit {
             //   level: 'info',
             //   contexts: res.data,
             // });
+            this.sentryClient.captureMessage(`resultFile: ${node.build_id}`, {
+              level: 'info',
+              contexts: res.data,
+            });
             resultData[node.build_id] = res;
           }
           val = objectPath.get(
@@ -729,6 +754,7 @@ export class PipelinesListService implements OnModuleInit {
       return params;
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       return {};
     }
   }
@@ -753,6 +779,10 @@ export class PipelinesListService implements OnModuleInit {
       //   level: 'info',
       //   contexts: buildData.data
       // });
+      this.sentryClient.captureMessage(`startTask: ${build_id}`, {
+        level: 'info',
+        contexts: buildData,
+      });
 
       executeNode.build_id = build_id;
       this.executeNodes[build_id + ''] = executeNode;
@@ -760,6 +790,7 @@ export class PipelinesListService implements OnModuleInit {
       this.setNodeStartState(build_id);
     } catch (err) {
       // app.sentry.captureException(err);
+      this.sentryClient.captureException(err);
       executeNode.status = 3;
     }
   }
@@ -795,6 +826,13 @@ export class PipelinesListService implements OnModuleInit {
             //   level: 'info',
             //   contexts: parames
             // });
+            this.sentryClient.captureMessage(
+              `overrideParamters: ${element.node.data.display_name}`,
+              {
+                level: 'info',
+                contexts: parames,
+              },
+            );
           }
 
           // 处理需要覆盖的参数
@@ -895,6 +933,7 @@ export class PipelinesListService implements OnModuleInit {
       return startNodeData;
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       return {};
     }
   }
@@ -927,6 +966,11 @@ export class PipelinesListService implements OnModuleInit {
     //   level: 'info',
     //   contexts: record
     // });
+
+    this.sentryClient.captureMessage(`pipelineService.execute: ${record.id}`, {
+      level: 'info',
+      contexts: record,
+    });
 
     const startNode = await this.dealWithBeforeExcute(record, userId);
 
@@ -1019,6 +1063,7 @@ export class PipelinesListService implements OnModuleInit {
       }
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
     }
   }
 }

@@ -13,9 +13,15 @@ import * as utils from 'src/utils/index.utils';
 import { TasksService } from '../list/tasks.service';
 import { WsService } from 'src/modules/websocket/ws.service';
 import { PipelinesListService } from 'src/modules/pipelines/pipeline-list/pipeline-list.service';
+import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 
 @Injectable()
 export class BuildsService {
+  sentryClient: any;
+  constructor(@InjectSentry() private readonly sentryService: SentryService) {
+    this.sentryClient = sentryService.instance();
+  }
+
   @Inject()
   private readonly tasksService: TasksService;
 
@@ -424,6 +430,9 @@ export class BuildsService {
     // app.sentry.captureMessage(
     //   `Create build '${taskId}'  ${task.project_id} ${task.name}`,
     // );
+    this.sentryClient.captureMessage(
+      `Create build '${taskId}'  ${task.project_id} ${task.name}`,
+    );
     // const [result] = await app.mysql.query(tasksConstants.INSERT_BUILD, [task.id, userId, 0, JSON.stringify(parameters), jobName, buildType, 0, task.project_id]);
     const data = await this.buildsRepository.create({
       task_id: task.id,

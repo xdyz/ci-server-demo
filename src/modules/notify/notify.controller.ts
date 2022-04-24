@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Inject,
 } from '@nestjs/common';
 import { NotifyService } from './notify.service';
 import { CreateNotifyDto } from './dtos/create-notify.dto';
@@ -13,7 +14,9 @@ import { UpdateNotifyDto } from './dtos/update-notify.dto';
 
 @Controller('notify')
 export class NotifyController {
-  constructor(private readonly notifyService: NotifyService) {}
+  constructor(
+    private readonly notifyService: NotifyService, // @InjectSentry() // sentryService: SentryService,
+  ) {}
 
   // app.get('/', {
   //   preHandler: app.verifyAuthorization,

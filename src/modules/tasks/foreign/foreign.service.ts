@@ -8,9 +8,15 @@ import { BuildsService } from '../builds/builds.service';
 import got from 'got';
 import * as utils from 'src/utils/index.utils';
 import { WsService } from 'src/modules/websocket/ws.service';
+import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 
 @Injectable()
 export class TasksForeignService {
+  sentryClient: any;
+  constructor(@InjectSentry() private readonly sentryService: SentryService) {
+    this.sentryClient = sentryService.instance();
+  }
+
   @Inject()
   private readonly jenkinsInfoService: JenkinsInfoService;
 
@@ -52,6 +58,7 @@ export class TasksForeignService {
       return baseUrl;
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       return '';
     }
   }
@@ -149,6 +156,7 @@ export class TasksForeignService {
       };
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       return {};
     }
   }
@@ -239,6 +247,7 @@ export class TasksForeignService {
     } catch (error) {
       // app.sentry.captureException(error);
       // throw new Error(error);
+      this.sentryClient.captureException(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -291,8 +300,8 @@ export class TasksForeignService {
       try {
         badges = git_list[0].branch;
       } catch (error) {
-        console.log('beforeDealWithBuild error', git_list, error);
         // app.sentry.captureException(error);
+        this.sentryClient.captureException(error);
       }
       const params = {
         id: selBuild && selBuild.id ? selBuild.id : null,
@@ -324,6 +333,7 @@ export class TasksForeignService {
     } catch (error) {
       // app.utils.log.error("beforeDealWithBuild error", error);
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       return '';
     }
   }

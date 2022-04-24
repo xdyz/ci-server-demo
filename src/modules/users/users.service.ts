@@ -2,9 +2,15 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { UsersEntity } from 'src/entities';
+import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 
 @Injectable()
 export class UsersService {
+  sentryClient: any;
+  constructor(@InjectSentry() private readonly sentryService: SentryService) {
+    this.sentryClient = sentryService.instance();
+  }
+
   @InjectRepository(UsersEntity)
   private readonly usersRepository: Repository<UsersEntity>;
 
@@ -123,6 +129,7 @@ export class UsersService {
       return data;
     } catch (error) {
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

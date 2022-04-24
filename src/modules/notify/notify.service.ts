@@ -1,14 +1,19 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ImManagerEntity } from 'src/entities';
 import { Repository } from 'typeorm';
 import { CreateNotifyDto } from './dtos/create-notify.dto';
 import { UpdateNotifyDto } from './dtos/update-notify.dto';
+import { NodeClient } from '@sentry/node';
 import got from 'got';
+import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
+
 @Injectable()
 export class NotifyService {
   @InjectRepository(ImManagerEntity)
   private readonly imManagerRepository: Repository<ImManagerEntity>;
+
+  constructor(@InjectSentry() private readonly client: SentryService) {}
 
   weixinUrl = 'https://qyapi.weixin.qq.com/cgi-bin';
   access_token = null;
@@ -72,6 +77,7 @@ export class NotifyService {
       this.curTryGetNum++;
       if (this.curTryGetNum > this.tryMaxNum) {
         // app.sentry.captureMessage(msg.errmsg);
+        this.client.instance().captureMessage(msg.errmsg);
         // app.utils.log.error("notifyService.tryGetMedia", msg.errcode, msg.errmsg);
         return msg;
       }
@@ -140,6 +146,7 @@ export class NotifyService {
       this.curTryPushNum++;
       if (this.curTryPushNum > this.tryMaxNum) {
         // app.sentry.captureMessage(msg.errmsg);
+        this.client.instance().captureMessage(msg.errmsg);
         // app.utils.log.error("notifyService.tryPushMsg", msg.errcode, msg.errmsg);
         return;
       }
