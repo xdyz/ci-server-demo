@@ -10,6 +10,7 @@ import { ProjectsService } from '../projects/projects.service';
 import { GitInfoService } from '../git-info/git-info.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BuildsEntity, TasksEntity, UsersEntity } from 'src/entities';
+import { HttpService } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BuildsEntity, TasksEntity, UsersEntity } from 'src/entities';
     MinioService,
     ProjectsService,
     GitInfoService,
+    HttpService,
   ],
   controllers: [TasksController],
   providers: [TasksService],

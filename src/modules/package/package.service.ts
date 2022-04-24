@@ -6,7 +6,7 @@ import { JenkinsInfoService } from '../jenkins-info/jenkins-info.service';
 import { PackageErrorManualService } from '../package-error-manual/package-error-manual.service';
 import { CreatePackageDto } from './dtos/create-package.dto';
 import { UpdatePackageDto } from './dtos/update-package.dto';
-import got from 'got';
+import { got } from 'got';
 import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class PackageService {

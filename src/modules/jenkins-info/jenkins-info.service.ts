@@ -4,7 +4,8 @@ import { JenkinsInfoEntity } from 'src/entities';
 import { Repository } from 'typeorm';
 import { CreateJenkinsInfoDto } from './dtos/create-jenkins-info.dto';
 import { UpdateJenkinsInfoDto } from './dtos/update-jenkins-info.dto';
-import got from 'got';
+import { got } from 'got';
+import axios from 'axios';
 import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class JenkinsInfoService {
@@ -100,7 +101,7 @@ export class JenkinsInfoService {
   }
 
   async getNextBuildNumber(baseUrl, jobName) {
-    const res = await got.get(`${baseUrl}/job/${jobName}/api/json`);
+    const res = await axios.get(`${baseUrl}/job/${jobName}/api/json`);
     return JSON.parse(res.body).nextBuildNumber;
   }
 

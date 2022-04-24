@@ -5,10 +5,10 @@ import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.servic
 import { PackageErrorManualService } from 'src/modules/package-error-manual/package-error-manual.service';
 import { Repository } from 'typeorm';
 import { BuildsService } from '../builds/builds.service';
-import got from 'got';
 import * as utils from 'src/utils/index.utils';
 import { WsService } from 'src/modules/websocket/ws.service';
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class TasksForeignService {
@@ -16,6 +16,9 @@ export class TasksForeignService {
   constructor(@InjectSentry() private readonly sentryService: SentryService) {
     this.sentryClient = this.sentryService.instance();
   }
+
+  @Inject()
+  private readonly httpService: HttpService;
 
   @Inject()
   private readonly jenkinsInfoService: JenkinsInfoService;
@@ -70,7 +73,7 @@ export class TasksForeignService {
       await utils.sleep(waitTime);
       waitTime = Math.min(this.maxWaitTime || 16 * 1000, waitTime * 2);
       const replaceJobName = job_name.replaceAll('/', '/job/');
-      jobRes = await got.get(
+      jobRes = await this.httpService.get(
         `${baseUrl}/job/${replaceJobName}/${number}/api/json`,
       );
       job = JSON.parse(jobRes.body);
@@ -170,7 +173,7 @@ export class TasksForeignService {
     const data = [];
     if (!baseUrl || manuals.length === 0) return data;
     // const replaceJobName = job_name.replaceAll('/', '/job/');
-    const res = await got.get(
+    const res = await this.httpService.get(
       `${baseUrl}/job/${job_name}/${number}/consoleText`,
     );
     const jenkinsLog = res?.body ? res.body : '';

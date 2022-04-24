@@ -14,7 +14,7 @@ import { CreatePipelineDto } from './dto/create-pipeline.dto';
 import { UpdatePipelineDto } from './dto/update-pipeline.dto';
 import { PipelinesRecordsService } from '../records/records.service';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
-import got from 'got';
+import { got } from 'got';
 import { BuildsService } from 'src/modules/tasks/builds/builds.service';
 import * as utils from 'src/utils/index.utils';
 import { WsService } from 'src/modules/websocket/ws.service';

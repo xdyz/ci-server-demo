@@ -4,7 +4,7 @@ import { BuildsEntity, TasksEntity, UsersEntity } from 'src/entities';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
 import { ResourceInstanceItemsService } from 'src/modules/resource/items/items.service';
 import { Repository } from 'typeorm';
-import got from 'got';
+import { got } from 'got';
 import { MinioService } from 'src/modules/minio/minio.service';
 import { ProjectsService } from 'src/modules/projects/projects.service';
 import { GitInfoService } from 'src/modules/git-info/git-info.service';

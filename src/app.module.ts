@@ -27,6 +27,7 @@ import sentryConfig from './config/sentry.config';
 import { WsModule } from './modules/websocket/ws.module';
 import { SentryModule } from '@ntegral/nestjs-sentry';
 import { ScheduleModule } from '@nestjs/schedule';
+import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -48,6 +49,9 @@ import { ScheduleModule } from '@nestjs/schedule';
       useFactory: (configService: ConfigService) => configService.get('sentry'),
     }),
     ScheduleModule.forRoot(),
+    HttpModule.register({
+      timeout: 5000,
+    }),
     AuthModule,
     UsersModule,
     RolesModule,

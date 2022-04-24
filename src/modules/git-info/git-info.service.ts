@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GitInfoEntity } from 'src/entities';
 import { Repository } from 'typeorm';
-import got from 'got';
+import { got } from 'got';
 @Injectable()
 export class GitInfoService {
   @InjectRepository(GitInfoEntity)

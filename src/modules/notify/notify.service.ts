@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateNotifyDto } from './dtos/create-notify.dto';
 import { UpdateNotifyDto } from './dtos/update-notify.dto';
 import { NodeClient } from '@sentry/node';
-import got from 'got';
+import { got } from 'got';
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 
 @Injectable()
