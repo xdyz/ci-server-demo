@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PipelinesEntity } from 'src/entities';
 import { Like, Repository } from 'typeorm';
@@ -11,8 +17,10 @@ import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.servic
 import got from 'got';
 import { BuildsService } from 'src/modules/tasks/builds/builds.service';
 import * as utils from 'src/utils/index.utils';
+import { WsService } from 'src/modules/websocket/ws.service';
+import { NotifyService } from 'src/modules/notify/notify.service';
 @Injectable()
-export class PipelinesListService {
+export class PipelinesListService implements OnModuleInit {
   @Inject()
   private readonly pipelinesRecordsService: PipelinesRecordsService;
 
@@ -21,6 +29,12 @@ export class PipelinesListService {
 
   @Inject()
   private readonly jenkinsInfoService: JenkinsInfoService;
+
+  @Inject()
+  private readonly notifyService: NotifyService;
+
+  @Inject()
+  private readonly wsService: WsService;
 
   @InjectRepository(PipelinesEntity)
   private readonly pipelinesRepository: Repository<PipelinesEntity>;
@@ -37,6 +51,10 @@ export class PipelinesListService {
     WEEK_DAY: 4,
   };
 
+  onModuleInit() {
+    this.initSchedule();
+  }
+
   dealWithQuery(params = {}) {
     const result = {};
     Object.keys(params).forEach((key) => {
@@ -47,6 +65,256 @@ export class PipelinesListService {
     });
 
     return result;
+  }
+
+  // 通知用户
+  async notifyUser({ type, tousers, content }) {
+    this.notifyService.notify({
+      type,
+      tousers,
+      message: {
+        msgtype: 'markdown',
+        content,
+      },
+    });
+  }
+
+  // 通知用户前处理好数据
+  async beforeNodeToUser(piplineData, node, status) {
+    // try {
+    const exg = new RegExp(/\${.*?\}/g);
+    const msgs = node.data.extra.message.match(exg);
+    let message = node.data.extra.message;
+    if (msgs) {
+      await utils.sleep(10 * 1000);
+      // res 被eval 解析出想要的数据 这里不能删除
+      const res = await this.buildsService.getBuildCustomData(
+        node.data.build.buildId,
+      );
+
+      msgs.forEach((msg) => {
+        const element = msg.slice(2, -1);
+        if (element) {
+          const val = objectPath.get(res.data, element, msg);
+          message = message.replace(msg, val);
+        }
+      });
+    }
+    this.notifyUser({
+      type: 'weixin',
+      tousers: node.data.extra.users.join('|'),
+      content:
+        `管线：${piplineData.data.name}` +
+        '\n' +
+        `节点：${node.data.display_name}` +
+        '\n' +
+        `状态：${status === 2 ? '成功' : '失败'}` +
+        '\n' +
+        `信息：${message}` +
+        '\n' +
+        `地址：[DevOps 平台](https://devops.sofunny.io/taskPipeline/records/${piplineData.pipeline_record_id})`,
+    });
+
+    // } catch (error) {
+    //   console.log('node notify', error);
+    // }
+  }
+
+  // 只要所有的节点没有状态小于2的了那么就代表这个管线跑完成了
+  piplineIsEnd(exNode) {
+    let nodes = [exNode];
+    while (nodes.length) {
+      const node = nodes.shift();
+      if (node.status !== -1 && node.status < 2) {
+        return false;
+      }
+      if (node.childs.length !== 0) {
+        nodes = [...nodes, ...node.childs];
+      }
+    }
+
+    return true;
+  }
+
+  // 最终的管线结果
+  getPipelineEndState(startNode) {
+    let nodes = [startNode];
+    while (nodes.length) {
+      const node = nodes.shift();
+      if (node.status > 2) {
+        return node.status;
+      }
+      if (node.childs.length !== 0) {
+        nodes = [...nodes, ...node.childs];
+      }
+    }
+
+    return 2;
+  }
+
+  // 计算管线内的成功个数和失败个数 还有耗时
+  getPipelineFailAndSuc(startNode) {
+    let nodes = [startNode];
+    const nodeIds = [];
+    const result = {
+      passCount: 0,
+      failCount: 0,
+      duration: 0,
+    };
+    while (nodes.length) {
+      const node = nodes.shift();
+      if (node.status > 2) {
+        result.failCount += 1;
+      }
+      if (
+        node.node.shape !== 'start-node' &&
+        node.status === 2 &&
+        !nodeIds.includes(node.node.id)
+      ) {
+        nodeIds.push(node.node.id);
+        result.passCount += 1;
+      }
+      if (
+        node.node.shape !== 'start-node' &&
+        this.executeNodes[node.build_id + '']
+      ) {
+        const execuNode = this.executeNodes[node.build_id + ''];
+        result.duration += Number(execuNode.node.data.build.duration);
+      }
+      if (node.childs.length !== 0) {
+        nodes = [...nodes, ...node.childs];
+      }
+    }
+
+    return result;
+  }
+
+  clearExNodes(startNode) {
+    const build_id = startNode.build_id;
+    const key = build_id + '';
+    const childs = startNode.childs;
+    for (let index = 0; index < childs.length; index++) {
+      const element = childs[index];
+      this.clearExNodes(element);
+    }
+    delete this.executeNodes[key];
+  }
+
+  //任务结束后的处理
+  async buildEnd(eventData) {
+    // app.sentry.captureMessage(`任务结束 ${eventData.id}`, {
+    //   level: 'info',
+    //   contexts: eventData
+    // });
+    //是否是管线里面执行任务
+    const build_id = eventData.id;
+    const executeNode = this.executeNodes[build_id + ''];
+    if (!executeNode) {
+      return;
+    }
+
+    //构建状态更新
+    const status = eventData.status;
+
+    executeNode.status = status;
+    const node = executeNode.node;
+    //将构建结果的关键数据保存到管线节点
+    node.data.build = {
+      buildId: eventData.id,
+      state: status,
+      type: eventData.build_type,
+      duration: eventData.duration,
+    };
+
+    //依据执行节点的管线记录id获得管线记录数据
+    const p_record_id = executeNode.pipline_record_id;
+    const piplineData = this.pipelinesData[p_record_id + ''];
+    // app.sentry.captureMessage(`builEnd: ${build_id}`, {
+    //   level: 'info',
+    //   contexts: eventData
+    // });
+    // 如果当前节点执行成功了，那么就可以串行执行下面的子节点
+    if (status === 2) {
+      this.startExecuteNode(executeNode, piplineData.userId);
+    } else if (status > 2) {
+      // app.sentry.captureMessage(`节点执行失败: ${p_record_id}`, {
+      //   level: 'info',
+      //   contexts: executeNode
+      // });
+      // 当前节点执行失败，将其子节点状态均设置为5 也就是不可执行的状态
+      this.setFailurChildNotAllow(executeNode);
+    }
+
+    // 如果节点执行完成了，配置了通知，就通知对应的用户
+    if (
+      node &&
+      node.data &&
+      node.data.extra &&
+      node.data.extra.isNotify &&
+      node.data.extra.users
+    ) {
+      // 发送消息
+      this.beforeNodeToUser(piplineData, node, status);
+    }
+
+    const isEnd = this.piplineIsEnd(piplineData.startNode);
+
+    if (isEnd) {
+      piplineData.data.status = this.getPipelineEndState(piplineData.startNode);
+
+      const { passCount, failCount, duration } = this.getPipelineFailAndSuc(
+        piplineData.startNode,
+      );
+      piplineData.data.duration = duration;
+      if (piplineData.data.notify_enable && piplineData.data.notify_users) {
+        this.notifyUser({
+          type: 'weixin',
+          tousers: piplineData.data.notify_users.split(',').join('|'),
+          content:
+            `管线：${piplineData.data.name}` +
+            '\n' +
+            `成功：${passCount}` +
+            '\n' +
+            `失败：${failCount}` +
+            '\n' +
+            `耗时：${utils.parseDuration(duration)}` +
+            '\n' +
+            `地址：[DevOps 平台](http://devops.wll/taskPipeline/records/${piplineData.pipeline_record_id})`,
+        });
+      }
+      // app.sentry.captureMessage(`isEnd: ${p_record_id}`, {
+      //   level: 'info',
+      //   contexts: piplineData,
+      // });
+    }
+    this.upPipline(piplineData.data);
+
+    if (isEnd) {
+      this.clearExNodes(piplineData.startNode);
+      const key = p_record_id + '';
+      delete this.pipelinesData[key];
+    }
+  }
+
+  setFailurChildNotAllow(executeNode) {
+    if (executeNode.childs.length !== 0) {
+      for (let i = 0; i < executeNode.childs.length; i++) {
+        executeNode.childs[i].status = -1;
+        this.setFailurChildNotAllow(executeNode.childs[i]);
+      }
+    }
+  }
+
+  // 服务器启动，获取所有的定时任务然后启动定时 这里就不需要区分项目了
+  async initSchedule() {
+    const res = await this.getAllPipelines();
+    if (res.length !== 0) {
+      res.forEach((item) => {
+        if (item.schedule_time) {
+          this.schedule(item);
+        }
+      });
+    }
   }
 
   // 启动时间触发事件
@@ -162,6 +430,23 @@ export class PipelinesListService {
     return {
       data: pipeline,
     };
+  }
+
+  async getAllPipelines() {
+    try {
+      const pipelines = await this.pipelinesRepository
+        .createQueryBuilder('p')
+        .leftJoinAndMapOne(
+          'p.created_user',
+          'users',
+          'u',
+          'u.id = p.created_user',
+        )
+        .getMany();
+      return pipelines;
+    } catch (error) {
+      return [];
+    }
   }
 
   //{ name, owner_users, schedule_time, notify_enable, notify_users, triger_type, document_url, description, week_day }
@@ -372,7 +657,8 @@ export class PipelinesListService {
       status: piplineData.status,
       duration: piplineData.duration,
     });
-    app.ci.emit('updateExecutePipline', piplineData);
+    // app.ci.emit('updateExecutePipline', piplineData);
+    this.wsService.updateExecutePipeline(piplineData);
   }
 
   // 将刚启动的节点设置为运行中

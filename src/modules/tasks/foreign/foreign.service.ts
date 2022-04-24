@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { BuildsService } from '../builds/builds.service';
 import got from 'got';
 import * as utils from 'src/utils/index.utils';
+import { WsService } from 'src/modules/websocket/ws.service';
 
 @Injectable()
 export class TasksForeignService {
@@ -15,6 +16,9 @@ export class TasksForeignService {
 
   @Inject()
   private readonly buildsServices: BuildsService;
+
+  @Inject()
+  private readonly wsService: WsService;
 
   @Inject()
   private readonly packageErrorManualService: PackageErrorManualService;
@@ -214,7 +218,8 @@ export class TasksForeignService {
       .leftJoinAndMapOne('b.user', 'users', 'u', 'u.id = b.user_id')
       .getOne();
 
-    app.ci.emit('updateBuild', build);
+    // app.ci.emit('updateBuild', build);
+    this.wsService.updateBuild(build);
 
     // 通知继续
     if (build.status > 1) {
@@ -230,9 +235,7 @@ export class TasksForeignService {
     try {
       const build = await this.buildsRepository.create(resCreBuildDto);
       const data = await this.buildsRepository.save(build);
-      return {
-        data,
-      };
+      return data;
     } catch (error) {
       // app.sentry.captureException(error);
       // throw new Error(error);

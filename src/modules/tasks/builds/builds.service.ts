@@ -11,6 +11,8 @@ import { GitInfoService } from 'src/modules/git-info/git-info.service';
 
 import * as utils from 'src/utils/index.utils';
 import { TasksService } from '../list/tasks.service';
+import { WsService } from 'src/modules/websocket/ws.service';
+import { PipelinesListService } from 'src/modules/pipelines/pipeline-list/pipeline-list.service';
 
 @Injectable()
 export class BuildsService {
@@ -24,6 +26,9 @@ export class BuildsService {
   private readonly resourceInstanceItemsService: ResourceInstanceItemsService;
 
   @Inject()
+  private readonly wsService: WsService;
+
+  @Inject()
   private readonly minioService: MinioService;
 
   @Inject()
@@ -31,6 +36,9 @@ export class BuildsService {
 
   @Inject()
   private readonly gitInfoService: GitInfoService;
+
+  @Inject()
+  private readonly pipelinesListService: PipelinesListService;
 
   @InjectRepository(BuildsEntity)
   private readonly buildsRepository: Repository<BuildsEntity>;
@@ -450,7 +458,8 @@ export class BuildsService {
     //   app.ci.emit('updateView', view);
     // }
     task.last_build = build;
-    app.ci.emit('createBuild', build);
+    // app.ci.emit('createBuild', build);
+    this.wsService.createBuild(build);
     return build;
   }
 
@@ -495,13 +504,14 @@ export class BuildsService {
           average_duration: task.average_duration,
           average_success_rate: task.average_success_rate,
         });
-        app.ci.emit('buildEnd', build, task);
+        // app.ci.emit('buildEnd', build, task);
         // doBuildFinish(build);
       } else {
         // await app.mysql.query(tasksConstants.UPDATE_BUILDS_STATUS_BY_ID, [status, build.id]);
         await this.buildsRepository.save({ id: buildId, status });
       }
-      app.ci.emit('updateBuild', build);
+      // app.ci.emit('updateBuild', build);
+      this.wsService.updateBuild(build);
     }
   }
 
@@ -598,7 +608,9 @@ export class BuildsService {
 
   async doBuildFinish(buildId) {
     const buildData = await this.findBuild(buildId);
-    app.ci.emit('BUILD_END', buildData);
+    // app.ci.emit('BUILD_END', buildData);
+    this.pipelinesListService.buildEnd(buildData);
+    // 这里需要取调用pipeline 的 buildEnd方法
   }
 
   async startBuild(buildId) {
@@ -624,7 +636,8 @@ export class BuildsService {
           (Date.now() - Number(new Date(build.created_at * 1000))) / 1000,
         );
         build.progress_estimate = build.duration / task.average_duration;
-        app.ci.emit('updateBuild', build);
+        // app.ci.emit('updateBuild', build);
+        this.wsService.updateBuild(build);
         if (!finished) {
           setTimeout(updateBuild, 5000);
         }

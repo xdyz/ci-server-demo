@@ -105,14 +105,14 @@ export class ViewsService {
   }
 
   // { name, display_name, icon }
-  updateView = async function (id, updateViewDto) {
+  async updateView(id, updateViewDto) {
     const data = await this.viewsRepository.save({ id, ...updateViewDto });
     // const [views] = await app.mysql.query(app.sqlConstants.viewsConstants.SELECT_VIEWS_BY_ID, [viewId]);
     // view = views[0];
     // initializeView(data);
     // app.ci.emit('updateView', data);
     return data;
-  };
+  }
 
   //{ name, display_name }
 

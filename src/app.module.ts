@@ -24,6 +24,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PipelinesModule } from './modules/pipelines/pipelines.module';
 import minioConfig from './config/minio.config';
 import sentryConfig from './config/sentry.config';
+import { WsModule } from './modules/websocket/ws.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -60,6 +61,7 @@ import sentryConfig from './config/sentry.config';
     ResourceModule,
     AutoTestModule,
     PipelinesModule,
+    WsModule,
   ],
   controllers: [],
   providers: [],

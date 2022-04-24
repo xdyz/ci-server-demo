@@ -10,22 +10,18 @@ export class WsService {
   }
 
   createBuild(data) {
-    this.wsClient.emit('updatedBuild', data);
+    this.wsClient.send('createBuild', data);
   }
 
   updateBuild(data) {
-    this.wsClient.emit('updatedBuild', data);
-  }
-
-  buildEnd(data) {
-    this.wsClient.emit('buildEnd', data);
+    this.wsClient.send('updateBuild', data);
   }
 
   updateExecution(data) {
-    this.wsClient.emit('updatedExecution', data);
+    this.wsClient.send('updatedExecution', data);
   }
 
   updateExecutePipeline(data) {
-    this.wsClient.emit('updatedExecutePipeline', data);
+    this.wsClient.send('updatedExecutePipeline', data);
   }
 }
