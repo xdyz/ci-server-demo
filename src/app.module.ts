@@ -26,6 +26,7 @@ import minioConfig from './config/minio.config';
 import sentryConfig from './config/sentry.config';
 import { WsModule } from './modules/websocket/ws.module';
 import { SentryModule } from '@ntegral/nestjs-sentry';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -46,6 +47,7 @@ import { SentryModule } from '@ntegral/nestjs-sentry';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => configService.get('sentry'),
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     RolesModule,

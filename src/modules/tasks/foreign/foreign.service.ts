@@ -14,7 +14,7 @@ import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 export class TasksForeignService {
   sentryClient: any;
   constructor(@InjectSentry() private readonly sentryService: SentryService) {
-    this.sentryClient = sentryService.instance();
+    this.sentryClient = this.sentryService.instance();
   }
 
   @Inject()
@@ -350,5 +350,324 @@ export class TasksForeignService {
       },
     });
     return await this.beforeDealWithBuild(build, req, reportUrl, project_id);
+  }
+
+  // 更新build
+  // { status, duration, custom_data, file_path, id }
+  async testResultUpdateBuild({ id, ...testUpBuildDto }) {
+    // const connection = await app.mysql.getConnection();
+    // try {
+    //   await connection.beginTransaction();
+    //   await connection.query(tasksConstants.UPDATE_BUILDS_WITH_TEST_INFO, [status, duration, custom_data, file_path, id]);
+    //   await connection.commit();
+    // } catch (error) {
+    //   await connection.rollback();
+    //   throw error;
+    // } finally {
+    //   await connection.release();
+    // }
+    await this.buildsRepository.save({ id, ...testUpBuildDto });
+
+    // 通知websocket
+    // const [builds] = await app.mysql.query(tasksConstants.SELECT_BUILD_BY_ID, [id]);
+    // const curBuild = builds[0];
+    // const [users] = await app.mysql.query(usersConstants.SELECT_ONE_USER_BY_ID, [curBuild.user_id]);
+    // curBuild['user'] = users[0];
+    const curBuild = await this.buildsRepository
+      .createQueryBuilder('b')
+      .where('b.id = :id', { id })
+      .leftJoinAndMapOne('b.user', 'users', 'u', 'u.id = b.user_id')
+      .getOne();
+    // app.ci.emit('updateBuild', curBuild);
+    this.wsService.updateBuild(curBuild);
+
+    this.buildsServices.doBuildFinish(id);
+    return {};
+  }
+  // 新建build 此时build 是由jenkins 主动触发的
+  // { job_name, number, parameters, status, duration, badges, custom_data, build_type, file_path, project_id }
+  async testResultCreateBuild(testCrBuildDto) {
+    // const connection = await app.mysql.getConnection();
+    // try {
+    //   await connection.beginTransaction();
+    //   await connection.query(
+    //     tasksConstants.INSERT_BUILD_WITH_TEST_INFO,
+    //     [build_type, job_name, number, status, duration, badges, parameters, custom_data, file_path, project_id]);
+    //   await connection.commit();
+    // } catch (error) {
+    //   await connection.rollback();
+    //   throw error;
+    // } finally {
+    //   await connection.release();
+    // }
+    // return {};
+    try {
+      const build = await this.buildsRepository.create(testCrBuildDto);
+      await this.buildsRepository.save(build);
+
+      return {};
+    } catch (error) {
+      // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
+      // throw new Error(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  // 自动化测试结果统计 （总数，失败数，通过数，通过率）
+  statisResult(pass_case, fail_case) {
+    const total = Number(pass_case) + Number(fail_case);
+    const rate =
+      total !== 0 ? Number(((pass_case / total) * 100).toFixed(2)) : 0;
+    return {
+      total,
+      pass_case,
+      rate,
+      fail_case,
+    };
+  }
+
+  statisMachine(suits = []) {
+    if (suits.length === 0) return 0;
+    const sequences = [];
+    suits.forEach((item) => {
+      if (item && item.device && item.device.sequence) {
+        sequences.push(item.device.sequence);
+      }
+    });
+
+    const result = Array.from(new Set(sequences)).length;
+    return result;
+  }
+
+  async beforeDealWithTestBuild(selBuild, req, reportUrl, project_id) {
+    try {
+      const {
+        build_id,
+        job_name,
+        pass_case,
+        fail_case,
+        duration_time,
+        fail_types,
+        suits,
+        out_data,
+      } = req;
+
+      const { user, parameters, status } = await this.getDataFromJenKinSResult(
+        selBuild,
+        job_name,
+        project_id,
+        build_id,
+      );
+      // // 先获取到jenkins 访问地址
+      // const baseUrl = await getJenkinsUrl(job_name, project_id);
+
+      // // 获取构建结果信息，从而获取构建参数
+      // const buildResult = await getBuildResult(baseUrl, job_name, build_id);
+
+      // const buildResultParse = JSON.parse(buildResult.body);
+      // // // 获取构建用户  如果是已经有的那么就从用户充查询，如果不是则获取jenkins用户
+      // const user = selBuild && selBuild.user_id ? await getUserInfo(selBuild.user_id) : getBuildUser(buildResultParse.actions);
+
+      // // 获取构建参数
+      // const parameters = getBuildParameters(buildResultParse.actions);
+      // const status = await app.utils.check_status.convertJenkinsStatusToInt(buildResultParse.result);
+
+      // 根据结果统计 （总数，失败数，通过数，通过率） 机器数（去重），  失败的类型
+      const statist = this.statisResult(pass_case, fail_case);
+      const machines = this.statisMachine(suits);
+
+      const custom_data = JSON.stringify({
+        report_url: reportUrl,
+        is_pass: status === 2,
+        fail_types,
+        user,
+        statist,
+        testModules: suits.length || 0,
+        machines,
+        out_data,
+      });
+
+      const params = {
+        id: selBuild && selBuild.id ? selBuild.id : null,
+        job_name,
+        status,
+        custom_data,
+        number: build_id,
+        duration: Math.ceil(duration_time / 1000) || 0,
+        parameters: JSON.stringify(parameters),
+        badges: parameters?.['branch'] || '',
+        build_type: utils.buildTypes.TEST,
+        file_path: reportUrl,
+        project_id,
+      };
+
+      return selBuild && selBuild.id
+        ? this.testResultUpdateBuild(params)
+        : this.testResultCreateBuild(params);
+    } catch (error) {
+      // app.utils.log.error("beforeDealWithTestBuild error", error);
+      // app.sentry.captureException(error);
+      return '';
+    }
+  }
+
+  // 更新或者新建自动化测试构建任务
+  async uploadTestResultBuild(req, reportUrl) {
+    const { build_id, job_name, project_id } = req;
+    // const [builds] = await app.mysql.query(tasksConstants.SELECT_BUILDS_BY_NUMBER_AND_JOB_NAME_AND_PROJECT_ID, [build_id, job_name, project_id]);
+    const build = await this.buildsRepository.findOne({
+      where: {
+        number: build_id,
+        job_name,
+        project_id,
+      },
+    });
+    return await this.beforeDealWithTestBuild(
+      build,
+      req,
+      reportUrl,
+      project_id,
+    );
+  }
+
+  //{ status, duration, custom_data, file_path, id }
+  async serverResultUpdateBuild({ id, ...serverUpBuildDto }) {
+    // const connection = await app.mysql.getConnection();
+
+    // try {
+    //   await connection.beginTransaction();
+    //   await connection.query(tasksConstants.UPDATE_BUILDS_WITH_SERVER_INFO, [status, duration, custom_data, file_path, id]);
+    //   await connection.commit();
+    // } catch (error) {
+    //   await connection.rollback();
+    //   throw error;
+    // } finally {
+    //   await connection.release();
+    // }
+    await this.buildsRepository.save({ id, ...serverUpBuildDto });
+
+    // 通知websocket
+    // const [builds] = await app.mysql.query(tasksConstants.SELECT_BUILD_BY_ID, [id]);
+    // const curBuild = builds[0];
+    // const [users] = await app.mysql.query(usersConstants.SELECT_ONE_USER_BY_ID, [curBuild.user_id]);
+    // curBuild['user'] = users[0];
+    const curBuild = await this.buildsRepository
+      .createQueryBuilder('b')
+      .where('b.id = :id', { id })
+      .leftJoinAndMapOne('b.user', 'users', 'u', 'u.id = b.user_id')
+      .getOne();
+
+    // 通知websocket
+    // const [builds] = await app.mysql.query(tasksConstants.SELECT_BUILD_BY_ID, [id]);
+    // const curBuild = builds[0];
+    // const [users] = await app.mysql.query(usersConstants.SELECT_ONE_USER_BY_ID, [curBuild.user_id]);
+    // curBuild['user'] = users[0];
+    // app.ci.emit('updateBuild', curBuild);
+    this.wsService.updateBuild(curBuild);
+    // doBuildFinish(id);
+    this.buildsServices.doBuildFinish(id);
+    return {};
+  }
+
+  //{ job_name, number, parameters, status, duration, badges, custom_data, build_type, file_path, project_id }
+  async serverResultCreateBuild(serverCrBuildDto) {
+    // const connection = await app.mysql.getConnection();
+    // try {
+    //   await connection.beginTransaction();
+    //   await connection.query(
+    //     tasksConstants.INSERT_BUILD_WITH_SERVER_INFO,
+    //     [build_type, job_name, number, status, duration, badges, parameters, custom_data, file_path, project_id]);
+    //   await connection.commit();
+    // } catch (error) {
+    //   await connection.rollback();
+    //   throw error;
+    // } finally {
+    //   await connection.release();
+    // }
+
+    // return {};
+    try {
+      const build = await this.buildsRepository.create(serverCrBuildDto);
+      await this.buildsRepository.save(build);
+    } catch (error) {
+      // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
+      // throw new Error(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async beforeDealWithServerBuild(selBuild, req, reportUrl, project_id) {
+    try {
+      const { build_id, job_name, out_data } = req;
+      const { duration, user, parameters, status } =
+        await this.getDataFromJenKinSResult(
+          selBuild,
+          job_name,
+          project_id,
+          build_id,
+        );
+      // // 先获取到jenkins 访问地址
+      // const baseUrl = await getJenkinsUrl(job_name, project_id);
+
+      // // 获取构建结果信息，从而获取构建参数
+      // const buildResult = await getBuildResult(baseUrl, job_name, build_id);
+
+      // const buildResultParse = JSON.parse(buildResult.body);
+      // // 获取构建用户  如果是已经有的那么就从用户充查询，如果不是则获取jenkins用户
+      // const user = selBuild && selBuild.user_id ? await getUserInfo(selBuild.user_id) : getBuildUser(buildResultParse.actions);
+      // // 获取构建参数
+      // const parameters = getBuildParameters(buildResultParse.actions);
+      // const status = await app.utils.check_status.convertJenkinsStatusToInt(buildResultParse.result);
+      const custom_data = JSON.stringify({
+        report_url: reportUrl,
+        is_pass: status === 2,
+        user,
+        out_data,
+      });
+
+      const params = {
+        id: selBuild && selBuild.id ? selBuild.id : null,
+        job_name,
+        status,
+        custom_data,
+        number: build_id,
+        duration: Math.ceil(duration / 1000) || 0,
+        parameters: JSON.stringify(parameters),
+        badges: parameters?.['branch'] || '',
+        build_type: utils.buildTypes.SERVER,
+        file_path: reportUrl,
+        project_id,
+      };
+
+      return selBuild && selBuild.id
+        ? this.serverResultUpdateBuild(params)
+        : this.serverResultCreateBuild(params);
+    } catch (error) {
+      // app.utils.log.error("beforeDealWithServerBuild error", error);
+      // app.sentry.captureException(error);
+      this.sentryClient.captureException(error);
+      return '';
+    }
+  }
+
+  // 更新或者新建服务器构建任务
+  async uploadServerResultBuild(req, reportUrl) {
+    const { build_id, job_name, project_id } = req;
+    // const [builds] = await app.mysql.query(tasksConstants.SELECT_BUILDS_BY_NUMBER_AND_JOB_NAME_AND_PROJECT_ID, [build_id, job_name, project_id]);
+    const build = await this.buildsRepository.findOne({
+      where: {
+        number: build_id,
+        job_name,
+        project_id,
+      },
+    });
+    return await this.beforeDealWithServerBuild(
+      build,
+      req,
+      reportUrl,
+      project_id,
+    );
   }
 }

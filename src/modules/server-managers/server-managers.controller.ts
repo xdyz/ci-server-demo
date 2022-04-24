@@ -12,6 +12,7 @@ import {
 import { ServerManagersService } from './server-managers.service';
 import { CreateServerManagerDto } from './dtos/create-server-manager.dto';
 import { UpdateServerManagerDto } from './dtos/update-server-manager.dto';
+import * as utils from 'src/utils/index.utils';
 
 @Controller('server-managers')
 export class ServerManagersController {
@@ -45,8 +46,11 @@ export class ServerManagersController {
   // });
   @Get('report/result/noauth')
   async getServerTaskFrequencyNoAuth(@Body() getServerManagerDto: any) {
-    const query = await app.utils.parseTimeToSeconds(getServerManagerDto);
-    return await this.serverManagersService.getServerTaskFrequency(query);
+    const query = await utils.parseTimeToSeconds(getServerManagerDto);
+    return await this.serverManagersService.getServerTaskFrequency({
+      ...getServerManagerDto,
+      ...query,
+    });
   }
 
   // app.get('/rate', {

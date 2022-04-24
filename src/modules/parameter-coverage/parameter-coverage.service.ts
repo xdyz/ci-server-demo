@@ -37,9 +37,7 @@ export class ParameterCoverageService {
         id,
         ...updateParameterCoverageDto,
       });
-      return {
-        data: result,
-      };
+      return result;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

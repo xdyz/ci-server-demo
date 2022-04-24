@@ -19,7 +19,7 @@ import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 export class BuildsService {
   sentryClient: any;
   constructor(@InjectSentry() private readonly sentryService: SentryService) {
-    this.sentryClient = sentryService.instance();
+    this.sentryClient = this.sentryService.instance();
   }
 
   @Inject()

@@ -1,4 +1,12 @@
-import { Controller, Inject, Post, Query } from '@nestjs/common';
+import {
+  Controller,
+  Inject,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { MinioService } from 'src/modules/minio/minio.service';
 import { TasksForeignService } from './foreign.service';
 
@@ -52,8 +60,9 @@ export class TasksForeignController {
   //   }
   // });
   @Post('upload/result')
-  async uploadResultBuild() {
-    const { content, filePath } = await this.uploadFileToMinio(body.file);
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadResultBuild(@UploadedFile() file: any) {
+    const { content, filePath } = await this.uploadFileToMinio(file);
     this.tasksForeignService.uploadResultBuild(JSON.parse(content), filePath);
     return '';
   }
@@ -69,8 +78,9 @@ export class TasksForeignController {
   //   }
   // });
   @Post('upload/test_result')
-  async uploadTestResultBuild() {
-    const { content, filePath } = await this.uploadFileToMinio(body.file);
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadTestResultBuild(@UploadedFile() file: any) {
+    const { content, filePath } = await this.uploadFileToMinio(file);
     this.tasksForeignService.uploadTestResultBuild(
       JSON.parse(content),
       filePath,
@@ -90,8 +100,9 @@ export class TasksForeignController {
   //   }
   // });
   @Post('upload/server_result')
-  async uploadServerResultBuild() {
-    const { content, filePath } = await this.uploadFileToMinio(body.file);
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadServerResultBuild(@UploadedFile() file: any) {
+    const { content, filePath } = await this.uploadFileToMinio(file);
     this.tasksForeignService.uploadServerResultBuild(
       JSON.parse(content),
       filePath,
@@ -124,8 +135,12 @@ export class TasksForeignController {
   //   }
   // });
   @Post('upload/result_file')
-  async uploadResultBuild2(@Query('build_type') build_type: string) {
-    const { content, filePath } = await this.uploadFileToMinio(body.file);
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadResultBuild2(
+    @UploadedFile() file: any,
+    @Query('build_type') build_type: string,
+  ) {
+    const { content, filePath } = await this.uploadFileToMinio(file);
     switch (build_type) {
       case 'package':
         this.tasksForeignService.uploadResultBuild(

@@ -20,11 +20,20 @@ import * as utils from 'src/utils/index.utils';
 import { WsService } from 'src/modules/websocket/ws.service';
 import { NotifyService } from 'src/modules/notify/notify.service';
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 @Injectable()
 export class PipelinesListService implements OnModuleInit {
   sentryClient: any;
-  constructor(@InjectSentry() private readonly sentryService: SentryService) {
-    this.sentryClient = sentryService.instance();
+
+  // @Inject()
+  // schedulerRegistry: SchedulerRegistry;
+
+  constructor(
+    private schedulerRegistry: SchedulerRegistry,
+    @InjectSentry() private readonly sentryService: SentryService,
+  ) {
+    this.sentryClient = this.sentryService.instance();
   }
 
   @Inject()
@@ -47,10 +56,10 @@ export class PipelinesListService implements OnModuleInit {
 
   public pipelinesData = {};
   public executeNodes = {};
-  public schedules = {};
+  // public schedules = {};
 
   // 触发类型
-  TRIGER_TYPE = {
+  public TRIGER_TYPE = {
     EVERY: 1,
     WORK_DAY: 2,
     NO_REPEAT: 3,
@@ -342,18 +351,22 @@ export class PipelinesListService implements OnModuleInit {
     const second = moment_data.seconds();
     const minute = moment_data.minutes();
     const hour = moment_data.hours();
-    const schedule_obj = {
-      hour,
-      second,
-      minute,
-    };
+    const year = moment_data.year();
+    const month = moment_data.month();
+    const date = moment_data.date();
+    // const schedule_obj = {
+    //   hour,
+    //   second,
+    //   minute,
+    // };
+    let scheduleTime = '';
     // 不重复的管线 获取年月日
     if (triger_type === this.TRIGER_TYPE.NO_REPEAT) {
-      Object.assign(schedule_obj, {
-        year: moment_data.year(),
-        month: moment_data.month(),
-        date: moment_data.date(),
-      });
+      // Object.assign(schedule_obj, {
+      //   year: moment_data.year(),
+      //   month: moment_data.month(),
+      //   date: moment_data.date(),
+      // });
       // schedule_obj.year = moment_data.year();
       // schedule_obj.month = moment_data.month();
       // schedule_obj.date = moment_data.date();
@@ -362,42 +375,66 @@ export class PipelinesListService implements OnModuleInit {
       if (pipelint_time < new Date().getTime()) {
         return;
       }
+      scheduleTime = `${second} ${minute} ${hour} ${date} ${month} ? ${year}`;
     }
 
+    // 每周执行一次
     if (triger_type === this.TRIGER_TYPE.WEEK_DAY) {
       // schedule_obj.dayOfWeek = week_day;
-      Object.assign(schedule_obj, {
-        dayOfWeek: week_day,
-      });
+      //
+      scheduleTime = `${second} ${minute} ${hour} ? * ${week_day}`;
     }
 
-    const scheduleEvent = scheduler.scheduleJob(schedule_obj, () => {
-      // 不是工作日不执行
-      if (triger_type === this.TRIGER_TYPE.WORK_DAY) {
-        const cur_day = new Date().getDay();
-        if (cur_day === 0 || cur_day === 6) {
-          return;
-        }
-      }
+    // 工作日执行一次
+    if (triger_type === this.TRIGER_TYPE.WORK_DAY) {
+      //  每周周一到周五 执行一次
+      scheduleTime = `${second} ${minute} ${hour} ? * MON-FRI`;
+    }
 
-      // if (triger_type === TRIGER_TYPE.WEEK_DAY) {
-      //   //  不是设置好的 周几 日期  则不执行
-      //   const cur_day = new Date().getDay();
-      //   if (week_day !== cur_day) {
-      //     return;
-      //   }
-      // }
-      this.execute(id, created_user.id);
-      // 不重复 执行完删除定时器
-      if (triger_type === this.TRIGER_TYPE.NO_REPEAT) {
-        const event = this.schedules[id];
-        event.cancel();
-        delete this.schedules[id];
-        return;
-      }
+    // 每天执行一次
+    if (triger_type === this.TRIGER_TYPE.EVERY) {
+      // schedule_obj.dayOfMonth = date;
+      scheduleTime = `${second} ${minute} ${hour} ? * *`;
+    }
+
+    if (!scheduleTime) return;
+
+    const cornJob = new CronJob({
+      cronTime: scheduleTime,
+      onTick: () => {
+        this.execute(id, created_user);
+      },
     });
 
-    this.schedules[id] = scheduleEvent;
+    this.schedulerRegistry.addCronJob(id, cornJob);
+
+    // const scheduleEvent = scheduler.scheduleJob(schedule_obj, () => {
+    //   // 不是工作日不执行
+    //   if (triger_type === this.TRIGER_TYPE.WORK_DAY) {
+    //     const cur_day = new Date().getDay();
+    //     if (cur_day === 0 || cur_day === 6) {
+    //       return;
+    //     }
+    //   }
+
+    //   // if (triger_type === TRIGER_TYPE.WEEK_DAY) {
+    //   //   //  不是设置好的 周几 日期  则不执行
+    //   //   const cur_day = new Date().getDay();
+    //   //   if (week_day !== cur_day) {
+    //   //     return;
+    //   //   }
+    //   // }
+    //   this.execute(id, created_user.id);
+    //   // 不重复 执行完删除定时器
+    //   if (triger_type === this.TRIGER_TYPE.NO_REPEAT) {
+    //     const event = this.schedules[id];
+    //     event.cancel();
+    //     delete this.schedules[id];
+    //     return;
+    //   }
+    // });
+
+    // this.schedules[id] = scheduleEvent;
   }
 
   // 分页获取管线
@@ -445,9 +482,7 @@ export class PipelinesListService implements OnModuleInit {
         'u.id = p.created_user',
       )
       .getOne();
-    return {
-      data: pipeline,
-    };
+    return pipeline;
   }
 
   async getAllPipelines() {
@@ -496,14 +531,18 @@ export class PipelinesListService implements OnModuleInit {
 
       // const info = await getOnePipeline(id);
       // 如果已经有了定时器 就先取消定时器
-      if (this.schedules[info.data.id]) {
-        const event = this.schedules[info.data.id];
-        event.cancel();
-        delete this.schedules[id];
+      // if (this.schedules[info.data.id]) {
+      //   const event = this.schedules[info.data.id];
+      //   event.cancel();
+      //   delete this.schedules[id];
+      // }
+      const cronJob = this.schedulerRegistry.getCronJob(id);
+      if (cronJob) {
+        this.schedulerRegistry.deleteCronJob(id);
       }
       //  如果配置了定时 就启动定时
-      if (info.data.schedule_time) {
-        this.schedule(info.data);
+      if (info?.schedule_time) {
+        this.schedule(info);
       }
       return info;
     } catch (error) {
@@ -540,10 +579,14 @@ export class PipelinesListService implements OnModuleInit {
   async deletePipeline(id) {
     try {
       await this.pipelinesRepository.delete(id);
-      if (this.schedules[id]) {
-        const event = this.schedules[id];
-        event.cancel();
-        delete this.schedules[id];
+      // if (this.schedules[id]) {
+      //   const event = this.schedules[id];
+      //   event.cancel();
+      //   delete this.schedules[id];
+      // }
+      const cronJob = this.schedulerRegistry.getCronJob(id);
+      if (cronJob) {
+        this.schedulerRegistry.deleteCronJob(id);
       }
       return {};
     } catch (error) {
@@ -562,14 +605,18 @@ export class PipelinesListService implements OnModuleInit {
 
       const info = await this.getOnePipeline(pipeline.id);
       // 如果已经有了定时器 就先取消定时器
-      if (this.schedules[info.data.id]) {
-        const event = this.schedules[info.data.id];
-        event.cancel();
-        delete this.schedules[pid];
+      // if (this.schedules[info.data.id]) {
+      //   const event = this.schedules[info.data.id];
+      //   event.cancel();
+      //   delete this.schedules[pid];
+      // }
+      const cronJob = this.schedulerRegistry.getCronJob(`${pipeline.id}`);
+      if (cronJob) {
+        this.schedulerRegistry.deleteCronJob(`${pipeline.id}`);
       }
       //  如果配置了定时 就启动定时
-      if (info.data.schedule_time) {
-        this.schedule(info.data);
+      if (info.schedule_time) {
+        this.schedule(info);
       }
       return info;
     } catch (error) {
@@ -942,7 +989,7 @@ export class PipelinesListService implements OnModuleInit {
   async execute(id, userId) {
     //创建管线记录
     const pipline = await this.getOnePipeline(id);
-    const pipdata = pipline.data;
+    const pipdata = pipline;
     const pipeline_id = pipdata.id;
     const record = await this.pipelinesRecordsService.insertPipelineRecord(
       {

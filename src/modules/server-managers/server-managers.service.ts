@@ -4,7 +4,7 @@ import { BuildsEntity, TasksEntity } from 'src/entities';
 import { Repository } from 'typeorm';
 import { CreateServerManagerDto } from './dtos/create-server-manager.dto';
 import { UpdateServerManagerDto } from './dtos/update-server-manager.dto';
-
+import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class ServerManagersService {
   @InjectRepository(BuildsEntity)
@@ -54,7 +54,7 @@ export class ServerManagersService {
     // const [builds] = await app.mysql.query(serverManagerConstants.SELECT_SERVER_BUILD_NO_CONDITION, [SERVER, project_id, 1, from, to]);
     const builds = await this.buildsRepository
       .createQueryBuilder('b')
-      .where('b.type = :type', { type: SERVER })
+      .where('b.type = :type', { type: utils.buildTypes.SERVER })
       .andWhere('b.project_id = :project_id', { project_id })
       .andWhere('b.status >= :status', { status: 1 })
       .andWhere('b.created_at >= :from', { from })
@@ -101,7 +101,7 @@ export class ServerManagersService {
     const categries = await this.tasksRepository.find({
       where: {
         project_id,
-        build_type: SERVER,
+        build_type: utils.buildTypes.SERVER,
       },
     });
 
@@ -126,7 +126,7 @@ export class ServerManagersService {
     // const [builds] = await app.mysql.query(serverManagerConstants.SELECT_SERVER_BUILD_NO_CONDITION, [SERVER, project_id, 1, from, to]);
     const builds = await this.buildsRepository
       .createQueryBuilder('b')
-      .where('b.type = :type', { type: SERVER })
+      .where('b.type = :type', { type: utils.buildTypes.SERVER })
       .andWhere('b.project_id = :project_id', { project_id })
       .andWhere('b.status >= :status', { status: 1 })
       .andWhere('b.created_at >= :from', { from })
@@ -182,7 +182,7 @@ export class ServerManagersService {
     const categries = await this.tasksRepository.find({
       where: {
         project_id,
-        build_type: SERVER,
+        build_type: utils.buildTypes.SERVER,
       },
     });
 
@@ -211,7 +211,7 @@ export class ServerManagersService {
     // const [builds] = await app.mysql.query(serverManagerConstants.SELECT_SERVER_BUILD_NO_CONDITION, [SERVER, project_id, 1, from, to]);
     const builds = await this.buildsRepository
       .createQueryBuilder('b')
-      .where('b.type = :type', { type: SERVER })
+      .where('b.type = :type', { type: utils.buildTypes.SERVER })
       .andWhere('b.project_id = :project_id', { project_id })
       .andWhere('b.status >= :status', { status: 1 })
       .andWhere('b.created_at >= :from', { from })
@@ -234,7 +234,7 @@ export class ServerManagersService {
         const task = await this.tasksRepository.findOne({
           where: {
             project_id,
-            build_type: SERVER,
+            build_type: utils.buildTypes.SERVER,
             name: item.job_name,
           },
         });
@@ -267,7 +267,9 @@ export class ServerManagersService {
             'ROW_NUMBER() OVER (PARTITION BY job_name ORDER BY created_at DESC) AS rn, u.* ',
           )
           .from('builds', 'u')
-          .where('build_type = :build_type', { build_type: SERVER })
+          .where('build_type = :build_type', {
+            build_type: utils.buildTypes.SERVER,
+          })
           .andWhere('project_id = :project_id', { project_id });
         return subQuery;
       }, 't')
