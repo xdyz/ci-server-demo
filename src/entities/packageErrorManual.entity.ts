@@ -2,7 +2,7 @@ import BaseEntity from './baseEntity';
 import { Column, Entity } from 'typeorm';
 
 @Entity('package_error_manual')
-export default class packageErrorManualEntity extends BaseEntity {
+export default class PackageErrorManualEntity extends BaseEntity {
   @Column({
     type: 'varchar',
     name: 'key_words',

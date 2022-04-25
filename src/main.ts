@@ -7,6 +7,7 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  console.log(2222, process.env);
 
   // 跨域配置
   app.enableCors();

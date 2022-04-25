@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PipelineRecordsEntity, PipelinesEntity } from 'src/entities';
 import { TasksService } from '../../tasks/list/tasks.service';
@@ -7,11 +13,12 @@ import { PipelinesListService } from '../pipeline-list/pipeline-list.service';
 
 @Injectable()
 export class PipelinesRecordsReportService {
-  @Inject()
-  private readonly pipelinesListService: PipelinesListService;
+  constructor(
+    private readonly pipelinesListService: PipelinesListService,
 
-  @Inject()
-  private readonly tasksService: TasksService;
+    @Inject(forwardRef(() => TasksService))
+    private readonly tasksService: TasksService,
+  ) {}
 
   @InjectRepository(PipelinesEntity)
   private readonly pipelinesRepository: Repository<PipelinesEntity>;

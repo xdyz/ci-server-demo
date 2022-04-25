@@ -20,8 +20,7 @@ import { WsService } from './ws.service';
 export class WsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  @Inject()
-  private readonly wsService: WsService;
+  constructor(private readonly wsService: WsService) {}
 
   afterInit(server: Server) {
     this.wsService.init(server);

@@ -15,7 +15,7 @@ import { UpdateTaskDto } from './dtos/update-task.dto';
 export class TasksService implements OnModuleInit {
   sentryClient: any;
   constructor(@InjectSentry() private readonly sentryService: SentryService) {
-    this.sentryClient = sentryService.instance();
+    this.sentryClient = this.sentryService.instance();
   }
   @InjectRepository(TasksEntity)
   private readonly tasksRepository: Repository<TasksEntity>;

@@ -2,7 +2,7 @@ import BaseEntity from './baseEntity';
 import { Column, Entity } from 'typeorm';
 
 @Entity('parameter_coverage')
-export default class parameterCoverageEntity extends BaseEntity {
+export default class ParameterCoverageEntity extends BaseEntity {
   @Column({
     type: 'int',
     name: 'task_id',

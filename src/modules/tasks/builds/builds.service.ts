@@ -1,11 +1,17 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BuildsEntity, TasksEntity, UsersEntity } from 'src/entities';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
 import { ResourceInstanceItemsService } from 'src/modules/resource/items/items.service';
 import { Repository } from 'typeorm';
 // import { got } from 'got';
-import { MinioService } from 'src/modules/minio/minio.service';
+import { MinioClientService } from 'src/modules/minio-client/minio-client.service';
 import { ProjectsService } from 'src/modules/projects/projects.service';
 import { GitInfoService } from 'src/modules/git-info/git-info.service';
 
@@ -20,36 +26,21 @@ import { lastValueFrom, map } from 'rxjs';
 @Injectable()
 export class BuildsService {
   sentryClient: any;
-  constructor(@InjectSentry() private readonly sentryService: SentryService) {
+  constructor(
+    // private httpService: HttpService,
+    @InjectSentry()
+    private readonly sentryService: SentryService,
+    private httpService: HttpService,
+    private readonly tasksService: TasksService,
+    private readonly jenkinsInfoService: JenkinsInfoService,
+    private readonly resourceInstanceItemsService: ResourceInstanceItemsService,
+    private readonly wsService: WsService,
+    private readonly minioClientService: MinioClientService,
+    private readonly projectsService: ProjectsService,
+    private readonly gitInfoService: GitInfoService, // @Inject(forwardRef(() => PipelinesListService)) // private readonly pipelinesListService: PipelinesListService,
+  ) {
     this.sentryClient = this.sentryService.instance();
   }
-
-  @Inject()
-  private readonly httpService: HttpService;
-
-  @Inject()
-  private readonly tasksService: TasksService;
-
-  @Inject()
-  private readonly jenkinsInfoService: JenkinsInfoService;
-
-  @Inject()
-  private readonly resourceInstanceItemsService: ResourceInstanceItemsService;
-
-  @Inject()
-  private readonly wsService: WsService;
-
-  @Inject()
-  private readonly minioService: MinioService;
-
-  @Inject()
-  private readonly projectsService: ProjectsService;
-
-  @Inject()
-  private readonly gitInfoService: GitInfoService;
-
-  @Inject()
-  private readonly pipelinesListService: PipelinesListService;
 
   @InjectRepository(BuildsEntity)
   private readonly buildsRepository: Repository<BuildsEntity>;
@@ -268,7 +259,7 @@ export class BuildsService {
     );
 
     // 上传文件 返回文件地址
-    const filePath = await this.minioService.beforePutObject({
+    const filePath = await this.minioClientService.beforePutObject({
       val: logRes.body,
       projectId: project_id,
       jobName: jenkinsJobName,
@@ -337,7 +328,7 @@ export class BuildsService {
     // });
 
     // 上传文件 返回文件地址
-    const filePath = await this.minioService.beforePutObject({
+    const filePath = await this.minioClientService.beforePutObject({
       val: logRes.body,
       projectId: project_id,
       jobName: jenkinsJobName,
@@ -631,7 +622,7 @@ export class BuildsService {
   async doBuildFinish(buildId) {
     const buildData = await this.findBuild(buildId);
     // app.ci.emit('BUILD_END', buildData);
-    this.pipelinesListService.buildEnd(buildData);
+    // this.pipelinesListService.buildEnd(buildData);
     // 这里需要取调用pipeline 的 buildEnd方法
   }
 
@@ -795,7 +786,7 @@ export class BuildsService {
     if (file_path) {
       try {
         // report = JSON.parse(await readFile(customData.report_url));
-        report = (await this.minioService.getObject(file_path)).data;
+        report = (await this.minioClientService.getObject(file_path)).data;
       } catch (error) {
         report = null;
       }

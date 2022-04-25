@@ -11,8 +11,7 @@ import { ResourceCategoryService } from '../category/category.service';
 
 @Injectable()
 export class ResourceTermsService {
-  @Inject()
-  private resourceCategoryService: ResourceCategoryService;
+  constructor(private resourceCategoryService: ResourceCategoryService) {}
 
   @InjectRepository(ResourceTermsEntity)
   private readonly resourceTermsRepository: Repository<ResourceTermsEntity>;

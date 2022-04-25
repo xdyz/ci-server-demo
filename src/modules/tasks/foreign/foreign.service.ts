@@ -14,24 +14,16 @@ import { lastValueFrom, map } from 'rxjs';
 @Injectable()
 export class TasksForeignService {
   sentryClient: any;
-  constructor(@InjectSentry() private readonly sentryService: SentryService) {
+  constructor(
+    @InjectSentry() private readonly sentryService: SentryService,
+    private readonly httpService: HttpService,
+    private readonly jenkinsInfoService: JenkinsInfoService,
+    private readonly buildsServices: BuildsService,
+    private readonly wsService: WsService,
+    private readonly packageErrorManualService: PackageErrorManualService,
+  ) {
     this.sentryClient = this.sentryService.instance();
   }
-
-  @Inject()
-  private readonly httpService: HttpService;
-
-  @Inject()
-  private readonly jenkinsInfoService: JenkinsInfoService;
-
-  @Inject()
-  private readonly buildsServices: BuildsService;
-
-  @Inject()
-  private readonly wsService: WsService;
-
-  @Inject()
-  private readonly packageErrorManualService: PackageErrorManualService;
 
   @InjectRepository(TasksEntity)
   private readonly tasksRepository: Repository<TasksEntity>;

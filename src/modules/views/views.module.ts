@@ -6,9 +6,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TasksEntity, ViewsEntity } from 'src/entities';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ViewsEntity, TasksEntity]), TasksService],
+  imports: [TypeOrmModule.forFeature([ViewsEntity, TasksEntity])],
   exports: [ViewsService],
   controllers: [ViewsController],
-  providers: [ViewsService],
+  providers: [ViewsService, TasksService],
 })
 export class ViewsModule {}

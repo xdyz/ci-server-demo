@@ -10,7 +10,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { GitInfoModule } from './modules/git-info/git-info.module';
 import { JenkinsInfoModule } from './modules/jenkins-info/jenkins-info.module';
 import { MenusModule } from './modules/menus/menus.module';
-import { MinioModule } from './modules/minio/minio.module';
+import { MinioClientModule } from './modules/minio-client/minio-client.module';
 import { NotifyModule } from './modules/notify/notify.module';
 import { PackageErrorManualModule } from './modules/package-error-manual/package-error-manual.module';
 import { ParameterCoverageModule } from './modules/parameter-coverage/parameter-coverage.module';
@@ -27,8 +27,9 @@ import sentryConfig from './config/sentry.config';
 import { WsModule } from './modules/websocket/ws.module';
 import { SentryModule } from '@ntegral/nestjs-sentry';
 import { ScheduleModule } from '@nestjs/schedule';
-import { HttpModule } from '@nestjs/axios';
-import { MinioModule as MinioClientModule } from 'nestjs-minio-client';
+// import { HttpModule } from '@nestjs/axios';
+import { MinioModule } from 'nestjs-minio-client';
+import { AxiosModule } from './modules/axios/axios.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -40,12 +41,23 @@ import { MinioModule as MinioClientModule } from 'nestjs-minio-client';
       expandVariables: true,
       load: [typeOrmConfig, minioConfig, sentryConfig],
     }),
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) =>
-        configService.get('typeorm'),
+    // TypeOrmModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) =>
+    //     configService.get('typeorm'),
+    // }),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: '123456',
+      database: 'nest1',
+      entities: [__dirname + '/entities/*.entity{.ts,.js}'],
+      synchronize: true,
+      logging: true,
     }),
-    // MinioClientModule.registerAsync({
+    // MinioModule.registerAsync({
     //   inject: [ConfigService],
     //   useFactory: (configService: ConfigService) => configService.get('minio'),
     // }),
@@ -54,28 +66,32 @@ import { MinioModule as MinioClientModule } from 'nestjs-minio-client';
       useFactory: (configService: ConfigService) => configService.get('sentry'),
     }),
     ScheduleModule.forRoot(),
-    HttpModule,
+
+    AxiosModule,
     AuthModule,
     UsersModule,
     RolesModule,
     ProjectsModule,
     MembersModule,
-    ViewsModule,
-    TasksModule,
+
     GitInfoModule,
     JenkinsInfoModule,
     MenusModule,
-    MinioModule,
+    MinioClientModule,
     NotifyModule,
-    PackageErrorManualModule,
-    ParameterCoverageModule,
-    ServerManagersModule,
-    TestErrorManualModule,
-    PackageModule,
-    ResourceModule,
-    AutoTestModule,
-    PipelinesModule,
-    WsModule,
+
+    // ParameterCoverageModule,
+    // ServerManagersModule,
+    // TestErrorManualModule,
+    // PackageModule,
+    // ResourceModule,
+    // AutoTestModule,
+    // PackageErrorManualModule,
+    // PipelinesModule,
+
+    // ViewsModule,
+    // TasksModule,
+    // WsModule,
   ],
   controllers: [],
   providers: [],

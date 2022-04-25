@@ -8,7 +8,7 @@ export class ResourceInstancesService {
   @InjectRepository(ResourceInstanceEntity)
   private readonly resourceInstanceRepository: Repository<ResourceInstanceEntity>;
 
-  async dealWithQuery(params = {}) {
+  dealWithQuery(params = {}) {
     const result = {};
     Object.keys(params).forEach((key) => {
       const val = params[key];

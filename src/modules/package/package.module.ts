@@ -4,6 +4,7 @@ import { PackageController } from './package.controller';
 import { PackageErrorManualService } from '../package-error-manual/package-error-manual.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BuildsEntity, TasksEntity } from 'src/entities';
+import { PackageErrorManualModule } from '../package-error-manual/package-error-manual.module';
 
 @Module({
   imports: [

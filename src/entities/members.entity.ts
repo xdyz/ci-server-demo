@@ -17,9 +17,9 @@ export default class MembersEntity extends BaseEntity {
   roleId: number;
 
   @Column({
-    type: "int",
-    name: "project_id",
-    comment: "项目id"
+    type: 'int',
+    name: 'project_id',
+    comment: '项目id',
   })
   project_id: number;
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Inject, Module } from '@nestjs/common';
 import { PipelinesListService } from './pipeline-list/pipeline-list.service';
 import { PipelinesListController } from './pipeline-list/pipeline-list.controller';
 import { RouterModule } from '@nestjs/core';
@@ -12,20 +12,18 @@ import { PipelinesRecordsReportController } from './report/report.controller';
 import { PipelinesRecordsReportService } from './report/report.service';
 import { WsService } from '../websocket/ws.service';
 import { NotifyService } from '../notify/notify.service';
-
+import { BuildsService } from '../tasks/builds/builds.service';
+import { HttpService } from '@nestjs/axios';
+import { SchedulerRegistry } from '@nestjs/schedule';
 @Module({
   imports: [
     RouterModule.register([
       {
-        path: '/pipelines',
+        path: 'pipelines',
         module: PipelinesModule,
       },
     ]),
     TypeOrmModule.forFeature([PipelinesEntity, PipelineRecordsEntity]),
-    TasksService,
-    JenkinsInfoService,
-    WsService,
-    NotifyService,
   ],
   controllers: [
     PipelinesListController,
@@ -33,6 +31,13 @@ import { NotifyService } from '../notify/notify.service';
     PipelinesRecordsReportController,
   ],
   providers: [
+    JenkinsInfoService,
+    WsService,
+    NotifyService,
+    BuildsService,
+    HttpService,
+    SchedulerRegistry,
+    TasksService,
     PipelinesListService,
     PipelinesRecordsService,
     PipelinesRecordsReportService,

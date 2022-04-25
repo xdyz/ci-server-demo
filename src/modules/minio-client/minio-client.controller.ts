@@ -10,13 +10,13 @@ import {
   Request,
   Query,
 } from '@nestjs/common';
-import { MinioService } from './minio.service';
+import { MinioClientService } from './minio-client.service';
 import { CreateMinioDto } from './dtos/create-minio.dto';
 import { UpdateMinioDto } from './dtos/update-minio.dto';
 
 @Controller('minio')
-export class MinioController {
-  constructor(private readonly minioService: MinioService) {}
+export class MinioClinentController {
+  constructor(private readonly minioClientService: MinioClientService) {}
 
   // app.get('/presignedPostPolicy', {
   //   preHandler: app.verifyAuthorization,
@@ -31,7 +31,7 @@ export class MinioController {
     @Query() getMinioDto: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.minioService.presignedPostPolicy(user, getMinioDto);
+    return await this.minioClientService.presignedPostPolicy(user, getMinioDto);
   }
 
   // app.get('/presignedPostPolicy/:project_id', {
@@ -47,7 +47,7 @@ export class MinioController {
     @Query() getMinioDto: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.minioService.presignedPostPolicy(user, getMinioDto);
+    return await this.minioClientService.presignedPostPolicy(user, getMinioDto);
   }
 
   // app.get('/listObjects', {
@@ -63,7 +63,10 @@ export class MinioController {
     @Query() getMinioDto: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.minioService.getProjectAssetBundles(user, getMinioDto);
+    return await this.minioClientService.getProjectAssetBundles(
+      user,
+      getMinioDto,
+    );
   }
 
   // app.get('/presignedGetObject', {
@@ -74,7 +77,7 @@ export class MinioController {
   // });
   @Get('presignedGetObject')
   async presignedGetObject(@Query() getMinioDto: any) {
-    return await this.minioService.presignedGetObject(getMinioDto);
+    return await this.minioClientService.presignedGetObject(getMinioDto);
   }
 
   // app.get('/presignedGetObject/file', {
@@ -85,6 +88,6 @@ export class MinioController {
   // })
   @Get('presignedGetObject/file')
   async presignedGetObject2(@Query() getMinioDto: any) {
-    return await this.minioService.presignedGetObject(getMinioDto);
+    return await this.minioClientService.presignedGetObject(getMinioDto);
   }
 }

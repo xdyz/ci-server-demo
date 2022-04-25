@@ -7,16 +7,15 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MinioService } from 'src/modules/minio/minio.service';
+import { MinioClientService } from 'src/modules/minio-client/minio-client.service';
 import { TasksForeignService } from './foreign.service';
 
 @Controller('foreign')
 export class TasksForeignController {
-  @Inject()
-  private readonly tasksForeignService: TasksForeignService;
-
-  @Inject()
-  private readonly minioService: MinioService;
+  constructor(
+    private readonly tasksForeignService: TasksForeignService,
+    private readonly minioClientService: MinioClientService,
+  ) {}
 
   // 将文件上传至文件系统，并且返回其路径
   async uploadFileToMinio(file) {
@@ -29,7 +28,7 @@ export class TasksForeignController {
       const val = await file.toBuffer();
       const info = await val.toString();
       const { build_id, job_name, project_id } = info ? JSON.parse(info) : null;
-      const filePath = await this.minioService.beforePutObject({
+      const filePath = await this.minioClientService.beforePutObject({
         val,
         projectId: Number(project_id),
         jobName: job_name,

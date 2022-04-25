@@ -3,19 +3,19 @@ import { AutoTestService } from './auto-test.service';
 import { AutoTestController } from './auto-test.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BuildsEntity } from 'src/entities';
-import { MinioService } from '../minio/minio.service';
+import { MinioClientService } from '../minio-client/minio-client.service';
 import { TasksService } from '../tasks/list/tasks.service';
 import { TestErrorManualService } from '../test-error-manual/test-error-manual.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([BuildsEntity]),
-    MinioService,
+  imports: [TypeOrmModule.forFeature([BuildsEntity])],
+  controllers: [AutoTestController],
+  providers: [
+    AutoTestService,
+    MinioClientService,
     TasksService,
     TestErrorManualService,
   ],
-  controllers: [AutoTestController],
-  providers: [AutoTestService],
   exports: [AutoTestService],
 })
 export class AutoTestModule {}

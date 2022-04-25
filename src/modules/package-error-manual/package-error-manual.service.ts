@@ -43,8 +43,6 @@ export class PackageErrorManualService {
 
   async getManualErrors({ project_id }, { page, size, ...rest }) {
     try {
-      page = parseInt(page, 10);
-      size = parseInt(size, 10);
       const queries = this.dealWithQuery(rest);
       const [manuals, count] = await this.packageErrorManualRepository
         .createQueryBuilder('pme')

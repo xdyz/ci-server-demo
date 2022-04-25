@@ -13,14 +13,11 @@ import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class PackageService {
-  @Inject()
-  private readonly packageErrorManualService: PackageErrorManualService;
-
-  @Inject()
-  private readonly httpService: HttpService;
-
-  @Inject()
-  private readonly jenkinsInfoService: JenkinsInfoService;
+  constructor(
+    private httpService: HttpService,
+    private readonly packageErrorManualService: PackageErrorManualService,
+    private readonly jenkinsInfoService: JenkinsInfoService,
+  ) {}
 
   @InjectRepository(BuildsEntity)
   private readonly buildsRepository: Repository<BuildsEntity>;

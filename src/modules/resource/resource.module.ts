@@ -9,6 +9,7 @@ import {
   ResourceInstanceItemsEntity,
   ResourceTermsEntity,
 } from 'src/entities';
+import { MinioClientService } from '../minio-client/minio-client.service';
 import { ResourceCategoryController } from './category/category.contorller';
 import { ResourceCategoryService } from './category/category.service';
 import { ResourceInstancesController } from './instances/instances.controller';
@@ -45,6 +46,7 @@ import { ResourceTermsService } from './terms/terms.service';
     ResourceRecordsController,
   ],
   providers: [
+    MinioClientService,
     ResourceCategoryService,
     ResourceTermsService,
     ResourceInstancesService,

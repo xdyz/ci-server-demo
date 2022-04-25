@@ -1,15 +1,15 @@
-import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { lastValueFrom, map } from 'rxjs';
 import { GitInfoEntity } from 'src/entities';
 import { Repository } from 'typeorm';
+import { HttpService } from '@nestjs/axios';
+
 // import { got } from 'got';`
 
 @Injectable()
 export class GitInfoService {
-  @Inject()
-  private readonly httpService: HttpService;
+  constructor(private readonly httpService: HttpService) {}
 
   @InjectRepository(GitInfoEntity)
   private readonly gitInfoRepository: Repository<GitInfoEntity>;

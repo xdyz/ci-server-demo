@@ -10,11 +10,10 @@ import { ResourceTermsService } from '../terms/terms.service';
 
 @Injectable()
 export class ResourceInstanceItemsService {
-  @Inject()
-  private readonly resourceTermsService: ResourceTermsService;
-
-  @Inject()
-  private readonly resourceCategoryService: ResourceCategoryService;
+  constructor(
+    private readonly resourceTermsService: ResourceTermsService,
+    private readonly resourceCategoryService: ResourceCategoryService,
+  ) {}
 
   @InjectRepository(ResourceInstanceItemsEntity)
   private readonly resourceInstanceItemRepository: Repository<ResourceInstanceItemsEntity>;

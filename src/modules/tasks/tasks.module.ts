@@ -5,12 +5,25 @@ import { RouterModule } from '@nestjs/core';
 import { JenkinsInfoService } from '../jenkins-info/jenkins-info.service';
 import { PackageErrorManualService } from '../package-error-manual/package-error-manual.service';
 import { ResourceInstanceItemsService } from '../resource/items/items.service';
-import { MinioService } from '../minio/minio.service';
+import { MinioClientService } from '../minio-client/minio-client.service';
 import { ProjectsService } from '../projects/projects.service';
 import { GitInfoService } from '../git-info/git-info.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BuildsEntity, TasksEntity, UsersEntity } from 'src/entities';
+import {
+  BuildsEntity,
+  PackageErrorManualEntity,
+  TasksEntity,
+  UsersEntity,
+} from 'src/entities';
+import { BuildsController } from './builds/builds.controller';
+import { TasksForeignController } from './foreign/foreign.contorller';
+import { BuildsService } from './builds/builds.service';
+import { TasksForeignService } from './foreign/foreign.service';
 import { HttpService } from '@nestjs/axios';
+import { WsService } from '../websocket/ws.service';
+import { ResourceTermsService } from '../resource/terms/terms.service';
+import { PipelinesListService } from '../pipelines/pipeline-list/pipeline-list.service';
+import { ResourceCategoryService } from '../resource/category/category.service';
 
 @Module({
   imports: [
@@ -21,16 +34,28 @@ import { HttpService } from '@nestjs/axios';
       },
     ]),
     TypeOrmModule.forFeature([TasksEntity, BuildsEntity, UsersEntity]),
+
+    // JenkinsInfoService,
+    // PackageErrorManualService,
+    // ResourceInstanceItemsService,
+    // MinioService,
+    // ProjectsService,
+    // GitInfoService,
+  ],
+  controllers: [TasksController, BuildsController, TasksForeignController],
+  providers: [
     JenkinsInfoService,
     PackageErrorManualService,
     ResourceInstanceItemsService,
-    MinioService,
+    MinioClientService,
     ProjectsService,
     GitInfoService,
-    HttpService,
+    WsService,
+    // PipelinesListService,
+    TasksService,
+    BuildsService,
+    TasksForeignService,
   ],
-  controllers: [TasksController],
-  providers: [TasksService],
-  exports: [TasksService],
+  exports: [TasksService, BuildsService, TasksForeignService],
 })
 export class TasksModule {}

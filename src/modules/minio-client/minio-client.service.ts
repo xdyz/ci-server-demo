@@ -2,18 +2,17 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ProjectsService } from '../projects/projects.service';
 import { CreateMinioDto } from './dtos/create-minio.dto';
 import { UpdateMinioDto } from './dtos/update-minio.dto';
-import { MinioService as MinioClientService } from 'nestjs-minio-client';
+import { MinioService } from 'nestjs-minio-client';
 import moment from 'moment';
 @Injectable()
-export class MinioService {
-  @Inject()
-  private readonly projectService: ProjectsService;
-
-  @Inject()
-  private readonly minioClientService: MinioClientService;
+export class MinioClientService {
+  constructor(
+    private readonly projectService: ProjectsService,
+    private readonly minio: MinioService,
+  ) {}
 
   public get client() {
-    return this.minioClientService.client;
+    return this.minio.client;
   }
 
   /**

@@ -17,7 +17,7 @@ import { ResourceTermsService } from './terms.service';
 // import { CreateCategoryDto, UpdateCategoryDto, CreateExtraDto } from '../dtos';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('category')
+@Controller('terms')
 @ApiTags('检查分类')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ResourceTermsController {

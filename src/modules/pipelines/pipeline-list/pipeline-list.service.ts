@@ -27,35 +27,23 @@ import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class PipelinesListService implements OnModuleInit {
-  sentryClient: any;
+  public sentryClient: any;
 
   // @Inject()
   // schedulerRegistry: SchedulerRegistry;
 
   constructor(
+    private readonly pipelinesRecordsService: PipelinesRecordsService,
+    private readonly buildsService: BuildsService,
+    private readonly jenkinsInfoService: JenkinsInfoService,
+    private readonly wsService: WsService,
+    private readonly notifyService: NotifyService,
     private schedulerRegistry: SchedulerRegistry,
-    @InjectSentry() private readonly sentryService: SentryService,
+    @InjectSentry() private readonly sentryService: SentryService, // private httpService: HttpService,
+    private httpService: HttpService,
   ) {
     this.sentryClient = this.sentryService.instance();
   }
-
-  @Inject()
-  private readonly httpService: HttpService;
-
-  @Inject()
-  private readonly pipelinesRecordsService: PipelinesRecordsService;
-
-  @Inject()
-  private readonly buildsService: BuildsService;
-
-  @Inject()
-  private readonly jenkinsInfoService: JenkinsInfoService;
-
-  @Inject()
-  private readonly notifyService: NotifyService;
-
-  @Inject()
-  private readonly wsService: WsService;
 
   @InjectRepository(PipelinesEntity)
   private pipelinesRepository: Repository<PipelinesEntity>;

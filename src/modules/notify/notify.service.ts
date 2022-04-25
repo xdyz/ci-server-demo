@@ -12,13 +12,17 @@ import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class NotifyService {
-  @Inject()
-  private readonly httpService: HttpService;
+  public sentryClient: any;
 
   @InjectRepository(ImManagerEntity)
   private readonly imManagerRepository: Repository<ImManagerEntity>;
 
-  constructor(@InjectSentry() private readonly client: SentryService) {}
+  constructor(
+    @InjectSentry() private readonly sentryService: SentryService,
+    private httpService: HttpService,
+  ) {
+    this.sentryClient = this.sentryService.instance();
+  }
 
   weixinUrl = 'https://qyapi.weixin.qq.com/cgi-bin';
   access_token = null;
@@ -90,7 +94,7 @@ export class NotifyService {
       this.curTryGetNum++;
       if (this.curTryGetNum > this.tryMaxNum) {
         // app.sentry.captureMessage(msg.errmsg);
-        this.client.instance().captureMessage(msg.errmsg);
+        this.sentryClient.captureMessage(msg.errmsg);
         // app.utils.log.error("notifyService.tryGetMedia", msg.errcode, msg.errmsg);
         return msg;
       }
@@ -163,7 +167,7 @@ export class NotifyService {
       this.curTryPushNum++;
       if (this.curTryPushNum > this.tryMaxNum) {
         // app.sentry.captureMessage(msg.errmsg);
-        this.client.instance().captureMessage(msg.errmsg);
+        this.sentryClient.captureMessage(msg.errmsg);
         // app.utils.log.error("notifyService.tryPushMsg", msg.errcode, msg.errmsg);
         return;
       }

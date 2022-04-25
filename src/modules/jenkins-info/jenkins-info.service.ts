@@ -12,8 +12,7 @@ import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class JenkinsInfoService {
-  @Inject()
-  private readonly httpService: HttpService;
+  constructor(private readonly httpService: HttpService) {}
 
   @InjectRepository(JenkinsInfoEntity)
   private readonly jenkinsInfoRepository: Repository<JenkinsInfoEntity>;

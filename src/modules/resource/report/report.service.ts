@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BuildsEntity } from 'src/entities';
-import { MinioService } from 'src/modules/minio/minio.service';
+import { MinioClientService } from 'src/modules/minio-client/minio-client.service';
 import { Repository } from 'typeorm';
 import { ResourceCategoryService } from '../category/category.service';
 import { ResourceInstancesService } from '../instances/instances.service';
@@ -12,17 +12,12 @@ import moment from 'moment';
 import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class ResourceReportService {
-  @Inject()
-  private readonly resourceCategoryService: ResourceCategoryService;
-
-  @Inject()
-  private readonly minioService: MinioService;
-
-  @Inject()
-  private readonly resourceTermsService: ResourceTermsService;
-
-  @Inject()
-  private readonly resourceInstancesService: ResourceInstancesService;
+  constructor(
+    private readonly minioClientService: MinioClientService,
+    private readonly resourceCategoryService: ResourceCategoryService,
+    private readonly resourceTermsService: ResourceTermsService,
+    private readonly resourceInstancesService: ResourceInstancesService,
+  ) {}
 
   @InjectRepository(BuildsEntity)
   private readonly buildsRepository: Repository<BuildsEntity>;
@@ -75,7 +70,7 @@ export class ResourceReportService {
     if (!build || !build.file_path) return check;
     let report;
     try {
-      report = (await this.minioService.getObject(build.file_path)).data;
+      report = (await this.minioClientService.getObject(build.file_path)).data;
     } catch (error) {
       return check;
     }
@@ -150,7 +145,8 @@ export class ResourceReportService {
     if (!itemBuild || !itemBuild.file_path) return result;
     let report;
     try {
-      report = (await this.minioService.getObject(itemBuild.file_path)).data;
+      report = (await this.minioClientService.getObject(itemBuild.file_path))
+        .data;
     } catch (error) {
       return result;
     }
@@ -226,7 +222,8 @@ export class ResourceReportService {
     let report;
     try {
       // report = JSON.parse(await app.ci.readFile(customData.report_url));
-      report = (await this.minioService.getObject(dcBuild.file_path)).data;
+      report = (await this.minioClientService.getObject(dcBuild.file_path))
+        .data;
       report.results = await this.getAllResourceTerms(
         project_id,
         report.results,
@@ -325,7 +322,7 @@ export class ResourceReportService {
     if (!build || !build.file_path) return check;
     check.type = build.job_name;
     try {
-      const result = await this.minioService.getObject(build.file_path);
+      const result = await this.minioClientService.getObject(build.file_path);
       check.report = result.data;
     } catch (error) {
       return check;

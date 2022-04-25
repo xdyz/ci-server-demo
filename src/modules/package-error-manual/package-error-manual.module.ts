@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { PackageErrorManualService } from './package-error-manual.service';
 import { PackageErrorManualController } from './package-error-manual.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PackageErrorManualEntity } from 'src/entities';
+import { PackageErrorManualEntity } from '../../entities';
 
 @Module({
   imports: [TypeOrmModule.forFeature([PackageErrorManualEntity])],

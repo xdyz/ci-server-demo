@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BuildsEntity } from 'src/entities';
 import { Between, In, Repository } from 'typeorm';
-import { MinioService } from '../minio/minio.service';
+import { MinioClientService } from '../minio-client/minio-client.service';
 import { TasksService } from '../tasks/list/tasks.service';
 import { TestErrorManualService } from '../test-error-manual/test-error-manual.service';
 import { CreateAutoTestDto } from './dtos/create-auto-test.dto';
@@ -10,14 +10,11 @@ import { UpdateAutoTestDto } from './dtos/update-auto-test.dto';
 import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class AutoTestService {
-  @Inject()
-  private readonly tasksService: TasksService;
-
-  @Inject()
-  private readonly minioService: MinioService;
-
-  @Inject()
-  private readonly testErrorManualSerivce: TestErrorManualService;
+  constructor(
+    private readonly tasksService: TasksService,
+    private readonly minioClientService: MinioClientService,
+    private readonly testErrorManualSerivce: TestErrorManualService,
+  ) {}
 
   @InjectRepository(BuildsEntity)
   private readonly buildsRepository: Repository<BuildsEntity>;
@@ -473,14 +470,15 @@ export class AutoTestService {
       const { file_path } = build;
 
       if (file_path) {
-        const report = (await this.minioService.getObject(file_path)).data;
+        const report = (await this.minioClientService.getObject(file_path))
+          .data;
         report.suits.forEach((item) => {
           if (item.name === suit.name && item.suit_tag === suit.suit_tag) {
             item.fail_types = suit.fail_types;
           }
         });
 
-        await this.minioService.putObject({
+        await this.minioClientService.putObject({
           val: JSON.stringify(report),
           pathDir: file_path,
         });
