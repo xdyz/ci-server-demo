@@ -5,11 +5,15 @@ import { PackageErrorManualService } from '../package-error-manual/package-error
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BuildsEntity, TasksEntity } from 'src/entities';
 import { PackageErrorManualModule } from '../package-error-manual/package-error-manual.module';
+import { JenkinsInfoService } from '../jenkins-info/jenkins-info.service';
+import { HttpService } from '@nestjs/axios';
+import { JenkinsInfoModule } from '../jenkins-info/jenkins-info.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([BuildsEntity, TasksEntity]),
-    PackageErrorManualService,
+    PackageErrorManualModule,
+    JenkinsInfoModule,
   ],
   controllers: [PackageController],
   providers: [PackageService],

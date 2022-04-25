@@ -3,6 +3,7 @@ import { JenkinsInfoService } from './jenkins-info.service';
 import { JenkinsInfoController } from './jenkins-info.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JenkinsInfoEntity } from 'src/entities';
+import { HttpService } from '@nestjs/axios';
 
 @Module({
   imports: [TypeOrmModule.forFeature([JenkinsInfoEntity])],

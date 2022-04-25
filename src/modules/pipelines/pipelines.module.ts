@@ -1,4 +1,4 @@
-import { Inject, Module } from '@nestjs/common';
+import { forwardRef, Inject, Module } from '@nestjs/common';
 import { PipelinesListService } from './pipeline-list/pipeline-list.service';
 import { PipelinesListController } from './pipeline-list/pipeline-list.controller';
 import { RouterModule } from '@nestjs/core';
@@ -14,7 +14,11 @@ import { WsService } from '../websocket/ws.service';
 import { NotifyService } from '../notify/notify.service';
 import { BuildsService } from '../tasks/builds/builds.service';
 import { HttpService } from '@nestjs/axios';
-import { SchedulerRegistry } from '@nestjs/schedule';
+import { ScheduleModule, SchedulerRegistry } from '@nestjs/schedule';
+import { JenkinsInfoModule } from '../jenkins-info/jenkins-info.module';
+import { WsModule } from '../websocket/ws.module';
+import { NotifyModule } from '../notify/notify.module';
+import { TasksModule } from '../tasks/tasks.module';
 @Module({
   imports: [
     RouterModule.register([
@@ -24,6 +28,12 @@ import { SchedulerRegistry } from '@nestjs/schedule';
       },
     ]),
     TypeOrmModule.forFeature([PipelinesEntity, PipelineRecordsEntity]),
+    JenkinsInfoModule,
+    WsModule,
+    NotifyModule,
+    forwardRef(() => TasksModule),
+    // TasksModule,
+    ScheduleModule,
   ],
   controllers: [
     PipelinesListController,
@@ -31,13 +41,12 @@ import { SchedulerRegistry } from '@nestjs/schedule';
     PipelinesRecordsReportController,
   ],
   providers: [
-    JenkinsInfoService,
-    WsService,
-    NotifyService,
-    BuildsService,
-    HttpService,
-    SchedulerRegistry,
-    TasksService,
+    // JenkinsInfoService,
+    // WsService,
+    // NotifyService,
+    // BuildsService,
+    // SchedulerRegistry,
+    // TasksService,
     PipelinesListService,
     PipelinesRecordsService,
     PipelinesRecordsReportService,

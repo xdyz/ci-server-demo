@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -36,7 +36,7 @@ import { AxiosModule } from './modules/axios/axios.module';
       isGlobal: true,
       envFilePath: [
         'src/config/dev/.env',
-        `src/config/dev/.env.${process.env.NODE_ENV}`,
+        `src/config/dev/.env.${process.env.NODE_ENV || 'development'}`,
       ],
       expandVariables: true,
       load: [typeOrmConfig, minioConfig, sentryConfig],
@@ -61,37 +61,48 @@ import { AxiosModule } from './modules/axios/axios.module';
     //   inject: [ConfigService],
     //   useFactory: (configService: ConfigService) => configService.get('minio'),
     // }),
+    // forwardRef(() =>
+    //   MinioModule.registerAsync({
+    //     inject: [ConfigService],
+    //     useFactory: (configService: ConfigService) =>
+    //       configService.get('minio'),
+    //   }),
+    // ),
+    // forwardRef(() =>
+    //   MinioModule.registerAsync({
+    //     inject: [ConfigService],
+    //     useFactory: (configService: ConfigService) =>
+    //       configService.get('minio'),
+    //   }),
+    // ),
     SentryModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => configService.get('sentry'),
     }),
     ScheduleModule.forRoot(),
-
+    MinioClientModule,
     AxiosModule,
     AuthModule,
     UsersModule,
     RolesModule,
     ProjectsModule,
     MembersModule,
-
     GitInfoModule,
     JenkinsInfoModule,
     MenusModule,
-    MinioClientModule,
     NotifyModule,
+    ViewsModule,
+    ParameterCoverageModule,
+    ServerManagersModule,
+    TestErrorManualModule,
+    ResourceModule,
+    PackageErrorManualModule,
+    PackageModule,
+    WsModule,
 
-    // ParameterCoverageModule,
-    // ServerManagersModule,
-    // TestErrorManualModule,
-    // PackageModule,
-    // ResourceModule,
-    // AutoTestModule,
-    // PackageErrorManualModule,
+    AutoTestModule,
     // PipelinesModule,
-
-    // ViewsModule,
-    // TasksModule,
-    // WsModule,
+    TasksModule,
   ],
   controllers: [],
   providers: [],

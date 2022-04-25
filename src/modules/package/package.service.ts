@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BuildsEntity, TasksEntity } from 'src/entities';
 import { Like, Repository } from 'typeorm';
@@ -15,6 +15,8 @@ import { lastValueFrom, map } from 'rxjs';
 export class PackageService {
   constructor(
     private httpService: HttpService,
+
+    @Inject(forwardRef(() => PackageErrorManualService))
     private readonly packageErrorManualService: PackageErrorManualService,
     private readonly jenkinsInfoService: JenkinsInfoService,
   ) {}

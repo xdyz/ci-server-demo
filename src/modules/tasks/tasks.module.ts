@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TasksService } from './list/tasks.service';
 import { TasksController } from './list/tasks.controller';
 import { RouterModule } from '@nestjs/core';
@@ -24,6 +24,15 @@ import { WsService } from '../websocket/ws.service';
 import { ResourceTermsService } from '../resource/terms/terms.service';
 import { PipelinesListService } from '../pipelines/pipeline-list/pipeline-list.service';
 import { ResourceCategoryService } from '../resource/category/category.service';
+import { JenkinsInfoModule } from '../jenkins-info/jenkins-info.module';
+import { PackageErrorManualModule } from '../package-error-manual/package-error-manual.module';
+import { ResourceModule } from '../resource/resource.module';
+import { MinioClientModule } from '../minio-client/minio-client.module';
+import { WsModule } from '../websocket/ws.module';
+import { GitInfoModule } from '../git-info/git-info.module';
+import { ProjectsModule } from '../projects/projects.module';
+import { PipelinesModule } from '../pipelines/pipelines.module';
+import { PipelinesRecordsService } from '../pipelines/records/records.service';
 
 @Module({
   imports: [
@@ -34,6 +43,15 @@ import { ResourceCategoryService } from '../resource/category/category.service';
       },
     ]),
     TypeOrmModule.forFeature([TasksEntity, BuildsEntity, UsersEntity]),
+    // JenkinsInfoModule,
+    // PackageErrorManualModule,
+    // ResourceModule,
+    // MinioClientModule,
+    // WsModule,
+    // GitInfoModule,
+    // ProjectsModule,
+    forwardRef(() => PipelinesModule),
+    // PipelinesModule,
 
     // JenkinsInfoService,
     // PackageErrorManualService,
@@ -51,10 +69,12 @@ import { ResourceCategoryService } from '../resource/category/category.service';
     ProjectsService,
     GitInfoService,
     WsService,
-    // PipelinesListService,
+    PipelinesListService,
     TasksService,
     BuildsService,
     TasksForeignService,
+    ResourceTermsService,
+    ResourceCategoryService,
   ],
   exports: [TasksService, BuildsService, TasksForeignService],
 })

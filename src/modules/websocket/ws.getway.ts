@@ -11,7 +11,7 @@ import {
 import { Server } from 'socket.io';
 import { WsService } from './ws.service';
 
-@WebSocketGateway(3000, {
+@WebSocketGateway(3001, {
   namespace: 'ws',
   transports: ['polling', 'websocket'],
   cors: true,

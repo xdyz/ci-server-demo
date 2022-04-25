@@ -1,19 +1,31 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { ProjectsService } from '../projects/projects.service';
 import { CreateMinioDto } from './dtos/create-minio.dto';
 import { UpdateMinioDto } from './dtos/update-minio.dto';
 import { MinioService } from 'nestjs-minio-client';
 import moment from 'moment';
+import { Client } from 'minio';
+import { MINIO_CONNECTION } from 'nestjs-minio';
 @Injectable()
 export class MinioClientService {
   constructor(
     private readonly projectService: ProjectsService,
-    private readonly minio: MinioService,
+
+    // @Inject(forwardRef(() => MinioService))
+    // private readonly minio: MinioService,
+    @Inject(MINIO_CONNECTION)
+    private readonly client: Client,
   ) {}
 
-  public get client() {
-    return this.minio.client;
-  }
+  // public get client() {
+  //   return this.minio.client;
+  // }
 
   /**
    * 获取上传到minio 文件系统的一个 限时的url

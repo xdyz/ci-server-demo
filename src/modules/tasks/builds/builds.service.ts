@@ -28,8 +28,6 @@ export class BuildsService {
   sentryClient: any;
   constructor(
     // private httpService: HttpService,
-    @InjectSentry()
-    private readonly sentryService: SentryService,
     private httpService: HttpService,
     private readonly tasksService: TasksService,
     private readonly jenkinsInfoService: JenkinsInfoService,
@@ -37,7 +35,9 @@ export class BuildsService {
     private readonly wsService: WsService,
     private readonly minioClientService: MinioClientService,
     private readonly projectsService: ProjectsService,
-    private readonly gitInfoService: GitInfoService, // @Inject(forwardRef(() => PipelinesListService)) // private readonly pipelinesListService: PipelinesListService,
+    private readonly gitInfoService: GitInfoService,
+    @InjectSentry()
+    private readonly sentryService: SentryService, // @Inject(forwardRef(() => PipelinesListService)) // private readonly pipelinesListService: PipelinesListService,
   ) {
     this.sentryClient = this.sentryService.instance();
   }
