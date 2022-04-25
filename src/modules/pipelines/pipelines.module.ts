@@ -37,5 +37,10 @@ import { NotifyService } from '../notify/notify.service';
     PipelinesRecordsService,
     PipelinesRecordsReportService,
   ],
+  exports: [
+    PipelinesListService,
+    PipelinesRecordsService,
+    PipelinesRecordsReportService,
+  ],
 })
 export class PipelinesModule {}

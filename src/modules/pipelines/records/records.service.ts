@@ -6,7 +6,7 @@ import { PipelinesListService } from '../pipeline-list/pipeline-list.service';
 
 @Injectable()
 export class PipelinesRecordsService {
-  @Inject()
+  @Inject('pipelinesListService')
   private readonly pipelinesListSerivce: PipelinesListService;
 
   @InjectRepository(PipelineRecordsEntity)

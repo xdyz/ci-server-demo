@@ -28,6 +28,7 @@ import { WsModule } from './modules/websocket/ws.module';
 import { SentryModule } from '@ntegral/nestjs-sentry';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HttpModule } from '@nestjs/axios';
+import { MinioModule as MinioClientModule } from 'nestjs-minio-client';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -44,14 +45,16 @@ import { HttpModule } from '@nestjs/axios';
       useFactory: (configService: ConfigService) =>
         configService.get('typeorm'),
     }),
+    // MinioClientModule.registerAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => configService.get('minio'),
+    // }),
     SentryModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => configService.get('sentry'),
     }),
     ScheduleModule.forRoot(),
-    HttpModule.register({
-      timeout: 5000,
-    }),
+    HttpModule,
     AuthModule,
     UsersModule,
     RolesModule,
