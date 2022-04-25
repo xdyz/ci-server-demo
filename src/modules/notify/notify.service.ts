@@ -5,11 +5,16 @@ import { Repository } from 'typeorm';
 import { CreateNotifyDto } from './dtos/create-notify.dto';
 import { UpdateNotifyDto } from './dtos/update-notify.dto';
 import { NodeClient } from '@sentry/node';
-import { got } from 'got';
+// import { got } from 'got';
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class NotifyService {
+  @Inject()
+  private readonly httpService: HttpService;
+
   @InjectRepository(ImManagerEntity)
   private readonly imManagerRepository: Repository<ImManagerEntity>;
 
@@ -51,8 +56,12 @@ export class NotifyService {
    * @param corpsecret 凭证密匙
    */
   refreshToken = async (corpid, corpsecret) => {
-    const res = await got.get(
-      `${this.weixinUrl}/gettoken?corpid=${corpid}&corpsecret=${corpsecret}`,
+    const res = await lastValueFrom(
+      this.httpService
+        .get(
+          `${this.weixinUrl}/gettoken?corpid=${corpid}&corpsecret=${corpsecret}`,
+        )
+        .pipe(map((res) => res.data)),
     );
     const msg = JSON.parse(res.body);
     if (msg.errcode === 0) {
@@ -63,11 +72,15 @@ export class NotifyService {
   };
 
   async tryGetMedia(type, formData, corpid, corpsecret) {
-    const res = await got.post(
-      `${this.weixinUrl}/media/upload?access_token=${this.access_token}&type=${type}`,
-      {
-        body: formData,
-      },
+    const res = await lastValueFrom(
+      this.httpService
+        .post(
+          `${this.weixinUrl}/media/upload?access_token=${this.access_token}&type=${type}`,
+          {
+            data: formData,
+          },
+        )
+        .pipe(map((res) => res.data)),
     );
     const msg = JSON.parse(res.body);
     if (msg.errcode === 0) {
@@ -134,9 +147,13 @@ export class NotifyService {
   }
 
   async tryPushMsg(pushMsg, corpid, corpsecret) {
-    const res = await got.post(
-      `${this.weixinUrl}/message/send?access_token=${this.access_token}`,
-      { json: pushMsg },
+    const res = await lastValueFrom(
+      this.httpService
+        .post(
+          `${this.weixinUrl}/message/send?access_token=${this.access_token}`,
+          { data: pushMsg },
+        )
+        .pipe(map((res) => res.data)),
     );
     const msg = JSON.parse(res.body);
     if (msg.errcode === 0) {

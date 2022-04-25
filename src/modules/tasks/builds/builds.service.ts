@@ -4,7 +4,7 @@ import { BuildsEntity, TasksEntity, UsersEntity } from 'src/entities';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
 import { ResourceInstanceItemsService } from 'src/modules/resource/items/items.service';
 import { Repository } from 'typeorm';
-import { got } from 'got';
+// import { got } from 'got';
 import { MinioService } from 'src/modules/minio/minio.service';
 import { ProjectsService } from 'src/modules/projects/projects.service';
 import { GitInfoService } from 'src/modules/git-info/git-info.service';
@@ -14,6 +14,8 @@ import { TasksService } from '../list/tasks.service';
 import { WsService } from 'src/modules/websocket/ws.service';
 import { PipelinesListService } from 'src/modules/pipelines/pipeline-list/pipeline-list.service';
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class BuildsService {
@@ -21,6 +23,9 @@ export class BuildsService {
   constructor(@InjectSentry() private readonly sentryService: SentryService) {
     this.sentryClient = this.sentryService.instance();
   }
+
+  @Inject()
+  private readonly httpService: HttpService;
 
   @Inject()
   private readonly tasksService: TasksService;
@@ -247,8 +252,12 @@ export class BuildsService {
         stages,
       );
     }
-    const logRes = await got.get(
-      `${baseUrl}/job/${jenkinsJobName}/${jenkinsBuild.number}/execution/node/${wsNodeId}/ws/log/${jenkinsJobName}_${jenkinsBuild.number}.json`,
+    const logRes = await lastValueFrom(
+      this.httpService
+        .get(
+          `${baseUrl}/job/${jenkinsJobName}/${jenkinsBuild.number}/execution/node/${wsNodeId}/ws/log/${jenkinsJobName}_${jenkinsBuild.number}.json`,
+        )
+        .pipe(map((res) => res.data)),
     );
     // const reportUrl = await uploadFile(logRes.body, '.json');
     await this.updateBuildCustomData(
@@ -297,8 +306,12 @@ export class BuildsService {
         stages,
       );
     }
-    const logRes = await got.get(
-      `${baseUrl}/job/${jenkinsJobName}/${jenkinsBuild.number}/execution/node/${wsNodeId}/ws/log/${jenkinsJobName}_${jenkinsBuild.number}.json`,
+    const logRes = await lastValueFrom(
+      this.httpService
+        .get(
+          `${baseUrl}/job/${jenkinsJobName}/${jenkinsBuild.number}/execution/node/${wsNodeId}/ws/log/${jenkinsJobName}_${jenkinsBuild.number}.json`,
+        )
+        .pipe(map((res) => res.data)),
     );
     // const reportUrl = await uploadFile(logRes.body, '.json');
     // const report = JSON.parse(logRes.body);

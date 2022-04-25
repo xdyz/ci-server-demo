@@ -9,6 +9,7 @@ import * as utils from 'src/utils/index.utils';
 import { WsService } from 'src/modules/websocket/ws.service';
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 import { HttpService } from '@nestjs/axios';
+import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class TasksForeignService {
@@ -73,8 +74,10 @@ export class TasksForeignService {
       await utils.sleep(waitTime);
       waitTime = Math.min(this.maxWaitTime || 16 * 1000, waitTime * 2);
       const replaceJobName = job_name.replaceAll('/', '/job/');
-      jobRes = await this.httpService.get(
-        `${baseUrl}/job/${replaceJobName}/${number}/api/json`,
+      jobRes = await lastValueFrom(
+        this.httpService
+          .get(`${baseUrl}/job/${replaceJobName}/${number}/api/json`)
+          .pipe(map((res) => res.data)),
       );
       job = JSON.parse(jobRes.body);
     } while (!job || job.result === null);
@@ -173,9 +176,12 @@ export class TasksForeignService {
     const data = [];
     if (!baseUrl || manuals.length === 0) return data;
     // const replaceJobName = job_name.replaceAll('/', '/job/');
-    const res = await this.httpService.get(
-      `${baseUrl}/job/${job_name}/${number}/consoleText`,
+    const res = await lastValueFrom(
+      this.httpService
+        .get(`${baseUrl}/job/${job_name}/${number}/consoleText`)
+        .pipe(map((res) => res.data)),
     );
+
     const jenkinsLog = res?.body ? res.body : '';
 
     manuals.forEach((item) => {
@@ -190,7 +196,9 @@ export class TasksForeignService {
   // 读取unity 日志
   async readUnityLog(log_url = '') {
     if (!log_url) return '';
-    const res = await got.get(log_url);
+    const res = await lastValueFrom(
+      this.httpService.get(log_url).pipe(map((res) => res.data)),
+    );
 
     return res;
   }

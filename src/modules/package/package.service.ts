@@ -6,12 +6,18 @@ import { JenkinsInfoService } from '../jenkins-info/jenkins-info.service';
 import { PackageErrorManualService } from '../package-error-manual/package-error-manual.service';
 import { CreatePackageDto } from './dtos/create-package.dto';
 import { UpdatePackageDto } from './dtos/update-package.dto';
-import { got } from 'got';
+// import { got } from 'got';
 import * as utils from 'src/utils/index.utils';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom, map } from 'rxjs';
+
 @Injectable()
 export class PackageService {
   @Inject()
   private readonly packageErrorManualService: PackageErrorManualService;
+
+  @Inject()
+  private readonly httpService: HttpService;
 
   @Inject()
   private readonly jenkinsInfoService: JenkinsInfoService;
@@ -422,7 +428,9 @@ export class PackageService {
   // 读取unity 日志
   async readUnityLog(log_url = '') {
     if (!log_url) return { body: '' };
-    const res = await got.get(log_url);
+    const res = await lastValueFrom(
+      this.httpService.get<any>(log_url).pipe(map((res) => res.data)),
+    );
 
     return res;
   }
@@ -458,8 +466,10 @@ export class PackageService {
         project_id,
         tags: ['Jenkins'],
       });
-    const res = await got.get(
-      `${baseUrl}/job/${job_name}/${number}/consoleText`,
+    const res = await lastValueFrom(
+      this.httpService
+        .get(`${baseUrl}/job/${job_name}/${number}/consoleText`)
+        .pipe(map((res) => res.data)),
     );
     const jenkinsLog = res ? res.body : '';
     result = manuals.filter((item) => {

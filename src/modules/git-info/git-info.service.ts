@@ -1,10 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { lastValueFrom, map } from 'rxjs';
 import { GitInfoEntity } from 'src/entities';
 import { Repository } from 'typeorm';
-import { got } from 'got';
+// import { got } from 'got';`
+
 @Injectable()
 export class GitInfoService {
+  @Inject()
+  private readonly httpService: HttpService;
+
   @InjectRepository(GitInfoEntity)
   private readonly gitInfoRepository: Repository<GitInfoEntity>;
   /**
@@ -183,7 +189,13 @@ export class GitInfoService {
   async updateBranchMap(repoBranchesUrl, branchMap) {
     let page = 1;
     let branches = JSON.parse(
-      (await got.get(`${repoBranchesUrl}&per_page=100&page=${page}`)).body,
+      (
+        await lastValueFrom(
+          this.httpService
+            .get(`${repoBranchesUrl}&per_page=100&page=${page}`)
+            .pipe(map((res) => res.data)),
+        )
+      ).body,
     );
     while (branches.length > 0) {
       for (const branch of branches) {
@@ -192,7 +204,13 @@ export class GitInfoService {
       if (branches.length === 100) {
         ++page;
         branches = JSON.parse(
-          (await got.get(`${repoBranchesUrl}&per_page=100&page=${page}`)).body,
+          (
+            await lastValueFrom(
+              this.httpService
+                .get(`${repoBranchesUrl}&per_page=100&page=${page}`)
+                .pipe(map((res) => res.data)),
+            )
+          ).body,
         );
       } else {
         break;

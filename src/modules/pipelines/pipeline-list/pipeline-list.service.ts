@@ -14,7 +14,7 @@ import { CreatePipelineDto } from './dto/create-pipeline.dto';
 import { UpdatePipelineDto } from './dto/update-pipeline.dto';
 import { PipelinesRecordsService } from '../records/records.service';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
-import { got } from 'got';
+// import { got } from 'got';
 import { BuildsService } from 'src/modules/tasks/builds/builds.service';
 import * as utils from 'src/utils/index.utils';
 import { WsService } from 'src/modules/websocket/ws.service';
@@ -22,6 +22,9 @@ import { NotifyService } from 'src/modules/notify/notify.service';
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom, map } from 'rxjs';
+
 @Injectable()
 export class PipelinesListService implements OnModuleInit {
   sentryClient: any;
@@ -35,6 +38,9 @@ export class PipelinesListService implements OnModuleInit {
   ) {
     this.sentryClient = this.sentryService.instance();
   }
+
+  @Inject()
+  private readonly httpService: HttpService;
 
   @Inject()
   private readonly pipelinesRecordsService: PipelinesRecordsService;
@@ -626,7 +632,11 @@ export class PipelinesListService implements OnModuleInit {
 
   async getJobApiJson(baseUrl, jobName) {
     const replaceJobName = jobName.replaceAll('/', '/job/');
-    const res = await got.get(`${baseUrl}/job/${replaceJobName}/api/json`);
+    const res = await lastValueFrom(
+      this.httpService
+        .get(`${baseUrl}/job/${replaceJobName}/api/json`)
+        .pipe(map((res) => res.data)),
+    );
     return res ? res.body : '';
   }
 

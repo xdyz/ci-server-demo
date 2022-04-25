@@ -1,14 +1,20 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JenkinsInfoEntity } from 'src/entities';
 import { Repository } from 'typeorm';
 import { CreateJenkinsInfoDto } from './dtos/create-jenkins-info.dto';
 import { UpdateJenkinsInfoDto } from './dtos/update-jenkins-info.dto';
-import { got } from 'got';
-import axios from 'axios';
+// import { got } from 'got';
+// import axios from 'axios';
 import * as utils from 'src/utils/index.utils';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom, map } from 'rxjs';
+
 @Injectable()
 export class JenkinsInfoService {
+  @Inject()
+  private readonly httpService: HttpService;
+
   @InjectRepository(JenkinsInfoEntity)
   private readonly jenkinsInfoRepository: Repository<JenkinsInfoEntity>;
 
@@ -101,7 +107,11 @@ export class JenkinsInfoService {
   }
 
   async getNextBuildNumber(baseUrl, jobName) {
-    const res = await axios.get(`${baseUrl}/job/${jobName}/api/json`);
+    const res = await lastValueFrom(
+      this.httpService
+        .get(`${baseUrl}/job/${jobName}/api/json`)
+        .pipe(map((res) => res.data)),
+    );
     return JSON.parse(res.body).nextBuildNumber;
   }
 
@@ -125,11 +135,12 @@ export class JenkinsInfoService {
       jobName,
       parameters,
     );
-    const buildRes = await got.post(
-      `${baseUrl}/job/${replaceJobName}/${urlSuffix}`,
-      {
-        form: parameters,
-      },
+    const buildRes = await lastValueFrom(
+      this.httpService
+        .post(`${baseUrl}/job/${replaceJobName}/${urlSuffix}`, {
+          data: parameters,
+        })
+        .pipe(map((res) => res.data)),
     );
     const splittedLocation = buildRes.headers.location.split('/');
     const queueItemNumber = splittedLocation[splittedLocation.length - 2];
@@ -145,7 +156,9 @@ export class JenkinsInfoService {
     const url = encodeURI(
       `${baseUrl}/job/${replaceJobName}/buildWithParameters${quires}`,
     );
-    const buildRes = await got.post(url);
+    const buildRes = await lastValueFrom(
+      this.httpService.post(url).pipe(map((res) => res.data)),
+    );
     const splittedLocation = buildRes.headers.location.split('/');
     const queueItemNumber = splittedLocation[splittedLocation.length - 2];
     return {
@@ -158,7 +171,7 @@ export class JenkinsInfoService {
     let queueItemRes, queueItem;
     do {
       await utils.sleep(1000);
-      queueItemRes = await got.get(
+      queueItemRes = await this.httpService.get(
         `${baseUrl}/queue/item/${build.queueItemNumber}/api/json`,
       );
       queueItem = JSON.parse(queueItemRes.body);
@@ -168,12 +181,18 @@ export class JenkinsInfoService {
   }
 
   async getStages(baseUrl, build) {
-    const describeRes = await got.get(
-      `${baseUrl}/job/${build.jobName}/${build.number}/wfapi/describe`,
+    const describeRes = await lastValueFrom(
+      this.httpService
+        .get(`${baseUrl}/job/${build.jobName}/${build.number}/wfapi/describe`)
+        .pipe(map((res) => res.data)),
     );
     const stages = JSON.parse(describeRes.body).stages;
-    const treeRes = await got.get(
-      `${baseUrl}/job/${build.jobName}/${build.number}/api/json?tree=actions[nodes[displayName,id,parents]]`,
+    const treeRes = await lastValueFrom(
+      this.httpService
+        .get(
+          `${baseUrl}/job/${build.jobName}/${build.number}/api/json?tree=actions[nodes[displayName,id,parents]]`,
+        )
+        .pipe(map((res) => res.data)),
     );
     const actions = JSON.parse(treeRes.body).actions;
     let nodes = [];
@@ -191,8 +210,12 @@ export class JenkinsInfoService {
         child = this.findChild(child.id, nodes);
       }
       if (child !== null) {
-        const logRes = await got.get(
-          `${baseUrl}/job/${build.jobName}/${build.number}/execution/node/${child.id}/wfapi/log`,
+        const logRes = await lastValueFrom(
+          this.httpService
+            .get(
+              `${baseUrl}/job/${build.jobName}/${build.number}/execution/node/${child.id}/wfapi/log`,
+            )
+            .pipe(map((res) => res.data)),
         );
         const log = JSON.parse(logRes.body).text;
         const computerIndex = log.indexOf('/computer/');
@@ -225,7 +248,7 @@ export class JenkinsInfoService {
     do {
       await utils.sleep(waitTime);
       waitTime = Math.min(this.maxWaitTime || 16 * 1000, waitTime * 2);
-      jobRes = await got.get(
+      jobRes = await this.httpService.get(
         `${baseUrl}/job/${replaceJobName}/${build.number}/api/json`,
       );
       job = JSON.parse(jobRes.body);
@@ -235,14 +258,20 @@ export class JenkinsInfoService {
   }
 
   async getConsoleText(baseUrl, jobName, buildNumber) {
-    const res = await got.get(
-      `${baseUrl}/job/${jobName}/${buildNumber}/consoleText`,
+    const res = await lastValueFrom(
+      this.httpService
+        .get(`${baseUrl}/job/${jobName}/${buildNumber}/consoleText`)
+        .pipe(map((res) => res.data)),
     );
     return res ? res.body : '';
   }
 
   async getJobApiJson(baseUrl, jobName) {
-    const res = await got.get(`${baseUrl}/job/${jobName}/api/json`);
+    const res = await lastValueFrom(
+      this.httpService
+        .get(`${baseUrl}/job/${jobName}/api/json`)
+        .pipe(map((res) => res.data)),
+    );
     return res ? res.body : '';
   }
 }
