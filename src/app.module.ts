@@ -100,9 +100,13 @@ import { AxiosModule } from './modules/axios/axios.module';
     PackageModule,
     WsModule,
 
-    AutoTestModule,
+    forwardRef(() => AutoTestModule),
+    // AutoTestModule,
+    forwardRef(() => PipelinesModule),
     // PipelinesModule,
-    TasksModule,
+
+    forwardRef(() => TasksModule),
+    // TasksModule,
   ],
   controllers: [],
   providers: [],
