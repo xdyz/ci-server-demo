@@ -8,7 +8,6 @@ import {
 import { ProjectsService } from '../projects/projects.service';
 import { CreateMinioDto } from './dtos/create-minio.dto';
 import { UpdateMinioDto } from './dtos/update-minio.dto';
-import { MinioService } from 'nestjs-minio-client';
 import moment from 'moment';
 import { Client } from 'minio';
 import { MINIO_CONNECTION } from 'nestjs-minio';
