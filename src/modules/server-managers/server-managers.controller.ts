@@ -8,12 +8,17 @@ import {
   Delete,
   Headers,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { ServerManagersService } from './server-managers.service';
 import { CreateServerManagerDto } from './dtos/create-server-manager.dto';
 import { UpdateServerManagerDto } from './dtos/update-server-manager.dto';
 import * as utils from 'src/utils/index.utils';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiTags('自动化测试错误手册')
+@ApiBearerAuth('jwt') // s
 @Controller('server-managers')
 export class ServerManagersController {
   constructor(private readonly serverManagersService: ServerManagersService) {}

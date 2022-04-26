@@ -9,11 +9,16 @@ import {
   Headers,
   Request,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { MinioClientService } from './minio-client.service';
 import { CreateMinioDto } from './dtos/create-minio.dto';
 import { UpdateMinioDto } from './dtos/update-minio.dto';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('Minio')
 @Controller('minio')
 export class MinioClinentController {
   constructor(private readonly minioClientService: MinioClientService) {}

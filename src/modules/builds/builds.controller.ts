@@ -6,10 +6,16 @@ import {
   Body,
   Request,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { BuildsService } from './builds.service';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller(':task_id/builds')
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('构建记录')
+@Controller('tasks/:task_id/builds')
 export class BuildsController {
   constructor(private readonly buildsService: BuildsService) {}
 

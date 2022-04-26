@@ -9,12 +9,18 @@ import {
   Headers,
   Request,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dtos/create-task.dto';
 import { UpdateTaskDto } from './dtos/update-task.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller()
+@Controller('tasks')
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiTags('用户')
+@ApiBearerAuth('jwt') // s
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 

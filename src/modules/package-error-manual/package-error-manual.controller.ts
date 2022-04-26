@@ -9,11 +9,16 @@ import {
   Request,
   Query,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { PackageErrorManualService } from './package-error-manual.service';
 import { CreatePackageErrorManualDto } from './dtos/create-package-error-manual.dto';
 import { UpdatePackageErrorManualDto } from './dtos/update-package-error-manual.dto';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('打包错误手册')
 @Controller('package-error-manual')
 export class PackageErrorManualController {
   constructor(

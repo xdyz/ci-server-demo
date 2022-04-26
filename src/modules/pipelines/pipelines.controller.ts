@@ -9,12 +9,18 @@ import {
   Headers,
   Query,
   Request,
+  UseGuards,
 } from '@nestjs/common';
-import { PipelinesListService } from './pipeline-list.service';
+import { PipelinesService } from './pipelines.service';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller()
-export class PipelinesListController {
-  constructor(private readonly pipelinesListService: PipelinesListService) {}
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('管线')
+@Controller('pipelines')
+export class PipelinesController {
+  constructor(private readonly pipelinesService: PipelinesService) {}
 
   // app.get('/', {
   //   preHandler: app.verifyAuthorization,
@@ -29,7 +35,7 @@ export class PipelinesListController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesListService.getPipelineList(user, query);
+    return await this.pipelinesService.getPipelineList(user, query);
   }
 
   // app.get('/detail/:id', {
@@ -44,7 +50,7 @@ export class PipelinesListController {
     // @Headers('project_id') project_id: string,
   ) {
     // const user = { project_id: +project_id };
-    return await this.pipelinesListService.getOnePipeline(+id);
+    return await this.pipelinesService.getOnePipeline(+id);
   }
 
   // app.post('/', {
@@ -60,7 +66,7 @@ export class PipelinesListController {
     @Body() body: any,
   ) {
     const user = { ...body.user, project_id: +project_id };
-    return await this.pipelinesListService.insertPipeline(user, body);
+    return await this.pipelinesService.insertPipeline(user, body);
   }
 
   // app.post('/execute/:id', {
@@ -73,7 +79,7 @@ export class PipelinesListController {
   @Post('execute/:id')
   async execute(@Param('id') id: string, @Request() req: any) {
     const { user_id } = req.user;
-    return await this.pipelinesListService.execute(+id, user_id);
+    return await this.pipelinesService.execute(+id, user_id);
   }
 
   // app.put('/:id', {
@@ -84,7 +90,7 @@ export class PipelinesListController {
   // });
   @Patch('/:id')
   async updatePipeline(@Param('id') id: string, @Body() body: any) {
-    return await this.pipelinesListService.updatePipeline(+id, body);
+    return await this.pipelinesService.updatePipeline(+id, body);
   }
 
   // app.delete('/:id', {
@@ -95,7 +101,7 @@ export class PipelinesListController {
   // });
   @Delete('/:id')
   async deletePipeline(@Param('id') id: string) {
-    return await this.pipelinesListService.deletePipeline(+id);
+    return await this.pipelinesService.deletePipeline(+id);
   }
 
   // app.get('/parameters', {
@@ -106,7 +112,7 @@ export class PipelinesListController {
   // });
   @Get('parameters')
   async getParameters(@Query() query: any) {
-    return await this.pipelinesListService.getParameters(query);
+    return await this.pipelinesService.getParameters(query);
   }
 
   // app.put('/config/:id', {
@@ -117,7 +123,7 @@ export class PipelinesListController {
   // });
   @Patch('config/:id')
   async updatePipelineConfig(@Param('id') id: string, @Body() body: any) {
-    return await this.pipelinesListService.updatePipelineConfig(+id, body);
+    return await this.pipelinesService.updatePipelineConfig(+id, body);
   }
 
   // 复制
@@ -134,7 +140,7 @@ export class PipelinesListController {
     @Param('id') id: string,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesListService.copyOnePipeline(user, +id);
+    return await this.pipelinesService.copyOnePipeline(user, +id);
   }
 
   @Get('/relationship/include/:id')
@@ -144,7 +150,7 @@ export class PipelinesListController {
     @Param('id') id: string,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesListService.getRelationShipInclude(user, {
+    return await this.pipelinesService.getRelationShipInclude(user, {
       id: +id,
     });
   }
@@ -154,6 +160,6 @@ export class PipelinesListController {
     @Param('id') id: string,
     @Query('user_id') user_id: string,
   ) {
-    return await this.pipelinesListService.execute(+id, +user_id);
+    return await this.pipelinesService.execute(+id, +user_id);
   }
 }

@@ -9,11 +9,16 @@ import {
   Query,
   Request,
   Headers,
+  UseGuards,
 } from '@nestjs/common';
 import { ViewsService } from './views.service';
 import { CreateViewDto } from './dtos/create-view.dto';
 import { UpdateViewDto } from './dtos/update-view.dto';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiTags('视图')
+@ApiBearerAuth('jwt') // s
 @Controller('views')
 export class ViewsController {
   constructor(private readonly viewsService: ViewsService) {}

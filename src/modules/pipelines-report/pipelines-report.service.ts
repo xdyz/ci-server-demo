@@ -7,17 +7,16 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PipelineRecordsEntity, PipelinesEntity } from 'src/entities';
-import { TasksService } from '../../tasks/list/tasks.service';
+
 import { Repository } from 'typeorm';
-import { PipelinesListService } from '../pipeline-list/pipeline-list.service';
+import { PipelinesService } from '../pipelines/pipelines.service';
+import { TasksService } from '../tasks/tasks.service';
 
 @Injectable()
-export class PipelinesRecordsReportService {
+export class PipelinesReportService {
   constructor(
-    private readonly pipelinesListService: PipelinesListService,
-
-    @Inject(forwardRef(() => TasksService))
-    private readonly tasksService: TasksService,
+    @Inject(forwardRef(() => PipelinesService))
+    private readonly pipelinesService: PipelinesService, // @Inject(forwardRef(() => TasksService)) // private readonly tasksService: TasksService,
   ) {}
 
   @InjectRepository(PipelinesEntity)
@@ -248,9 +247,10 @@ export class PipelinesRecordsReportService {
         })
         .getMany();
       const arr = this.dealWithTaskStatistic(records);
-      const tasks = await this.tasksService.getAllTasks({
-        project_id,
-      });
+      // const tasks = await this.tasksService.getAllTasks({
+      //   project_id,
+      // });
+      const tasks = [];
 
       const failTFPipelines = this.dealWithStatisticTaskRate(tasks, records);
       return {
@@ -364,9 +364,10 @@ export class PipelinesRecordsReportService {
         })
         .getMany();
 
-      const tasks = await this.tasksService.getAllTasks({
-        project_id,
-      });
+      // const tasks = await this.tasksService.getAllTasks({
+      //   project_id,
+      // });
+      const tasks = [];
 
       const data = this.dealWithStatisticTaskDuration(tasks, records);
 
@@ -428,13 +429,13 @@ export class PipelinesRecordsReportService {
 
   async getTaskAndPipelineRelation({ project_id }, { from, to, create_users }) {
     try {
-      const tasks = await this.tasksService.getAllTasks({
+      // const tasks = await this.tasksService.getAllTasks({
+      //   project_id,
+      // });
+      const tasks = [];
+      const pipelines = await this.pipelinesService.getAllPipelinesByProjectId({
         project_id,
       });
-      const pipelines =
-        await this.pipelinesListService.getAllPipelinesByProjectId({
-          project_id,
-        });
 
       const records = await this.pipelineRecordsRepository
         .createQueryBuilder('pr')
@@ -562,13 +563,13 @@ export class PipelinesRecordsReportService {
   }
   async getTaskInPipelineRecords({ project_id }, { from, to, create_users }) {
     try {
-      const tasks = await this.tasksService.getAllTasks({
+      // const tasks = await this.tasksService.getAllTasks({
+      //   project_id,
+      // });
+      const tasks = [];
+      const pipelines = await this.pipelinesService.getAllPipelinesByProjectId({
         project_id,
       });
-      const pipelines =
-        await this.pipelinesListService.getAllPipelinesByProjectId({
-          project_id,
-        });
       const records = await this.pipelineRecordsRepository
         .createQueryBuilder('pr')
         .where('pr.project_id = :project_id', { project_id })

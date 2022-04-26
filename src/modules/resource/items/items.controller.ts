@@ -9,9 +9,14 @@ import {
   Query,
   Headers,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { ResourceInstanceItemsService } from './items.service';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('检查实例内的检查项')
 @Controller('/instances/:intance_id/items')
 export class ResourceInstanceItemsController {
   constructor(

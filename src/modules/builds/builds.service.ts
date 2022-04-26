@@ -16,9 +16,9 @@ import { ProjectsService } from 'src/modules/projects/projects.service';
 import { GitInfoService } from 'src/modules/git-info/git-info.service';
 
 import * as utils from 'src/utils/index.utils';
-import { TasksService } from '../list/tasks.service';
+import { TasksService } from '../tasks/tasks.service';
 import { WsService } from 'src/modules/websocket/ws.service';
-import { PipelinesListService } from 'src/modules/pipelines/pipeline-list/pipeline-list.service';
+import { PipelinesService } from 'src/modules/pipelines/pipelines.service';
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom, map } from 'rxjs';
@@ -29,6 +29,7 @@ export class BuildsService {
   constructor(
     // private httpService: HttpService,
     private httpService: HttpService,
+    @Inject(forwardRef(() => TasksService))
     private readonly tasksService: TasksService,
     private readonly jenkinsInfoService: JenkinsInfoService,
     private readonly resourceInstanceItemsService: ResourceInstanceItemsService,
@@ -37,7 +38,9 @@ export class BuildsService {
     private readonly projectsService: ProjectsService,
     private readonly gitInfoService: GitInfoService,
     @InjectSentry()
-    private readonly sentryService: SentryService, // @Inject(forwardRef(() => PipelinesListService)) // private readonly pipelinesListService: PipelinesListService,
+    private readonly sentryService: SentryService,
+    @Inject(forwardRef(() => PipelinesService))
+    private readonly pipelinesService: PipelinesService,
   ) {
     this.sentryClient = this.sentryService.instance();
   }
@@ -622,7 +625,7 @@ export class BuildsService {
   async doBuildFinish(buildId) {
     const buildData = await this.findBuild(buildId);
     // app.ci.emit('BUILD_END', buildData);
-    // this.pipelinesListService.buildEnd(buildData);
+    this.pipelinesService.buildEnd(buildData);
     // 这里需要取调用pipeline 的 buildEnd方法
   }
 

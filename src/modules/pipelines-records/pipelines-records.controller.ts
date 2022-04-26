@@ -8,10 +8,16 @@ import {
   Body,
   Request,
   Headers,
+  UseGuards,
 } from '@nestjs/common';
-import { PipelinesRecordsService } from './records.service';
+import { PipelinesRecordsService } from './pipelines-records.service';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('records')
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('管线记录')
+@Controller('pipelines/records')
 export class PipelinesRecordsController {
   constructor(
     private readonly pipelinesRecordsService: PipelinesRecordsService,

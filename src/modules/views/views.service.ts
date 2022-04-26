@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TasksEntity, ViewsEntity } from 'src/entities';
 import { Repository } from 'typeorm';
-import { TasksService } from '../tasks/list/tasks.service';
+import { TasksService } from '../tasks/tasks.service';
 import { CreateViewDto } from './dtos/create-view.dto';
 import { UpdateViewDto } from './dtos/update-view.dto';
 
@@ -149,9 +149,7 @@ export class ViewsService {
       // initializeView(result);
       // addDataToView(view);
       // app.ci.emit('updateView', result);
-      return {
-        data: result,
-      };
+      return result;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

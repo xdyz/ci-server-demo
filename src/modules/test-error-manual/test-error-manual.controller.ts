@@ -9,12 +9,18 @@ import {
   Query,
   Headers,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { TestErrorManualService } from './test-error-manual.service';
 import { CreateTestErrorManualDto } from './dtos/create-test-error-manual.dto';
 import { UpdateTestErrorManualDto } from './dtos/update-test-error-manual.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('test-error-manual')
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiTags('自动化测试错误手册')
+@ApiBearerAuth('jwt') // s
 export class TestErrorManualController {
   constructor(
     private readonly testErrorManualService: TestErrorManualService,

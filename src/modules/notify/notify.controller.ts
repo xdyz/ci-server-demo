@@ -7,11 +7,16 @@ import {
   Param,
   Delete,
   Inject,
+  UseGuards,
 } from '@nestjs/common';
 import { NotifyService } from './notify.service';
 import { CreateNotifyDto } from './dtos/create-notify.dto';
 import { UpdateNotifyDto } from './dtos/update-notify.dto';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('通知')
 @Controller('notify')
 export class NotifyController {
   constructor(

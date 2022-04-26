@@ -7,9 +7,14 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { GitInfoService } from './git-info.service';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('Git 配置')
 @Controller('git-info')
 export class GitInfoController {
   constructor(private readonly gitInfoService: GitInfoService) {}

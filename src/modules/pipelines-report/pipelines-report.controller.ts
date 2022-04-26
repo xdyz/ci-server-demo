@@ -1,10 +1,22 @@
-import { Controller, Get, Query, Headers, Request } from '@nestjs/common';
-import { PipelinesRecordsReportService } from './report.service';
+import {
+  Controller,
+  Get,
+  Query,
+  Headers,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { PipelinesReportService } from './pipelines-report.service';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('records/report')
-export class PipelinesRecordsReportController {
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('管线报告')
+@Controller('pipelines/records/report')
+export class PipelinesReportController {
   constructor(
-    private readonly pipelinesRecordsReportService: PipelinesRecordsReportService,
+    private readonly pipelinesReportService: PipelinesReportService,
   ) {}
 
   // 管线的成功率
@@ -21,10 +33,7 @@ export class PipelinesRecordsReportController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesRecordsReportService.getPipelineRecordRate(
-      user,
-      query,
-    );
+    return await this.pipelinesReportService.getPipelineRecordRate(user, query);
   }
 
   // app.get("/records/report/day_rate", {
@@ -40,7 +49,7 @@ export class PipelinesRecordsReportController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesRecordsReportService.getPipelineRecordsRateDay(
+    return await this.pipelinesReportService.getPipelineRecordsRateDay(
       user,
       query,
     );
@@ -59,10 +68,7 @@ export class PipelinesRecordsReportController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesRecordsReportService.getTopFiveDuration(
-      user,
-      query,
-    );
+    return await this.pipelinesReportService.getTopFiveDuration(user, query);
   }
 
   // app.get("/records/report/task/rate", {
@@ -78,7 +84,7 @@ export class PipelinesRecordsReportController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesRecordsReportService.getPipilineRecordsTaskRate(
+    return await this.pipelinesReportService.getPipilineRecordsTaskRate(
       user,
       query,
     );
@@ -97,7 +103,7 @@ export class PipelinesRecordsReportController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesRecordsReportService.getPipelineRecordsTaskRateDay(
+    return await this.pipelinesReportService.getPipelineRecordsTaskRateDay(
       user,
       query,
     );
@@ -116,7 +122,7 @@ export class PipelinesRecordsReportController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesRecordsReportService.getTaskTopFiveDuration(
+    return await this.pipelinesReportService.getTaskTopFiveDuration(
       user,
       query,
     );
@@ -135,7 +141,7 @@ export class PipelinesRecordsReportController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesRecordsReportService.getTaskAndPipelineRelation(
+    return await this.pipelinesReportService.getTaskAndPipelineRelation(
       user,
       query,
     );
@@ -154,10 +160,7 @@ export class PipelinesRecordsReportController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesRecordsReportService.getPipelineRunHistory(
-      user,
-      query,
-    );
+    return await this.pipelinesReportService.getPipelineRunHistory(user, query);
   }
 
   // app.get("/records/report/task/statics",{
@@ -173,7 +176,7 @@ export class PipelinesRecordsReportController {
     @Query() query: any,
   ) {
     const user = { ...req.user, project_id: +project_id };
-    return await this.pipelinesRecordsReportService.getTaskInPipelineRecords(
+    return await this.pipelinesReportService.getTaskInPipelineRecords(
       user,
       query,
     );

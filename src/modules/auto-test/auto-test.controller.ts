@@ -10,11 +10,17 @@ import {
   Request,
   Query,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { AutoTestService } from './auto-test.service';
 import { CreateAutoTestDto } from './dtos/create-auto-test.dto';
 import { UpdateAutoTestDto } from './dtos/update-auto-test.dto';
 import * as utils from 'src/utils/index.utils';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('检查分类')
 @Controller('auto_test')
 export class AutoTestController {
   constructor(private readonly autoTestService: AutoTestService) {}

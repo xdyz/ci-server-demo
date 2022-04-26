@@ -8,11 +8,16 @@ import {
   Headers,
   Request,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ParameterCoverageService } from './parameter-coverage.service';
 import { CreateParameterCoverageDto } from './dtos/create-parameter-coverage.dto';
 import { UpdateParameterCoverageDto } from './dtos/update-parameter-coverage.dto';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('参数覆盖')
 @Controller('parameter-coverage')
 export class ParameterCoverageController {
   constructor(
