@@ -12,13 +12,17 @@ import {
   ClassSerializerInterceptor,
   Request,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ResourceCategoryService } from './category.service';
 // import { CreateCategoryDto, UpdateCategoryDto, CreateExtraDto } from '../dtos';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('category')
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
 @ApiTags('检查分类')
+@Controller('category')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ResourceCategoryController {
   constructor(

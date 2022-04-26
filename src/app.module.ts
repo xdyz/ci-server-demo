@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -28,8 +28,11 @@ import { WsModule } from './modules/websocket/ws.module';
 import { SentryModule } from '@ntegral/nestjs-sentry';
 import { ScheduleModule } from '@nestjs/schedule';
 // import { HttpModule } from '@nestjs/axios';
-import { MinioModule } from 'nestjs-minio-client';
 import { AxiosModule } from './modules/axios/axios.module';
+import { PipelinesRecordsModule } from './modules/pipelines-records/pipelines-records.module';
+import { PipelinesReportModule } from './modules/pipelines-report/pipelines-report.module';
+import { BuildsModule } from './modules/builds/builds.module';
+import { BuildsForeignModule } from './modules/builds-foreign/builds-foreign.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,40 +44,11 @@ import { AxiosModule } from './modules/axios/axios.module';
       expandVariables: true,
       load: [typeOrmConfig, minioConfig, sentryConfig],
     }),
-    // TypeOrmModule.forRootAsync({
-    //   inject: [ConfigService],
-    //   useFactory: (configService: ConfigService) =>
-    //     configService.get('typeorm'),
-    // }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '123456',
-      database: 'nest1',
-      entities: [__dirname + '/entities/*.entity{.ts,.js}'],
-      synchronize: true,
-      logging: true,
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        configService.get('typeorm'),
     }),
-    // MinioModule.registerAsync({
-    //   inject: [ConfigService],
-    //   useFactory: (configService: ConfigService) => configService.get('minio'),
-    // }),
-    // forwardRef(() =>
-    //   MinioModule.registerAsync({
-    //     inject: [ConfigService],
-    //     useFactory: (configService: ConfigService) =>
-    //       configService.get('minio'),
-    //   }),
-    // ),
-    // forwardRef(() =>
-    //   MinioModule.registerAsync({
-    //     inject: [ConfigService],
-    //     useFactory: (configService: ConfigService) =>
-    //       configService.get('minio'),
-    //   }),
-    // ),
     SentryModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => configService.get('sentry'),
@@ -97,16 +71,15 @@ import { AxiosModule } from './modules/axios/axios.module';
     TestErrorManualModule,
     ResourceModule,
     PackageErrorManualModule,
+    PipelinesRecordsModule,
     PackageModule,
     WsModule,
-
-    forwardRef(() => AutoTestModule),
-    // AutoTestModule,
-    forwardRef(() => PipelinesModule),
-    // PipelinesModule,
-
-    forwardRef(() => TasksModule),
-    // TasksModule,
+    PipelinesModule,
+    PipelinesReportModule,
+    BuildsModule,
+    BuildsForeignModule,
+    AutoTestModule,
+    TasksModule,
   ],
   controllers: [],
   providers: [],

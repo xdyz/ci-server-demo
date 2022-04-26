@@ -9,6 +9,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super();
   }
 
+  // 引入ldap 来配置
   async validate(username: string, password: string): Promise<any> {
     const user = await this.authService.validateUser(username, password);
     if (!user) {

@@ -1,14 +1,23 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PipelineRecordsEntity } from 'src/entities';
 import { Like, Repository } from 'typeorm';
-import { PipelinesListService } from '../pipeline-list/pipeline-list.service';
+import { PipelinesService } from '../pipelines/pipelines.service';
 
 @Injectable()
 export class PipelinesRecordsService {
   // @Inject('pipelinesListService')
   // private readonly pipelinesListSerivce: PipelinesListService;
-  constructor(private readonly pipelinesListSerivce: PipelinesListService) {}
+  constructor(
+    @Inject(forwardRef(() => PipelinesService))
+    private pipelinesSerivce: PipelinesService,
+  ) {}
 
   @InjectRepository(PipelineRecordsEntity)
   private readonly pipelineRecordsRepository: Repository<PipelineRecordsEntity>;
@@ -104,7 +113,7 @@ export class PipelinesRecordsService {
         status: 1,
       });
       const pipeRecord = await this.pipelineRecordsRepository.findOne(id);
-      this.pipelinesListSerivce.dealWithRestartPipeline(pipeRecord, user_id);
+      this.pipelinesSerivce.dealWithRestartPipeline(pipeRecord, user_id);
       return {};
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);

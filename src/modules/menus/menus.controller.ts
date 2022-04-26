@@ -6,11 +6,16 @@ import {
   Put,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { MenusService } from './menus.service';
 import { CreateMenuDto } from './dtos/create-menu.dto';
 import { UpdateMenuDto } from './dtos/update-menu.dto';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('菜单')
 @Controller('menus')
 export class MenusController {
   constructor(private readonly menusService: MenusService) {}

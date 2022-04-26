@@ -1,4 +1,5 @@
 import {
+  forwardRef,
   HttpException,
   HttpStatus,
   Inject,
@@ -7,15 +8,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PipelinesEntity } from 'src/entities';
-import { Like, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import objectPath from 'object-path';
 import moment from 'moment';
 import { CreatePipelineDto } from './dto/create-pipeline.dto';
 import { UpdatePipelineDto } from './dto/update-pipeline.dto';
-import { PipelinesRecordsService } from '../records/records.service';
+import { PipelinesRecordsService } from '../pipelines-records/pipelines-records.service';
 import { JenkinsInfoService } from 'src/modules/jenkins-info/jenkins-info.service';
 // import { got } from 'got';
-import { BuildsService } from 'src/modules/tasks/builds/builds.service';
+import { BuildsService } from 'src/modules/builds/builds.service';
 import * as utils from 'src/utils/index.utils';
 import { WsService } from 'src/modules/websocket/ws.service';
 import { NotifyService } from 'src/modules/notify/notify.service';
@@ -26,14 +27,17 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
-export class PipelinesListService implements OnModuleInit {
+export class PipelinesService implements OnModuleInit {
   public sentryClient: any;
 
   // @Inject()
   // schedulerRegistry: SchedulerRegistry;
 
   constructor(
-    private readonly pipelinesRecordsService: PipelinesRecordsService,
+    @Inject(forwardRef(() => PipelinesRecordsService))
+    private pipelinesRecordsService: PipelinesRecordsService,
+
+    @Inject(forwardRef(() => BuildsService))
     private readonly buildsService: BuildsService,
     private readonly jenkinsInfoService: JenkinsInfoService,
     private readonly wsService: WsService,
@@ -773,9 +777,10 @@ export class PipelinesListService implements OnModuleInit {
         } else {
           if (!resultData[node.build_id]) {
             await utils.sleep(10 * 1000);
-            const res = await this.buildsService.getBuildCustomData(
-              node.build_id,
-            );
+            // const res = await this.buildsService.getBuildCustomData(
+            //   node.build_id,
+            // );
+            const res = { data: '' };
             // app.sentry.captureMessage(`resultFile: ${node.build_id}`, {
             //   level: 'info',
             //   contexts: res.data,
@@ -815,10 +820,11 @@ export class PipelinesListService implements OnModuleInit {
         return;
       }
 
-      const buildData = await this.buildsService.startTask({
-        taksData: taksData,
-        userId: user_id,
-      });
+      // const buildData = await this.buildsService.startTask({
+      //   taksData: taksData,
+      //   userId: user_id,
+      // });
+      const buildData = { data: '' };
       const build_id = buildData?.['id'];
       // app.sentry.captureMessage(`startTask: ${build_id}`, {
       //   level: 'info',

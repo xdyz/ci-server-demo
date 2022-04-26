@@ -12,7 +12,7 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
-export class TasksForeignService {
+export class BuildsForeignService {
   sentryClient: any;
   constructor(
     @InjectSentry() private readonly sentryService: SentryService,

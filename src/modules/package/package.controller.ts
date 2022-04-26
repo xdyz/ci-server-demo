@@ -9,11 +9,16 @@ import {
   Request,
   Query,
   Headers,
+  UseGuards,
 } from '@nestjs/common';
 import { PackageService } from './package.service';
 import { CreatePackageDto } from './dtos/create-package.dto';
 import { UpdatePackageDto } from './dtos/update-package.dto';
-
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+@UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
+@ApiBearerAuth('jwt') // s
+@ApiTags('安装包')
 @Controller('package')
 export class PackageController {
   constructor(private readonly packageService: PackageService) {}

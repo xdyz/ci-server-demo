@@ -8,7 +8,7 @@ import {
   ResourceInstanceEntity,
   ResourceInstanceItemsEntity,
   ResourceTermsEntity,
-} from 'src/entities';
+} from '../../entities';
 import { MinioClientModule } from '../minio-client/minio-client.module';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { ResourceCategoryController } from './category/category.contorller';
@@ -19,6 +19,7 @@ import { ResourceInstanceItemsController } from './items/items.controller';
 import { ResourceInstanceItemsService } from './items/items.service';
 import { ResourceRecordsController } from './records/records.controller';
 import { ResourceRecordsService } from './records/records.service';
+import { ResourceReportService } from './report/report.service';
 import { ResourceTermsController } from './terms/terms.controller';
 import { ResourceTermsService } from './terms/terms.service';
 
@@ -53,6 +54,15 @@ import { ResourceTermsService } from './terms/terms.service';
     ResourceInstancesService,
     ResourceInstanceItemsService,
     ResourceRecordsService,
+    ResourceReportService,
+  ],
+  exports: [
+    ResourceCategoryService,
+    ResourceTermsService,
+    ResourceInstancesService,
+    ResourceInstanceItemsService,
+    ResourceRecordsService,
+    ResourceReportService,
   ],
 })
 export class ResourceModule {}

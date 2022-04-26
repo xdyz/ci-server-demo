@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ViewsService } from './views.service';
 import { ViewsController } from './views.controller';
-import { TasksService } from '../tasks/list/tasks.service';
+import { TasksService } from '../tasks/tasks.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TasksEntity, ViewsEntity } from 'src/entities';
 

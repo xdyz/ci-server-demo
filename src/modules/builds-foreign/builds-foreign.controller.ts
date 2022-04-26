@@ -1,6 +1,5 @@
 import {
   Controller,
-  Inject,
   Post,
   Query,
   UploadedFile,
@@ -8,12 +7,14 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MinioClientService } from 'src/modules/minio-client/minio-client.service';
-import { TasksForeignService } from './foreign.service';
+import { BuildsForeignService } from './builds-foreign.service';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('构建对外接口')
 @Controller('foreign')
-export class TasksForeignController {
+export class BuildsForeignController {
   constructor(
-    private readonly tasksForeignService: TasksForeignService,
+    private readonly buildsForeignService: BuildsForeignService,
     private readonly minioClientService: MinioClientService,
   ) {}
 
@@ -62,7 +63,7 @@ export class TasksForeignController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadResultBuild(@UploadedFile() file: any) {
     const { content, filePath } = await this.uploadFileToMinio(file);
-    this.tasksForeignService.uploadResultBuild(JSON.parse(content), filePath);
+    this.buildsForeignService.uploadResultBuild(JSON.parse(content), filePath);
     return '';
   }
 
@@ -80,7 +81,7 @@ export class TasksForeignController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadTestResultBuild(@UploadedFile() file: any) {
     const { content, filePath } = await this.uploadFileToMinio(file);
-    this.tasksForeignService.uploadTestResultBuild(
+    this.buildsForeignService.uploadTestResultBuild(
       JSON.parse(content),
       filePath,
     );
@@ -102,7 +103,7 @@ export class TasksForeignController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadServerResultBuild(@UploadedFile() file: any) {
     const { content, filePath } = await this.uploadFileToMinio(file);
-    this.tasksForeignService.uploadServerResultBuild(
+    this.buildsForeignService.uploadServerResultBuild(
       JSON.parse(content),
       filePath,
     );
@@ -142,19 +143,19 @@ export class TasksForeignController {
     const { content, filePath } = await this.uploadFileToMinio(file);
     switch (build_type) {
       case 'package':
-        this.tasksForeignService.uploadResultBuild(
+        this.buildsForeignService.uploadResultBuild(
           JSON.parse(content),
           filePath,
         );
         break;
       case 'test':
-        this.tasksForeignService.uploadTestResultBuild(
+        this.buildsForeignService.uploadTestResultBuild(
           JSON.parse(content),
           filePath,
         );
         break;
       case 'server':
-        this.tasksForeignService.uploadServerResultBuild(
+        this.buildsForeignService.uploadServerResultBuild(
           JSON.parse(content),
           filePath,
         );
