@@ -9,6 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   console.log(2222, process.env);
 
+  app.setGlobalPrefix('/api/v1');
   // 跨域配置
   app.enableCors();
 
