@@ -6,6 +6,7 @@ import { ProjectsService } from '../projects/projects.service';
 import { ConfigService } from '@nestjs/config';
 import { ProjectsModule } from '../projects/projects.module';
 import { NestMinioModule } from 'nestjs-minio';
+
 @Module({
   imports: [
     // NestMinioModule.registerAsync({
@@ -13,13 +14,13 @@ import { NestMinioModule } from 'nestjs-minio';
     //   useFactory: async (configService: ConfigService) =>
     //     configService.get('minio'),
     // }),
-    NestMinioModule.register({
-      endPoint: 'localhost',
-      port: 9000,
-      useSSL: false,
-      accessKey: 'AKIAIOSFODNN7EXAMPLE',
-      secretKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
-    }),
+    // NestMinioModule.register({
+    //   endPoint: 'localhost',
+    //   port: 9000,
+    //   useSSL: false,
+    //   accessKey: 'AKIAIOSFODNN7EXAMPLE',
+    //   secretKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    // }),
     ProjectsModule,
   ],
   controllers: [MinioClinentController],

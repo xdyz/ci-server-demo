@@ -7,7 +7,6 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  console.log(2222, process.env);
 
   app.setGlobalPrefix('/api/v1');
   // 跨域配置
@@ -32,7 +31,9 @@ async function bootstrap() {
 
   await app.init(); // 初始化完成 缓存完成
 
-  await app.listen(3000);
+  await app.listen(3000, () => {
+    console.log(2222, process.env);
+  });
 }
 
 bootstrap();
