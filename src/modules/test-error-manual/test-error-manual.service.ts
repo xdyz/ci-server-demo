@@ -23,14 +23,12 @@ export class TestErrorManualService {
   };
 
   async getManualErrors({ project_id }, { page, size, ...rest }) {
-    page = parseInt(page, 10);
-    size = parseInt(size, 10);
     const params = this.dealWithQuery(rest);
     const [data, total] = await this.testErrorManualRepository
       .createQueryBuilder('t')
       .where('t.project_id = :project_id', { project_id })
       .andWhere(params)
-      .skip(page * size)
+      .skip((page - 1) * size)
       .take(size)
       .getManyAndCount();
     return {
@@ -57,9 +55,7 @@ export class TestErrorManualService {
         project_id,
       });
       const data = await this.testErrorManualRepository.save(manual);
-      return {
-        data,
-      };
+      return data;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectsEntity } from 'src/entities';
 import { Repository } from 'typeorm';
@@ -10,7 +10,7 @@ export class ProjectsService {
   @InjectRepository(ProjectsEntity)
   private readonly projectsRepository: Repository<ProjectsEntity>;
 
-  findOneProjectById = async (id) => {
+  async findOneProjectById(id) {
     const project = await this.projectsRepository.findOne({
       where: {
         id,
@@ -19,7 +19,7 @@ export class ProjectsService {
     });
 
     return project;
-  };
+  }
 
   /**
    * 获取单个项目信息
@@ -28,9 +28,7 @@ export class ProjectsService {
    */
   async getOneProject(id) {
     const project = await this.findOneProjectById(id);
-    return {
-      data: project,
-    };
+    return project;
   }
 
   /**
@@ -45,9 +43,7 @@ export class ProjectsService {
       },
     });
 
-    return {
-      data: projects,
-    };
+    return projects;
   }
 
   /**
@@ -62,11 +58,9 @@ export class ProjectsService {
         ...createProjectDto,
       });
       const result = await this.projectsRepository.save(project);
-      return {
-        data: result,
-      };
+      return result;
     } catch (error) {
-      throw new Error(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -81,11 +75,9 @@ export class ProjectsService {
         id,
         ...updateProjectDto,
       });
-      return {
-        data: result,
-      };
+      return result;
     } catch (error) {
-      throw new Error(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -99,7 +91,7 @@ export class ProjectsService {
       await this.projectsRepository.save({ id, is_del: 1 });
       return {};
     } catch (error) {
-      throw new Error(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -115,11 +107,9 @@ export class ProjectsService {
         id,
         ...updateProjectDto,
       });
-      return {
-        data: result,
-      };
+      return result;
     } catch (error) {
-      throw new Error(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

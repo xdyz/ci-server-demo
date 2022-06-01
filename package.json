@@ -43,7 +43,6 @@
     "moment": "^2.29.3",
     "mysql2": "^2.3.3",
     "nestjs-minio": "^2.1.15",
-    "nestjs-minio-client": "^1.2.0",
     "object-path": "^0.11.8",
     "passport": "^0.5.2",
     "passport-jwt": "^4.0.0",

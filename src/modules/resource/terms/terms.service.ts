@@ -184,11 +184,27 @@ export class ResourceTermsService {
             {
               select: ['id', 'category_uid'],
               where: {
-                project_id,
+                project_id: In([project_id, 0]),
                 category_uid,
               },
             },
           );
+
+          const cateData1 = await queryRunner.manager.findOne(
+            ResourceCategoryEntity,
+            {
+              select: ['id', 'category_uid'],
+              where: {
+                project_id: 0,
+                category_uid,
+              },
+            },
+          );
+
+          // 如果与公共类型的分类相同，就不新建分类和检查项 直接跳过
+          if (cateData1) {
+            continue;
+          }
 
           if (!cateData) {
             // cates = await resourceService.insertClassification(
@@ -319,7 +335,14 @@ export class ResourceTermsService {
     try {
       rules = await Promise.all(
         data.map(async (item) => {
-          const { category_id, filter_paths, detect_paths, ...rest } = item;
+          const {
+            category_id,
+            rule_uid,
+            filter_paths,
+            detect_paths,
+            threshold_value,
+            ...rest
+          } = item;
           categoryIds.push(category_id);
           const { category_uid, category_name } =
             await this.resourceCategoryService.getOneClassificationById(
@@ -330,6 +353,11 @@ export class ResourceTermsService {
             category_uid,
             filter_paths: filter_paths ? filter_paths.split(',') : [],
             detect_paths: detect_paths ? detect_paths.split(',') : [],
+            threshold_value: ['TextureMaxSize', 'TextureCompression'].includes(
+              rule_uid,
+            )
+              ? JSON.stringify(threshold_value)
+              : threshold_value,
             ...rest,
           };
         }),

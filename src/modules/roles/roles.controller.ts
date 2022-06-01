@@ -14,6 +14,7 @@ import { CreateRoleDto } from './dtos/create-role.dto';
 import { UpdateRoleDto } from './dtos/update-role.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { GetRoleDto } from './dtos/get-role.dto';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
 @ApiTags('角色')
 @ApiBearerAuth('jwt') // s
@@ -42,8 +43,8 @@ export class RolesController {
   }
 
   @Get()
-  async getRoles(@Query() getRolesDto: any) {
-    return await this.rolesService.getRole(getRolesDto);
+  async getRoles(@Query() getRolesDto: GetRoleDto) {
+    return await this.rolesService.getRoles(getRolesDto);
   }
 
   @Get('/all')

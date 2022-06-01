@@ -70,7 +70,7 @@ export class ResourceReportService {
     if (!build || !build.file_path) return check;
     let report;
     try {
-      report = (await this.minioClientService.getObject(build.file_path)).data;
+      report = await this.minioClientService.getObject(build.file_path);
     } catch (error) {
       return check;
     }
@@ -108,7 +108,7 @@ export class ResourceReportService {
   }
 
   // JSON_EXTRACT(parameters, "$.instance_id")= ?
-  getCheckReportResult = async function (
+  async getCheckReportResult(
     { project_id },
     { from, to, git_client_url, branch, ...queries },
   ) {
@@ -130,10 +130,8 @@ export class ResourceReportService {
     // 计算总的通过数
     const statistics = await this.getSummary(project_id, allBuilds);
 
-    return {
-      data: statistics,
-    };
-  };
+    return statistics;
+  }
 
   // 计算某一天内所有资源检查 检查项的通过率
   async dealWithCustomDataToRate(itemBuild) {
@@ -145,8 +143,7 @@ export class ResourceReportService {
     if (!itemBuild || !itemBuild.file_path) return result;
     let report;
     try {
-      report = (await this.minioClientService.getObject(itemBuild.file_path))
-        .data;
+      report = await this.minioClientService.getObject(itemBuild.file_path);
     } catch (error) {
       return result;
     }
@@ -194,13 +191,13 @@ export class ResourceReportService {
   }
 
   // 计算每一个实例当天最晚的那一条数据 并且进行数据统计
-  oneDayInstanceTerms = async (
+  async oneDayInstanceTerms(
     id,
     startDay,
     endDay,
     project_id,
     { git_client_url, branch }: { git_client_url?: string; branch?: string },
-  ) => {
+  ) {
     const dcBuild = await this.buildsRepository
       .createQueryBuilder('b')
       .where('b.project_id = :project_id', { project_id })
@@ -222,8 +219,7 @@ export class ResourceReportService {
     let report;
     try {
       // report = JSON.parse(await app.ci.readFile(customData.report_url));
-      report = (await this.minioClientService.getObject(dcBuild.file_path))
-        .data;
+      report = await this.minioClientService.getObject(dcBuild.file_path);
       report.results = await this.getAllResourceTerms(
         project_id,
         report.results,
@@ -246,7 +242,7 @@ export class ResourceReportService {
     } catch (error) {
       return resObj;
     }
-  };
+  }
 
   // 计算分类中，每一个类别最新的数据
   async caculteEveryDayRate({ project_id, from, to, git_client_url, branch }) {
@@ -322,8 +318,7 @@ export class ResourceReportService {
     if (!build || !build.file_path) return check;
     check.type = build.job_name;
     try {
-      const result = await this.minioClientService.getObject(build.file_path);
-      check.report = result.data;
+      check.report = await this.minioClientService.getObject(build.file_path);
     } catch (error) {
       return check;
     }

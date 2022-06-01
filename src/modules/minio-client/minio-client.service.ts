@@ -8,7 +8,6 @@ import {
 import { ProjectsService } from '../projects/projects.service';
 import { CreateMinioDto } from './dtos/create-minio.dto';
 import { UpdateMinioDto } from './dtos/update-minio.dto';
-import { MinioService } from 'nestjs-minio-client';
 import moment from 'moment';
 import { Client } from 'minio';
 import { MINIO_CONNECTION } from 'nestjs-minio';
@@ -37,7 +36,7 @@ export class MinioClientService {
   async presignedPostPolicy({ project_id, user_id }, { fileName, pathDir }) {
     try {
       const project = await this.projectService.getOneProject(project_id);
-      const { label } = project.data;
+      const { label } = project;
       // 策略为post 上传
       const policy = await this.client.newPostPolicy();
       policy.setBucket('devops');
@@ -68,7 +67,7 @@ export class MinioClientService {
   async getProjectAssetBundles({ project_id }, { pathDir }) {
     try {
       const project = await this.projectService.getOneProject(project_id);
-      const { label } = project.data;
+      const { label } = project;
 
       const stream = await this.client.listObjects(
         'devops',
@@ -78,9 +77,7 @@ export class MinioClientService {
 
       const data = await this.getListObjectsInfo(stream);
 
-      return {
-        data,
-      };
+      return data;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -102,7 +99,7 @@ export class MinioClientService {
       const project = await this.projectService.getOneProject(
         Number(projectId),
       );
-      const { label } = project.data;
+      const { label } = project;
       const filePath = `resultFile/${label}/${jobName}/${
         time ? time : moment().format('YYYY-MM-DD')
       }/${buildNumber}.json`;
@@ -127,7 +124,7 @@ export class MinioClientService {
     }
   }
 
-  getFile = async (dataStream) => {
+  async getFile(dataStream) {
     let data = '';
     dataStream.on('data', (stream) => {
       data += stream;
@@ -142,7 +139,7 @@ export class MinioClientService {
         reject(data);
       });
     });
-  };
+  }
 
   // 通过stream 的方式获取到文件内容
   async getObject(pathDir) {
@@ -150,9 +147,7 @@ export class MinioClientService {
       const filePromise = this.client.getObject('devops', pathDir);
       const result = await this.getFile(await filePromise);
 
-      return {
-        data: result ? JSON.parse(result as string) : {},
-      };
+      return result ? JSON.parse(result as string) : {};
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

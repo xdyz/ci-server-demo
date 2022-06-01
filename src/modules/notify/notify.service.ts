@@ -59,7 +59,7 @@ export class NotifyService {
    * @param corpid 企业ID
    * @param corpsecret 凭证密匙
    */
-  refreshToken = async (corpid, corpsecret) => {
+  async refreshToken(corpid, corpsecret) {
     const res = await lastValueFrom(
       this.httpService
         .get(
@@ -73,7 +73,7 @@ export class NotifyService {
     } else {
       throw new HttpException(msg.errmsg, HttpStatus.BAD_REQUEST);
     }
-  };
+  }
 
   async tryGetMedia(type, formData, corpid, corpsecret) {
     const res = await lastValueFrom(
@@ -199,7 +199,7 @@ export class NotifyService {
       const result = await this.imManagerRepository.save(chat);
       return result;
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -211,16 +211,16 @@ export class NotifyService {
       });
       return result;
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   async delChat(id) {
     try {
       await this.imManagerRepository.delete({ id });
-      return {};
+      return;
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

@@ -7,7 +7,6 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  console.log(2222, process.env);
 
   app.setGlobalPrefix('/api/v1');
   // 跨域配置
@@ -24,6 +23,7 @@ async function bootstrap() {
       // transform: true, // 自动类型转换
       forbidNonWhitelisted: true, // 只允许指定的参数 其他的不允许 抛出异常
       whitelist: true, // 启用白名单，dto中没有声明的属性会被直接过滤掉
+      forbidUnknownValues: true, // 启用禁止未知属性，未声明的属性会抛出异常
     }),
   );
 
@@ -32,7 +32,9 @@ async function bootstrap() {
 
   await app.init(); // 初始化完成 缓存完成
 
-  await app.listen(3000);
+  await app.listen(3000, () => {
+    console.log(2222, process.env);
+  });
 }
 
 bootstrap();

@@ -33,13 +33,15 @@ import { PipelinesRecordsModule } from './modules/pipelines-records/pipelines-re
 import { PipelinesReportModule } from './modules/pipelines-report/pipelines-report.module';
 import { BuildsModule } from './modules/builds/builds.module';
 import { BuildsForeignModule } from './modules/builds-foreign/builds-foreign.module';
+import { NestMinioModule } from 'nestjs-minio';
+import { PackageDataEditModule } from './modules/package-data-edit/package-data-edit.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [
-        'src/config/dev/.env',
-        `src/config/dev/.env.${process.env.NODE_ENV || 'development'}`,
+        '../config/env/.env',
+        `../config/dev/.env.${process.env.NODE_ENV || 'development'}`,
       ],
       expandVariables: true,
       load: [typeOrmConfig, minioConfig, sentryConfig],
@@ -53,8 +55,13 @@ import { BuildsForeignModule } from './modules/builds-foreign/builds-foreign.mod
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => configService.get('sentry'),
     }),
+    NestMinioModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) =>
+        configService.get('minio'),
+    }),
     ScheduleModule.forRoot(),
-    MinioClientModule,
+    // MinioClientModule,
     AxiosModule,
     AuthModule,
     UsersModule,
@@ -80,6 +87,7 @@ import { BuildsForeignModule } from './modules/builds-foreign/builds-foreign.mod
     BuildsForeignModule,
     AutoTestModule,
     TasksModule,
+    PackageDataEditModule,
   ],
   controllers: [],
   providers: [],

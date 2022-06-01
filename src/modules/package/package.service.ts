@@ -47,12 +47,12 @@ export class PackageService {
     const [builds, total] = await this.buildsRepository
       .createQueryBuilder('b')
       .leftJoinAndMapOne('b.user', 'UsersEntity', 'u', 'b.user_id = u.id')
-      .where('b.project_id = :project_id', { project_id })
-      .andWhere('b.status = :status', { status })
-      .andWhere(queries)
-      .andWhere('b.build_type = :build_type', {
+      .where({
+        project_id,
+        status,
         build_type: utils.buildTypes.PACKAGE,
       })
+      .andWhere(queries)
       .orderBy('b.created_at', 'DESC')
       .offset((page - 1) * size)
       .limit(size)
@@ -232,6 +232,7 @@ export class PackageService {
 
   async getPackageReportResult({ project_id, from, to }) {
     // const [packBuilds] = await app.mysql.query(packagesConstants.SELECT_PACKAGE_BUILDS_BY_DATE, [from, to, PACKAGE, project_id]);
+
     const [packages, count] = await this.buildsRepository
       .createQueryBuilder('b')
       .where('b.project_id = :project_id', { project_id })
@@ -434,7 +435,7 @@ export class PackageService {
     return res;
   }
   // 获取unity 日志
-  getBuildUnityLog = async (url, project_id) => {
+  async getBuildUnityLog(url, project_id) {
     // const [manuals] = await app.mysql.query(packageErrorManualConstants.SELECT_PACKAGE_ERROR_MANUAL_BY_PROJECT_ID_AND_TAGS, [project_id, 'Unity']);
     // 查询tags in (Unity)的所有manual
 
@@ -448,15 +449,10 @@ export class PackageService {
       return log?.body?.includes(item.key_words);
     });
     return result;
-  };
+  }
 
   // 获取jenkins 日志中的错误项
-  getBuildJenkinsLog = async (
-    baseUrl = '',
-    job_name = '',
-    number,
-    project_id,
-  ) => {
+  async getBuildJenkinsLog(baseUrl = '', job_name = '', number, project_id) {
     let result = [];
     if (!baseUrl || !job_name || !number) return result;
     // const [manuals] = await app.mysql.query(packageErrorManualConstants.SELECT_PACKAGE_ERROR_MANUAL_BY_PROJECT_ID_AND_TAGS, [project_id, 'Jenkins']);
@@ -478,7 +474,7 @@ export class PackageService {
     });
 
     return result;
-  };
+  }
 
   // const getOneJenkinsInfoBYTask = async (jenkins_id) => {
   //   const res = await app.ci.getOneJenkinsInfo(jenkins_id);
@@ -530,10 +526,8 @@ export class PackageService {
         project_id,
         unityLogUrl.url,
       );
-    } catch (error) {
+    } finally {
       return result;
     }
-
-    return result;
   }
 }

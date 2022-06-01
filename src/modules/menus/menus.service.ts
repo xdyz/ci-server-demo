@@ -10,12 +10,12 @@ export class MenusService {
   @InjectRepository(MenusEntity)
   private readonly menusRepository: Repository<MenusEntity>;
 
-  getOneMenuById = async (id) => {
+  async getOneMenuById(id) {
     // const [ menus ] = await app.mysql.query(menusConstants.SELECT_MENUS_BY_ID, [ id ]);
     const menu = await this.menusRepository.findOne(id);
 
     return menu;
-  };
+  }
 
   async getAllMenus() {
     // const [ menus ] = await app.mysql.query(menusConstants.SELECT_MENUS_NO_CONDITION);
@@ -35,24 +35,14 @@ export class MenusService {
     }
   }
 
-  async updateMenu(
-    id,
-    { name, parent_id, path, redirect, icon, hide_in_menu },
-  ) {
+  async updateMenu(id, updateMenuDto: UpdateMenuDto) {
     try {
       const result = await this.menusRepository.save({
         id,
-        name,
-        parent_id,
-        path,
-        redirect,
-        icon,
-        hide_in_menu,
+        ...updateMenuDto,
       });
       const data = await this.getOneMenuById(result.id);
-      return {
-        data,
-      };
+      return data;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

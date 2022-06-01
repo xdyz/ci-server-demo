@@ -124,9 +124,7 @@ export class ViewsService {
     const view = await this.viewsRepository.save(result);
     // initializeView(view);
     // addDataToView(view);
-    return {
-      data: view,
-    };
+    return view;
   }
 
   async deleteView(viewId) {

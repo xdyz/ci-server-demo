@@ -16,6 +16,9 @@ import { CreatePackageDto } from './dtos/create-package.dto';
 import { UpdatePackageDto } from './dtos/update-package.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { GetPackageDto } from './dtos/get-package.dto';
+import { GetPackageReportDto } from './dtos/get-package-report.dto';
+
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
 @ApiBearerAuth('jwt') // s
 @ApiTags('安装包')
@@ -33,7 +36,7 @@ export class PackageController {
   async getPackages(
     @Request() req,
     @Headers('project_id') project_id: string,
-    @Query() getPackageDto: any,
+    @Query() getPackageDto: GetPackageDto,
   ) {
     const user = { ...req.user, project_id: +project_id };
     return await this.packageService.getPackages(user, getPackageDto);
@@ -66,7 +69,7 @@ export class PackageController {
   async getPackageReportDuration(
     @Request() req,
     @Headers('project_id') project_id: string,
-    @Query() getPackageDto: any,
+    @Query() getPackageDto: GetPackageReportDto,
   ) {
     const user = { ...req.user, project_id: +project_id };
     return await this.packageService.getPackageReportDuration(
@@ -85,7 +88,7 @@ export class PackageController {
   async getPackageReportRate(
     @Request() req,
     @Headers('project_id') project_id: string,
-    @Query() getPackageDto: any,
+    @Query() getPackageDto: GetPackageReportDto,
   ) {
     const user = { ...req.user, project_id: +project_id };
     return await this.packageService.getPackageReportRate(user, getPackageDto);
@@ -102,7 +105,7 @@ export class PackageController {
   async getPackageReportResult(
     // @Request() req,
     @Headers('project_id') project_id: string,
-    @Query() getPackageDto: any,
+    @Query() getPackageDto: GetPackageReportDto,
   ) {
     // const user = { ...req.user, project_id: +project_id };
     return await this.packageService.getPackageReportResult({
@@ -134,7 +137,7 @@ export class PackageController {
   async getPackageReportCategory(
     @Request() req,
     @Headers('project_id') project_id: string,
-    @Query() getPackageDto: any,
+    @Query() getPackageDto: GetPackageReportDto,
   ) {
     const user = { ...req.user, project_id: +project_id };
     return await this.packageService.getPackageReportCategory(
@@ -162,7 +165,7 @@ export class PackageController {
   async getFailureHistoryData(
     @Request() req,
     @Headers('project_id') project_id: string,
-    @Query() getPackageDto: any,
+    @Query() getPackageDto: GetPackageReportDto,
   ) {
     const user = { ...req.user, project_id: +project_id };
     return await this.packageService.getFailureHistoryData(user, getPackageDto);
@@ -178,7 +181,7 @@ export class PackageController {
   async getTopFiveErrorManuals(
     @Request() req,
     @Headers('project_id') project_id: string,
-    @Query() getPackageDto: any,
+    @Query() getPackageDto: GetPackageReportDto,
   ) {
     const user = { ...req.user, project_id: +project_id };
     return await this.packageService.getTopFiveErrorManuals(

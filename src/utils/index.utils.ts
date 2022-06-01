@@ -66,6 +66,7 @@ export const buildTypes = {
   TEST: 'test',
   EVENT: 'event',
   ASSET_BUNDLE: 'assetBundle',
+  PACKAGE_ANALYZE: 'packageAnalyze',
 };
 
 export const checkTypes = [

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BuildsEntity } from 'src/entities';
 import { Between, In, Repository } from 'typeorm';
@@ -76,9 +76,7 @@ export class AutoTestService {
       },
     });
     const result = this.accumulateTestResult(builds ?? []);
-    return {
-      data: result,
-    };
+    return result;
   }
 
   async getDayCategoryFailCases(curDayData, categries, day) {
@@ -147,9 +145,7 @@ export class AutoTestService {
       },
     });
     const result = await this.categoryFailCases(from, to, builds, project_id);
-    return {
-      data: result,
-    };
+    return result;
   }
 
   async getDayCategoryTotalCases(curDayData, categries, day) {
@@ -216,9 +212,7 @@ export class AutoTestService {
       },
     });
     const result = await this.categoryTotalCases(from, to, builds, project_id);
-    return {
-      data: result,
-    };
+    return result;
   }
 
   async dealWithCategoryLatest(selBuilds, project_id) {
@@ -276,9 +270,7 @@ export class AutoTestService {
       .getMany();
 
     const result = await this.dealWithCategoryLatest(builds, project_id);
-    return {
-      data: result,
-    };
+    return result;
   }
 
   selTopNums(allFailTypes) {
@@ -350,9 +342,7 @@ export class AutoTestService {
       },
     });
     const result = await this.caculateTopFive(builds, project_id);
-    return {
-      data: result,
-    };
+    return result;
   }
 
   // 自动化测试通过率 计算每一个分类的案例通过率
@@ -393,7 +383,7 @@ export class AutoTestService {
     return result;
   }
 
-  getDayCategoryRate = async (curDayData, categries, day) => {
+  async getDayCategoryRate(curDayData, categries, day) {
     const result = await Promise.all(
       categries.map(async (item) => {
         // 过滤出每个分类的数据
@@ -409,7 +399,7 @@ export class AutoTestService {
     );
 
     return result;
-  };
+  }
 
   async differentCategoryRate(from, to, selBuilds, project_id) {
     try {
@@ -444,11 +434,11 @@ export class AutoTestService {
     }
   }
 
-  getReportBuildRate = async ({ project_id }, { from, to }) => {
+  async getReportBuildRate({ project_id }, { from, to }) {
     // const [ builds ] = await app.mysql.query(autoTestConstants.SELECT_AUTO_TEST_RESULT_BY_BUILD_TYPE_PRJECT_ID, [ 'test', project_id, from, to ]);
     const builds = await this.buildsRepository.find({
       where: {
-        build_type: 'test',
+        build_type: utils.buildTypes.TEST,
         project_id,
         time: Between(from, to),
       },
@@ -459,10 +449,8 @@ export class AutoTestService {
       builds,
       project_id,
     );
-    return {
-      data: result,
-    };
-  };
+    return result;
+  }
 
   async updateResultSuits(id, { suit }) {
     try {
@@ -470,8 +458,8 @@ export class AutoTestService {
       const { file_path } = build;
 
       if (file_path) {
-        const report = (await this.minioClientService.getObject(file_path))
-          .data;
+        const report = await this.minioClientService.getObject(file_path);
+
         report.suits.forEach((item) => {
           if (item.name === suit.name && item.suit_tag === suit.suit_tag) {
             item.fail_types = suit.fail_types;
@@ -484,11 +472,12 @@ export class AutoTestService {
         });
       }
     } catch (error) {
-      return {
-        error: {
-          message: error,
-        },
-      };
+      // return {
+      //   error: {
+      //     message: error,
+      //   },
+      // };
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     return {};

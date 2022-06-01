@@ -19,14 +19,12 @@ export class RolesService {
     return role;
   }
 
-  async getRoles({ project_id, page, per_page }) {
-    page = parseInt(page) || 1;
-    per_page = parseInt(per_page) || 10;
+  async getRoles({ project_id, page, size }) {
     const [data, total] = await this.rolesRepository.findAndCount({
       where: { project_id },
       order: { id: 'DESC' },
-      take: per_page,
-      skip: (page - 1) * per_page,
+      take: size,
+      skip: (page - 1) * size,
     });
     return {
       data,
@@ -38,9 +36,7 @@ export class RolesService {
   async updateRole(id, updateRoleDto) {
     try {
       const role = await this.rolesRepository.save({ id, ...updateRoleDto });
-      return {
-        data: role,
-      };
+      return role;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -60,9 +56,7 @@ export class RolesService {
     try {
       const role = await this.rolesRepository.create(createRoleDto);
       const data = await this.rolesRepository.save(role);
-      return {
-        data,
-      };
+      return data;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -74,8 +68,6 @@ export class RolesService {
       order: { id: 'DESC' },
     });
 
-    return {
-      data,
-    };
+    return data;
   }
 }
