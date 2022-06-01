@@ -74,12 +74,11 @@ export default class ResourceTermsEntity extends BaseEntity {
   threshold_range: string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
+    type: 'json',
     name: 'threshold_value',
     nullable: true,
   })
-  threshold_value: string;
+  threshold_value: any;
 
   @Column({
     type: 'tinyint',

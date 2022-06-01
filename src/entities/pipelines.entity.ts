@@ -81,6 +81,13 @@ export default class PipelinesEntity extends BaseEntity {
   schedule_time: Date;
 
   @Column({
+    name: 'timing',
+    type: 'json',
+    nullable: true,
+  })
+  timing: any;
+
+  @Column({
     type: 'int',
     name: 'project_id',
     comment: '项目id',

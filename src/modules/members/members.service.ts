@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MembersEntity } from 'src/entities';
 import { Like, Repository } from 'typeorm';
@@ -75,7 +75,7 @@ export class MembersService {
       const result = await this.membersRepository.save(member);
       return result;
     } catch (error) {
-      throw new Error(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -93,7 +93,7 @@ export class MembersService {
       const data = await this.getOneMemberById(result.id);
       return data;
     } catch (error) {
-      throw new Error(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -102,7 +102,7 @@ export class MembersService {
       await this.membersRepository.delete(id);
       return;
     } catch (error) {
-      throw new Error(error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

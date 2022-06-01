@@ -34,7 +34,7 @@ export class BuildsForeignService {
   @InjectRepository(BuildsEntity)
   private readonly buildsRepository: Repository<BuildsEntity>;
 
-  maxWaitTime = 4 * 1000;
+  private maxWaitTime = 4 * 1000;
 
   async getJenkinsUrl(job_name, project_id) {
     try {
@@ -336,7 +336,7 @@ export class BuildsForeignService {
     } catch (error) {
       // app.utils.log.error("beforeDealWithBuild error", error);
       // app.sentry.captureException(error);
-      this.sentryClient.captureException(error);
+      this.sentryClient.captureException('beforeDealWithBuild error', error);
       return '';
     }
   }
@@ -511,6 +511,10 @@ export class BuildsForeignService {
     } catch (error) {
       // app.utils.log.error("beforeDealWithTestBuild error", error);
       // app.sentry.captureException(error);
+      this.sentryClient.captureException(
+        'beforeDealWithTestBuild error',
+        error,
+      );
       return '';
     }
   }
@@ -650,7 +654,10 @@ export class BuildsForeignService {
     } catch (error) {
       // app.utils.log.error("beforeDealWithServerBuild error", error);
       // app.sentry.captureException(error);
-      this.sentryClient.captureException(error);
+      this.sentryClient.captureException(
+        'beforeDealWithServerBuild error',
+        error,
+      );
       return '';
     }
   }

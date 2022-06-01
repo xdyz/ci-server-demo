@@ -42,13 +42,13 @@ export class JenkinsInfoService {
   //{ display_name, protocol, hostname, port, user_name, token }
   async createJenkinsInfo({ project_id }, createJenkinsInfoDto) {
     try {
-      const jenkinsInfo = await this.jenkinsInfoRepository.create(
-        createJenkinsInfoDto,
-      );
+      const jenkinsInfo = await this.jenkinsInfoRepository.create({
+        project_id,
+        ...createJenkinsInfoDto,
+      });
       const result = await this.jenkinsInfoRepository.save(jenkinsInfo);
-      return {
-        data: result,
-      };
+
+      return result;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -61,9 +61,7 @@ export class JenkinsInfoService {
         id,
         ...updateJenkinsInfoDto,
       });
-      return {
-        data: jenkinsInfo,
-      };
+      return jenkinsInfo;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -73,7 +71,7 @@ export class JenkinsInfoService {
     try {
       await this.getOneJenkinsInfo(id);
       await this.jenkinsInfoRepository.delete(id);
-      return {};
+      return;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

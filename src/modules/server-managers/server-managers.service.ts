@@ -62,9 +62,7 @@ export class ServerManagersService {
       .getMany();
     const result = await this.caculateResult(builds);
 
-    return {
-      data: result,
-    };
+    return result;
   }
 
   getDayCategoryRate = async (curDayData, categries, day) => {
@@ -133,9 +131,7 @@ export class ServerManagersService {
       .andWhere('b.created_at <= :to', { to })
       .getMany();
     const result = await this.differentTaskRate(from, to, builds, project_id);
-    return {
-      data: result,
-    };
+    return result;
   }
 
   accumulateDuration = (selBuilds) => {

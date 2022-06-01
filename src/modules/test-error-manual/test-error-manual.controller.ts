@@ -16,6 +16,7 @@ import { CreateTestErrorManualDto } from './dtos/create-test-error-manual.dto';
 import { UpdateTestErrorManualDto } from './dtos/update-test-error-manual.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { GetTestErrorManualDto } from './dtos/get-test-error-manual.dto';
 
 @Controller('test-error-manual')
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
@@ -36,7 +37,7 @@ export class TestErrorManualController {
   async getManualErrors(
     @Request() req,
     @Headers('project_id') project_id: string,
-    @Query() getTestErrorManualDto: any,
+    @Query() getTestErrorManualDto: GetTestErrorManualDto,
   ) {
     const user = { ...req.user, project_id: +project_id };
     return await this.testErrorManualService.getManualErrors(

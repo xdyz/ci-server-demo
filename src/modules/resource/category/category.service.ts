@@ -79,9 +79,7 @@ export class ResourceCategoryService {
       .orderBy('cate.id', 'DESC')
       .getMany();
 
-    return {
-      data: result,
-    };
+    return result;
   }
 
   /**

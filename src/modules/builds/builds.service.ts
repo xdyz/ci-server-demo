@@ -54,8 +54,8 @@ export class BuildsService {
   @InjectRepository(TasksEntity)
   private readonly tasksRepository: Repository<TasksEntity>;
 
-  executingBuildMap = {};
-  executingBuildExtraMap = {};
+  public executingBuildMap = {};
+  public executingBuildExtraMap = {};
 
   async addBuildBadge(buildId, badge) {
     const build = this.executingBuildMap[buildId];
@@ -103,6 +103,7 @@ export class BuildsService {
         platform,
         hashes,
         unity_version,
+        filter_time,
         customize_tool_url,
       },
       job_name: jenkinsJobName,
@@ -131,6 +132,7 @@ export class BuildsService {
         branch: branch,
         unity_check_sdk_branch: unity_check_sdk_branch || 'master',
         platform: platform || 'android',
+        filter_time,
         // detector: job_name,
         // drive_type: parameters.drive_type || 'Unity',
         params: params,
@@ -204,30 +206,38 @@ export class BuildsService {
       jenkinsBuild,
       jenkinsJobName,
       project_id,
+      build_type,
     };
 
     // 完成之后
-    await this.afterFunRun(build_type, resultParams);
+    await this.afterFunRun(resultParams);
   }
 
   // 根据类型判断  jb 完成之后 执行哪些函数方法 处理结果
-  async afterFunRun(build_type, resultParams) {
-    if (build_type === utils.buildTypes.CHECK) {
-      await this.afterCheckJob(resultParams);
-    } else if (build_type === utils.buildTypes.ASSET_BUNDLE) {
-      await this.afterAssetBundleJob(resultParams);
+  async afterFunRun(resultParams) {
+    // if (build_type === utils.buildTypes.CHECK) {
+    //   await this.afterCheckJob(resultParams);
+    // } else if (build_type === utils.buildTypes.ASSET_BUNDLE) {
+    //   await this.afterAssetBundleJob(resultParams);
+    // } else {
+    //   await this.afterOtherJob(resultParams);
+    // }
+    const { PACKAGE, SERVER, TEST, EVENT, ...rest } = utils.buildTypes;
+    if (Object.values(rest).includes(resultParams.build_type)) {
+      await this.afterAssetBundleOrCheckJob(resultParams);
     } else {
       await this.afterOtherJob(resultParams);
     }
   }
 
   // ab 检查之后
-  async afterAssetBundleJob({
+  async afterAssetBundleOrCheckJob({
     id,
     baseUrl,
     jenkinsBuild,
     jenkinsJobName,
     project_id,
+    build_type,
   }) {
     const stages = await this.jenkinsInfoService.getStages(
       baseUrl,
@@ -273,77 +283,94 @@ export class BuildsService {
       id,
       utils.convertJenkinsStatusToInt(jenkinsBuild.result),
     );
+
+    // 与安装包build id 进行关联
+    if (build_type === utils.buildTypes.PACKAGE) {
+      const { package_build_id } = logRes.body
+        ? JSON.parse(logRes.body)
+        : { package_build_id: '' };
+      await this.establishConnectionBuild(package_build_id, id);
+    }
+  }
+
+  // 建立关联关系 安装包 和 安装包的分析记录
+  async establishConnectionBuild(package_build_id, analyze_id) {
+    // await app.mysql.query(tasksConstants.UPDATE_CONNECTION_BUILD_WITH_PACKAGE_ANALYZE, [package_build_id, analyze_id]);
+    await this.buildsRepository.save({
+      id: analyze_id,
+      package_build_id,
+    });
   }
 
   // 检查完成后 做数据的更新
-  async afterCheckJob({
-    id,
-    baseUrl,
-    jenkinsBuild,
-    jenkinsJobName,
-    project_id,
-  }) {
-    const stages = await this.jenkinsInfoService.getStages(
-      baseUrl,
-      jenkinsBuild,
-    );
+  // async afterCheckJob({
+  //   id,
+  //   baseUrl,
+  //   jenkinsBuild,
+  //   jenkinsJobName,
+  //   project_id,
+  // }) {
+  //   const stages = await this.jenkinsInfoService.getStages(
+  //     baseUrl,
+  //     jenkinsBuild,
+  //   );
 
-    let wsNodeId = '';
-    try {
-      wsNodeId = stages.find((s) => s.name === '资源检查').wsNodeId;
-    } catch (error) {
-      console.log(
-        'wsNodeId --------error----------------------------->>',
-        jenkinsBuild.number,
-        error,
-        jenkinsBuild.result,
-        stages,
-      );
-    }
-    const logRes = await lastValueFrom(
-      this.httpService
-        .get(
-          `${baseUrl}/job/${jenkinsJobName}/${jenkinsBuild.number}/execution/node/${wsNodeId}/ws/log/${jenkinsJobName}_${jenkinsBuild.number}.json`,
-        )
-        .pipe(map((res) => res.data)),
-    );
-    // const reportUrl = await uploadFile(logRes.body, '.json');
-    // const report = JSON.parse(logRes.body);
-    // const isPass = !!(report && report.is_pass);
-    await this.updateBuildCustomData(
-      id,
-      JSON.stringify({
-        // report_url: reportUrl,
-        report_url: '',
-        is_pass: true,
-        branches: '',
-        hashes: '',
-        stages: '',
-      }),
-    );
+  //   let wsNodeId = '';
+  //   try {
+  //     wsNodeId = stages.find((s) => s.name === '资源检查').wsNodeId;
+  //   } catch (error) {
+  //     console.log(
+  //       'wsNodeId --------error----------------------------->>',
+  //       jenkinsBuild.number,
+  //       error,
+  //       jenkinsBuild.result,
+  //       stages,
+  //     );
+  //   }
+  //   const logRes = await lastValueFrom(
+  //     this.httpService
+  //       .get(
+  //         `${baseUrl}/job/${jenkinsJobName}/${jenkinsBuild.number}/execution/node/${wsNodeId}/ws/log/${jenkinsJobName}_${jenkinsBuild.number}.json`,
+  //       )
+  //       .pipe(map((res) => res.data)),
+  //   );
+  //   // const reportUrl = await uploadFile(logRes.body, '.json');
+  //   // const report = JSON.parse(logRes.body);
+  //   // const isPass = !!(report && report.is_pass);
+  //   await this.updateBuildCustomData(
+  //     id,
+  //     JSON.stringify({
+  //       // report_url: reportUrl,
+  //       report_url: '',
+  //       is_pass: true,
+  //       branches: '',
+  //       hashes: '',
+  //       stages: '',
+  //     }),
+  //   );
 
-    // const project = await projectService.getOneProject(Number(project_id));
-    // const { label } = project.data;
-    // const filePath = `resultFile/${label}/check/${jenkinsJobName}_${jenkinsBuild.number}_${Date.now().valueOf().toString()}.json`;
-    // await app.services.minioService.putObject({
-    //   val: logRes.body,
-    //   pathDir: filePath
-    // });
+  //   // const project = await projectService.getOneProject(Number(project_id));
+  //   // const { label } = project.data;
+  //   // const filePath = `resultFile/${label}/check/${jenkinsJobName}_${jenkinsBuild.number}_${Date.now().valueOf().toString()}.json`;
+  //   // await app.services.minioService.putObject({
+  //   //   val: logRes.body,
+  //   //   pathDir: filePath
+  //   // });
 
-    // 上传文件 返回文件地址
-    const filePath = await this.minioClientService.beforePutObject({
-      val: logRes.body,
-      projectId: project_id,
-      jobName: jenkinsJobName,
-      buildNumber: jenkinsBuild.number,
-    });
+  //   // 上传文件 返回文件地址
+  //   const filePath = await this.minioClientService.beforePutObject({
+  //     val: logRes.body,
+  //     projectId: project_id,
+  //     jobName: jenkinsJobName,
+  //     buildNumber: jenkinsBuild.number,
+  //   });
 
-    await this.updateBuildFilePath(id, filePath);
-    await this.updateBuildStatus(
-      id,
-      utils.convertJenkinsStatusToInt(jenkinsBuild.result),
-    );
-  }
+  //   await this.updateBuildFilePath(id, filePath);
+  //   await this.updateBuildStatus(
+  //     id,
+  //     utils.convertJenkinsStatusToInt(jenkinsBuild.result),
+  //   );
+  // }
 
   // 其余类型的job 构建完成之后
   async afterOtherJob({ id, jenkinsBuild }) {
@@ -354,14 +381,14 @@ export class BuildsService {
   }
 
   async populateBuild(build) {
-    if (this.executingBuildMap[build.id]) {
-      build.duration = Math.ceil(
-        (Date.now() - Number(new Date(build.created_at * 1000))) / 1000,
-      );
-    }
-    build.progress_estimate =
-      build.duration /
-      this.tasksService.taskMap[build.task_id].average_duration;
+    // if (this.executingBuildMap[build.id]) {
+    //   build.duration = Math.ceil(
+    //     (Date.now() - Number(new Date(build.created_at * 1000))) / 1000,
+    //   );
+    // }
+    // build.progress_estimate =
+    //   build.duration /
+    //   this.tasksService.taskMap[build.task_id].average_duration;
     build.badges = build.badges.split(',').filter(Boolean);
     // if (build.user_id > 0) {
     //   const [users] = await app.mysql.query(usersConstants.SELECT_ONE_USER_BY_ID, [build.user_id]);
@@ -391,9 +418,8 @@ export class BuildsService {
       await this.jenkinsInfoService.getOneJenkinsInfoBYTask(task.jenkins_id);
     build['jenkins_url'] = jenkinsUrl;
     await this.populateBuild(build);
-    return {
-      data: build,
-    };
+
+    return build;
   }
 
   async getBuilds(taskId, { page, per_page }) {
@@ -457,7 +483,7 @@ export class BuildsService {
     // build["badges"] = build.badges.split(',').filter(Boolean);
     Object.assign(build, {
       badges: build.badges.split(',').filter(Boolean),
-      progress_estimate: 0,
+      // progress_estimate: 0,
     });
     if (userId > 0) {
       const user = await this.usersRepository.findOne({ id: userId });
@@ -491,41 +517,48 @@ export class BuildsService {
     if (status > build.status) {
       // 这里也没有必要去计算，task 的整体平均耗时，浪费算力   直接更新状态就可以了
       build.status = status;
-      build.duration = Math.ceil(
-        (Date.now() - Number(new Date(build.created_at * 1000))) / 1000,
-      );
-      build.progress_estimate = build.duration / task.average_duration;
-      if (status > 1) {
-        // 更新build 的状态即可，最后的耗时 由上传结果获取就可以了，或者是创建created_at 字段 和 updated_at 字段来计算差值即可
-        // await app.mysql.query(tasksConstants.UPDATE_BUILDS_STATUS_AND_DURATION_BY_ID, [status, build.duration, buildId]);
-        await this.buildsRepository.save({
-          id: buildId,
-          status,
-          duration: build.duration,
-        });
-        if (status === 2) {
-          task.average_success_rate = Math.min(
-            1,
-            task.average_success_rate * 0.8 + 0.2,
-          );
-          task.average_duration = Math.ceil(
-            task.average_duration * 0.8 + build.duration * 0.2,
-          );
-        } else if (status === 3) {
-          task.average_success_rate = task.average_success_rate * 0.8;
-        }
-        // await app.mysql.query(tasksConstants.UPDATE_TASK_AVERAGE_DURATION_AND_AVERAGE_SUCCESS_RATE, [task.average_duration, task.average_success_rate, task.id]);
-        await this.tasksRepository.save({
-          id: task.id,
-          average_duration: task.average_duration,
-          average_success_rate: task.average_success_rate,
-        });
-        // app.ci.emit('buildEnd', build, task);
-        // doBuildFinish(build);
-      } else {
-        // await app.mysql.query(tasksConstants.UPDATE_BUILDS_STATUS_BY_ID, [status, build.id]);
-        await this.buildsRepository.save({ id: buildId, status });
-      }
+      // build.duration = Math.ceil(
+      //   (Date.now() - Number(new Date(build.created_at * 1000))) / 1000,
+      // );
+      // build.progress_estimate = build.duration / task.average_duration;
+
+      await this.buildsRepository.save({
+        id: buildId,
+        status,
+        // duration: build.duration,
+      });
+
+      // if (status > 1) {
+      // 更新build 的状态即可，最后的耗时 由上传结果获取就可以了，或者是创建created_at 字段 和 updated_at 字段来计算差值即可
+      // await app.mysql.query(tasksConstants.UPDATE_BUILDS_STATUS_AND_DURATION_BY_ID, [status, build.duration, buildId]);
+      // await this.buildsRepository.save({
+      // id: buildId,
+      // status,
+      // duration: build.duration,
+      // });
+      // if (status === 2) {
+      //   task.average_success_rate = Math.min(
+      //     1,
+      //     task.average_success_rate * 0.8 + 0.2,
+      //   );
+      //   task.average_duration = Math.ceil(
+      //     task.average_duration * 0.8 + build.duration * 0.2,
+      //   );
+      // } else if (status === 3) {
+      //   task.average_success_rate = task.average_success_rate * 0.8;
+      // }
+      // await app.mysql.query(tasksConstants.UPDATE_TASK_AVERAGE_DURATION_AND_AVERAGE_SUCCESS_RATE, [task.average_duration, task.average_success_rate, task.id]);
+      // await this.tasksRepository.save({
+      // id: task.id,
+      // average_duration: task.average_duration,
+      // average_success_rate: task.average_success_rate,
+      // });
+      // app.ci.emit('buildEnd', build, task);
+      // doBuildFinish(build);
+      // } else {
+      // await app.mysql.query(tasksConstants.UPDATE_BUILDS_STATUS_BY_ID, [status, build.id]);
+      // await this.buildsRepository.save({ id: buildId, status });
+      // }
       // app.ci.emit('updateBuild', build);
       this.wsService.updateBuild(build);
     }
@@ -535,7 +568,7 @@ export class BuildsService {
   async beforeAssetBundleJob(build) {
     const { parameters, id, job_name, task_id, build_type, project_id } = build;
     const project = await this.projectsService.getOneProject(project_id);
-    const { label } = project.data;
+    const { label } = project;
     const task = this.tasksService.taskMap[task_id];
     // 复制项目uid
     parameters['project_uid'] = label;
@@ -642,23 +675,23 @@ export class BuildsService {
       throw new Error(`Task '${build.task_id}' not found.`);
     }
     // const taskExtra = taskExtraMap[build.task_id];
-    let finished = false;
+    // const finished = false;
     try {
       await this.updateBuildStatus(buildId, 1);
 
       // 这里其实也不太需要，我们没必要在这里浪费算力 来计算进度，只要给个正在进行中的状态就行了
-      const updateBuild = async () => {
-        build.duration = Math.ceil(
-          (Date.now() - Number(new Date(build.created_at * 1000))) / 1000,
-        );
-        build.progress_estimate = build.duration / task.average_duration;
-        // app.ci.emit('updateBuild', build);
-        this.wsService.updateBuild(build);
-        if (!finished) {
-          setTimeout(updateBuild, 5000);
-        }
-      };
-      setTimeout(updateBuild, 5000);
+      // const updateBuild = async () => {
+      //   build.duration = Math.ceil(
+      //     (Date.now() - Number(new Date(build.created_at * 1000))) / 1000,
+      //   );
+      //   build.progress_estimate = build.duration / task.average_duration;
+      //   // app.ci.emit('updateBuild', build);
+      //   this.wsService.updateBuild(build);
+      //   if (!finished) {
+      //     setTimeout(updateBuild, 5000);
+      //   }
+      // };
+      // setTimeout(updateBuild, 5000);
 
       // 启动jenkins
 
@@ -688,14 +721,16 @@ export class BuildsService {
       }
     } catch (err) {
       // buildLog(buildId, err.stack);
-      try {
-        await this.updateBuildStatus(buildId, 3);
-      } catch (err) {
-        // buildLog(buildId, err.stack);
-      }
-    } finally {
-      finished = true;
+      // try {
+      await this.updateBuildStatus(buildId, 3);
+      // } catch (err) {
+      // buildLog(buildId, err.stack);
+      // }
     }
+
+    // finally {
+    //   finished = true;
+    // }
 
     // 这里也可以注释掉，也不需要更新updateView
     // const index = taskExtra.executingBuilds.indexOf(build);
@@ -789,7 +824,7 @@ export class BuildsService {
     if (file_path) {
       try {
         // report = JSON.parse(await readFile(customData.report_url));
-        report = (await this.minioClientService.getObject(file_path)).data;
+        report = await this.minioClientService.getObject(file_path);
       } catch (error) {
         report = null;
       }

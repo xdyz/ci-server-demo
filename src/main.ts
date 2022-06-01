@@ -23,6 +23,7 @@ async function bootstrap() {
       // transform: true, // 自动类型转换
       forbidNonWhitelisted: true, // 只允许指定的参数 其他的不允许 抛出异常
       whitelist: true, // 启用白名单，dto中没有声明的属性会被直接过滤掉
+      forbidUnknownValues: true, // 启用禁止未知属性，未声明的属性会抛出异常
     }),
   );
 

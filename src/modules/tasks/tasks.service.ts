@@ -97,14 +97,13 @@ export class TasksService implements OnModuleInit {
 
     try {
       await this.tasksRepository.save({ ...updateTaskDto, id });
+      return task;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // Object.assign(task, updateTaskDto);
     // ResetTaskExtra(task.id);
-
-    return task;
   }
 
   async deleteTask(id) {

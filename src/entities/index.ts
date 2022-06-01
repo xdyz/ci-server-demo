@@ -20,6 +20,7 @@ import UsersEntity from './users.entity';
 import ViewsEntity from './views.entity';
 import MenusEntity from './menus.entity';
 import ImManagerEntity from './imManager.entity';
+import PackageDataEditEntity from './packageDataEdit.entity';
 
 export {
   BuildsEntity,
@@ -44,4 +45,5 @@ export {
   MenusEntity,
   ImManagerEntity,
   UsersEntity,
+  PackageDataEditEntity,
 };

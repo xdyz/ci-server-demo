@@ -20,9 +20,7 @@ export class GitInfoService {
    */
   async getGitInfo(id) {
     const gitInfo = await this.gitInfoRepository.findOne(id);
-    return {
-      data: gitInfo,
-    };
+    return gitInfo;
   }
 
   /**
@@ -56,9 +54,7 @@ export class GitInfoService {
     });
 
     // const [git_infos] = await app.mysql.query(gitInfoConstants.SELECT_GIT_INFO_BY_PROJECT_ID, [project_id]);
-    return {
-      data: gitInfos,
-    };
+    return gitInfos;
   }
 
   /**
@@ -79,10 +75,10 @@ export class GitInfoService {
       });
       const result = await this.gitInfoRepository.save(gitInfo);
 
-      return {
-        data: result,
-      };
-    } catch (error) {}
+      return result;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
@@ -128,7 +124,7 @@ export class GitInfoService {
     try {
       const info = await this.getGitInfo(id);
       // const { url, git_project_id, token } = info.data;
-      const branchs = await this.fetchBranches(info.data);
+      const branchs = await this.fetchBranches(info);
       return branchs;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);

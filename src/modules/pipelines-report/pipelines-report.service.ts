@@ -78,12 +78,10 @@ export class PipelinesReportService {
         (item) => item['failCount'] !== 0 && item['totalCount'] !== 0,
       );
       return {
-        data: {
-          total,
-          passCount,
-          failCount,
-          failTFPipelines: result,
-        },
+        total,
+        passCount,
+        failCount,
+        failTFPipelines: result,
       };
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -101,11 +99,9 @@ export class PipelinesReportService {
       .getRawMany();
 
     return {
-      data: {
-        records,
-        from,
-        to,
-      },
+      records,
+      from,
+      to,
     };
   }
 
@@ -304,7 +300,7 @@ export class PipelinesReportService {
   }
 
   // 计算该记录每一个节点的耗时累加
-  accumulateDuration = (curNodes) => {
+  accumulateDuration(curNodes) {
     if (!curNodes || curNodes.length === 0) return 0;
     const duration = curNodes.reduce((cur, next) => {
       const time =
@@ -314,7 +310,7 @@ export class PipelinesReportService {
       return (cur += time);
     }, 0);
     return duration;
-  };
+  }
 
   dealWithStatisticTaskDuration(tasks, records) {
     const result = [];
@@ -448,9 +444,7 @@ export class PipelinesReportService {
         .getMany();
 
       const result = this.dealWithTaskPipeRelation(tasks, pipelines, records);
-      return {
-        data: result,
-      };
+      return result;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -561,6 +555,7 @@ export class PipelinesReportService {
 
     return result;
   }
+
   async getTaskInPipelineRecords({ project_id }, { from, to, create_users }) {
     try {
       // const tasks = await this.tasksService.getAllTasks({

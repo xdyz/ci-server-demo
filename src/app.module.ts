@@ -34,6 +34,7 @@ import { PipelinesReportModule } from './modules/pipelines-report/pipelines-repo
 import { BuildsModule } from './modules/builds/builds.module';
 import { BuildsForeignModule } from './modules/builds-foreign/builds-foreign.module';
 import { NestMinioModule } from 'nestjs-minio';
+import { PackageDataEditModule } from './modules/package-data-edit/package-data-edit.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -86,6 +87,7 @@ import { NestMinioModule } from 'nestjs-minio';
     BuildsForeignModule,
     AutoTestModule,
     TasksModule,
+    PackageDataEditModule,
   ],
   controllers: [],
   providers: [],

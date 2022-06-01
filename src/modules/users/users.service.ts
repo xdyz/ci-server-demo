@@ -111,14 +111,18 @@ export class UsersService {
   }
 
   async deleteUser(id) {
-    // const [users] = await app.mysql.query(usersConstants.SELECT_ONE_USER_BY_ID, [userId]);
-    const user = await this.usersRepository.findOne(id);
-    if (!user) {
-      throw new HttpException('找不到该用户', HttpStatus.OK);
+    try {
+      // const [users] = await app.mysql.query(usersConstants.SELECT_ONE_USER_BY_ID, [userId]);
+      const user = await this.usersRepository.findOne(id);
+      if (!user) {
+        throw new HttpException('找不到该用户', HttpStatus.OK);
+      }
+      // await app.mysql.query(usersConstants.DELETE_USER_BY_ID, [userId]);
+      await this.usersRepository.delete(id);
+      return {};
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    // await app.mysql.query(usersConstants.DELETE_USER_BY_ID, [userId]);
-    await this.usersRepository.delete(id);
-    return {};
   }
 
   // { password, username, nickname, email, is_root }
@@ -136,13 +140,17 @@ export class UsersService {
 
   // 获取所有的用户
   async getAllUsers(quires) {
-    const params = this.dealWithQuery(quires);
-    // const whereSql = queryKeys.length !== 0 ? `WHERE ${queryKeys.join(' AND ')}` : '';
-    // const [users] = await app.mysql.query(`${usersConstants.SELECT_USERS_NO_CONDITION} ${whereSql}`, queryValues);
-    const users = await this.usersRepository.find({
-      where: params,
-    });
+    try {
+      const params = this.dealWithQuery(quires);
+      // const whereSql = queryKeys.length !== 0 ? `WHERE ${queryKeys.join(' AND ')}` : '';
+      // const [users] = await app.mysql.query(`${usersConstants.SELECT_USERS_NO_CONDITION} ${whereSql}`, queryValues);
+      const users = await this.usersRepository.find({
+        where: params,
+      });
 
-    return users;
+      return users;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

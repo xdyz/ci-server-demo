@@ -49,7 +49,10 @@ export class MenusController {
   //   }
   // });
   @Put(':id')
-  async updateMenu(@Param('id') id: number, @Body() updateMenuDto: any) {
+  async updateMenu(
+    @Param('id') id: number,
+    @Body() updateMenuDto: UpdateMenuDto,
+  ) {
     return await this.menusService.updateMenu(id, updateMenuDto);
   }
 

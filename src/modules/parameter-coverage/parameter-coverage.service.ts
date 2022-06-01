@@ -25,9 +25,7 @@ export class ParameterCoverageService {
       },
     });
 
-    return {
-      data: paramters,
-    };
+    return paramters;
   }
 
   // 更新参数覆盖率
