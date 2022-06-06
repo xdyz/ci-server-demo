@@ -10,8 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AutoTestService } from './auto-test.service';
-import { CreateAutoTestDto } from './dtos/create-auto-test.dto';
-import { UpdateAutoTestDto } from './dtos/update-auto-test.dto';
+import { CreateAutoTestDto, UpdateAutoTestDto } from './dtos/index.dto';
 import * as utils from 'src/utils/index.utils';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';

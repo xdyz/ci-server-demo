@@ -78,8 +78,7 @@ export class MinioClientService {
   // 生成一个下载地址
   async presignedGetObject({ pathDir }) {
     try {
-      const data = await this.client.presignedGetObject('devops', pathDir);
-      return data;
+      return await this.client.presignedGetObject('devops', pathDir);
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

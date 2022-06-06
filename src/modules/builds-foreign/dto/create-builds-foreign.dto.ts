@@ -1,1 +1,1 @@
-export class CreateBuildsForeignDto {}
+export default class CreateBuildsForeignDto {}

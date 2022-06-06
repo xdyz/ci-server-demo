@@ -1,1 +1,1 @@
-export class CreateBuildDto {}
+export default class CreateBuildDto {}
