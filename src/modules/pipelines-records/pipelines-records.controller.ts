@@ -29,6 +29,7 @@ export class PipelinesRecordsController {
   //   }
   // });
   @Get('list')
+  @ApiOperation({ summary: '获取管线执行记录分页' })
   async getPipelineRecordsList(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -48,6 +49,7 @@ export class PipelinesRecordsController {
   //   }
   // });
   @Get('/:id')
+  @ApiOperation({ summary: '获取单个管线执行记录信息' })
   async getOnePipelineRecordInfo(
     @Param('id') id: string,
     // @Headers('project_id') project_id: string,
@@ -79,6 +81,7 @@ export class PipelinesRecordsController {
   //   }
   // });
   @Put('/:id/restart')
+  @ApiOperation({ summary: '重启失败管线' })
   async restartPipelineRecord(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -95,6 +98,7 @@ export class PipelinesRecordsController {
   //   }
   // });
   @Get('/history')
+  @ApiOperation({ summary: '管线历史' })
   async getPipelineRecordByPipelineIdAndTime(
     // @Request() req,
     // @Headers('project_id') project_id: string,

@@ -3,11 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
-  Inject,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { NotifyService } from './notify.service';
 import { CreateNotifyDto } from './dtos/create-notify.dto';
@@ -30,6 +29,7 @@ export class NotifyController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取所有企业微信配置' })
   async getAllIMManagers() {
     return await this.notifyService.getAllIMManagers();
   }
@@ -41,6 +41,7 @@ export class NotifyController {
   //   }
   // });
   @Get(':id')
+  @ApiOperation({ summary: '获取企业微信配置' })
   async getOneIMById(@Param('id') id: string) {
     return await this.notifyService.getOneIMById(+id);
   }
@@ -52,6 +53,7 @@ export class NotifyController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建企业微信配置' })
   async insertChat(@Body() createNotifyDto: CreateNotifyDto) {
     return await this.notifyService.insertChat(createNotifyDto);
   }
@@ -62,7 +64,8 @@ export class NotifyController {
   //     return app.services.notifyService.updateChat(req.params.im_id, req.body);
   //   }
   // });
-  @Patch(':id')
+  @Put(':id')
+  @ApiOperation({ summary: '获取企业微信配置' })
   async updateChat(@Param('id') id: string, @Body() updateNotifyDto: any) {
     return await this.notifyService.updateChat(+id, updateNotifyDto);
   }
@@ -74,6 +77,7 @@ export class NotifyController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除企业微信配置' })
   async delChat(@Param('id') id: string) {
     return await this.notifyService.delChat(+id);
   }
@@ -86,6 +90,7 @@ export class NotifyController {
   //   }
   // });
   @Post('daily')
+  @ApiOperation({ summary: '通知' })
   async notify(@Body() body: any) {
     await this.notifyService.notify(body);
   }

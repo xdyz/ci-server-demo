@@ -43,9 +43,7 @@ export class MinioClientService {
       policy.setKey(`${pathDir}/${label}/${fileName}`);
       const data = await this.client.presignedPostPolicy(policy);
 
-      return {
-        data,
-      };
+      return data;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

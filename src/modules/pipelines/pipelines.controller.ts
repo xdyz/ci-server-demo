@@ -10,6 +10,7 @@ import {
   Query,
   Request,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { PipelinesService } from './pipelines.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -29,6 +30,7 @@ export class PipelinesController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取管线分页列表' })
   async getPipelineList(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -45,6 +47,7 @@ export class PipelinesController {
   //   }
   // });
   @Get('detail/:id')
+  @ApiOperation({ summary: '获取单个管线信息' })
   async getOnePipeline(
     @Param('id') id: string,
     // @Headers('project_id') project_id: string,
@@ -60,6 +63,7 @@ export class PipelinesController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建管线' })
   async insertPipeline(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -77,6 +81,7 @@ export class PipelinesController {
   //   }
   // });
   @Post('execute/:id')
+  @ApiOperation({ summary: '执行管线' })
   async execute(@Param('id') id: string, @Request() req: any) {
     const { user_id } = req.user;
     return await this.pipelinesService.execute(+id, user_id);
@@ -88,7 +93,8 @@ export class PipelinesController {
   //     return await app.services.pipelineService.updatePipeline(req.params.id, req.body);
   //   }
   // });
-  @Patch('/:id')
+  @Put('/:id')
+  @ApiOperation({ summary: '更新管线' })
   async updatePipeline(@Param('id') id: string, @Body() body: any) {
     return await this.pipelinesService.updatePipeline(+id, body);
   }
@@ -100,6 +106,7 @@ export class PipelinesController {
   //   }
   // });
   @Delete('/:id')
+  @ApiOperation({ summary: '删除管线' })
   async deletePipeline(@Param('id') id: string) {
     return await this.pipelinesService.deletePipeline(+id);
   }
@@ -111,6 +118,7 @@ export class PipelinesController {
   //   }
   // });
   @Get('parameters')
+  @ApiOperation({ summary: '获取管线paramters配置' })
   async getParameters(@Query() query: any) {
     return await this.pipelinesService.getParameters(query);
   }
@@ -121,7 +129,8 @@ export class PipelinesController {
   //     return await app.services.pipelineService.updatePipelineConfig(req.params.id, req.body);
   //   }
   // });
-  @Patch('config/:id')
+  @Put('config/:id')
+  @ApiOperation({ summary: '更新管线配置' })
   async updatePipelineConfig(@Param('id') id: string, @Body() body: any) {
     return await this.pipelinesService.updatePipelineConfig(+id, body);
   }
@@ -134,6 +143,7 @@ export class PipelinesController {
   //   }
   // });
   @Post('copy/:id')
+  @ApiOperation({ summary: '复制管线' })
   async copyOnePipeline(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -144,6 +154,7 @@ export class PipelinesController {
   }
 
   @Get('/relationship/include/:id')
+  @ApiOperation({ summary: '获取管线关系图' })
   async getRelationShipInclude(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -156,6 +167,7 @@ export class PipelinesController {
   }
 
   @Post('/webhook/:id')
+  @ApiOperation({ summary: '外部webhook 执行管线' })
   async executeWebhook(
     @Param('id') id: string,
     @Query('user_id') user_id: string,

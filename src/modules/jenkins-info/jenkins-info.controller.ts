@@ -29,6 +29,7 @@ export class JenkinsInfoController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取Jenkins配置' })
   async getAllJenkinsInfo(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -44,6 +45,7 @@ export class JenkinsInfoController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建Jenkins配置' })
   async createJenkinsInfo(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -63,13 +65,14 @@ export class JenkinsInfoController {
   //   }
   // });
   @Put(':id')
+  @ApiOperation({ summary: '更新Jenkins配置' })
   async updateJenkinsInfo(
-    @Request() req,
+    // @Request() req,
     @Headers('project_id') project_id: string,
     @Param('id') id: string,
     @Body() updateJenkinsInfoDto: UpdateJenkinsInfoDto,
   ) {
-    const user = { ...req.user, project_id: +project_id };
+    // const user = { ...req.user, project_id: +project_id };
     return await this.jenkinsInfoService.updateJenkinsInfo(
       id,
       updateJenkinsInfoDto,
@@ -83,12 +86,13 @@ export class JenkinsInfoController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除Jenkins配置' })
   async deleteJenkinsInfo(
-    @Request() req,
+    // @Request() req,
     @Headers('project_id') project_id: string,
     @Param('id') id: string,
   ) {
-    const user = { ...req.user, project_id: +project_id };
+    // const user = { ...req.user, project_id: +project_id };
     return await this.jenkinsInfoService.deleteJenkinsInfo(id);
   }
 }

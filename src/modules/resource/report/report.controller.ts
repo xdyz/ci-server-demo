@@ -1,11 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
   Request,
   Headers,
   Query,
@@ -31,6 +26,7 @@ export class ResourceReportController {
   //   }
   // });
   @Get('result')
+  @ApiOperation({ summary: '获取检查结果' })
   async getCheckReportResult(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -48,6 +44,7 @@ export class ResourceReportController {
   //   }
   // });
   @Get('rate')
+  @ApiOperation({ summary: '获取检查结果通过率' })
   async getCheckReportRate(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -67,6 +64,7 @@ export class ResourceReportController {
   //   }
   // });
   @Get('item/rate')
+  @ApiOperation({ summary: '获取严重和警告个数' })
   async getCheckReportItemRate(
     // @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -87,6 +85,7 @@ export class ResourceReportController {
   //   }
   // });
   @Get('item/rate/noauth')
+  @ApiOperation({ summary: '对外的结果' })
   async getCheckReportItemRateNoAuth(@Query() query: any) {
     return await this.resourceReportService.getCheckReportItemRate(query);
   }
@@ -99,6 +98,7 @@ export class ResourceReportController {
   //   }
   // });
   @Get('category/last_build')
+  @ApiOperation({ summary: '获取分类最新一次的构建' })
   async getDifferentCategoryLastBuild(
     @Request() req: any,
     @Headers('project_id') project_id: string,

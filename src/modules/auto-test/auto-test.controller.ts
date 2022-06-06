@@ -1,11 +1,8 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
-  Patch,
   Param,
-  Delete,
   Headers,
   Request,
   Query,
@@ -33,6 +30,7 @@ export class AutoTestController {
   //     }
   // });
   @Get('report/result')
+  @ApiOperation({ summary: '获取自动化测试结果 内部接口' })
   async getReportResult(
     @Body() body: any,
     @Headers('project_id') project_id: string,
@@ -49,6 +47,7 @@ export class AutoTestController {
   //   }
   // });
   @Get('report/result/noauth')
+  @ApiOperation({ summary: '获取自动化测试数据 对外接口' })
   async getReportResultNoAuth(@Body() body: any) {
     const query = await utils.parseTimeToSeconds(body);
     return await this.autoTestService.getReportResult(query as any);
@@ -61,6 +60,7 @@ export class AutoTestController {
   //   }
   // });
   @Get('report/fail_case/trend')
+  @ApiOperation({ summary: '获取自动化测试失败总数' })
   async getFailCaseTrend(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -93,6 +93,7 @@ export class AutoTestController {
   //   }
   // });
   @Get('report/latest/build')
+  @ApiOperation({ summary: '获取自动化测试最后的构建' })
   async getCategoryLatestBuild(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -108,6 +109,7 @@ export class AutoTestController {
   //   }
   // });
   @Get('report/top/fail_types')
+  @ApiOperation({ summary: '获取自动化测试失败类型' })
   async getTopFailTypes(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -123,6 +125,7 @@ export class AutoTestController {
   //   }
   // });
   @Get('report/build_rate')
+  @ApiOperation({ summary: '获取自动化测试通过率' })
   async getReportBuildRate(
     @Request() req: any,
     @Headers('project_id') project_id: string,

@@ -27,6 +27,7 @@ export class PipelinesReportController {
   //   }
   // });
   @Get('rate')
+  @ApiOperation({ summary: '管线执行通过率' })
   async getPipelineRecordRate(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -43,6 +44,7 @@ export class PipelinesReportController {
   //   }
   // });
   @Get('day_rate')
+  @ApiOperation({ summary: '管线日通过率' })
   async getPipelineRecordsRateDay(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -62,6 +64,7 @@ export class PipelinesReportController {
   //   }
   // });
   @Get('duration')
+  @ApiOperation({ summary: '管线耗时' })
   async getTopFiveDuration(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -78,6 +81,7 @@ export class PipelinesReportController {
   //   }
   // });
   @Get('task/rate')
+  @ApiOperation({ summary: '管线任务通过率' })
   async getPipilineRecordsTaskRate(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -97,6 +101,7 @@ export class PipelinesReportController {
   //   }
   // });
   @Get('task/day_rate')
+  @ApiOperation({ summary: '管线内部任务日通过率' })
   async getPipelineRecordsTaskRateDay(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -116,6 +121,7 @@ export class PipelinesReportController {
   //   }
   // });
   @Get('task/duration')
+  @ApiOperation({ summary: '管线任务耗时' })
   async getTaskTopFiveDuration(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -135,6 +141,7 @@ export class PipelinesReportController {
   //   }
   // });
   @Get('task/pipeline/relation')
+  @ApiOperation({ summary: '管线关系图' })
   async getTaskAndPipelineRelation(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -154,6 +161,7 @@ export class PipelinesReportController {
   //   }
   // });
   @Get('statics')
+  @ApiOperation({ summary: '管线结果统计' })
   async getPipelineRunHistory(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -170,6 +178,7 @@ export class PipelinesReportController {
   //   }
   // });
   @Get('task/statics')
+  @ApiOperation({ summary: '管线内部任务结果统计' })
   async getTaskInPipelineRecords(
     @Request() req,
     @Headers('project_id') project_id: string,

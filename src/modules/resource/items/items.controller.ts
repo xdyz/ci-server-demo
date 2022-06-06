@@ -30,6 +30,7 @@ export class ResourceInstanceItemsController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取实例检查项' })
   async getResourceInstanceItems(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -49,6 +50,7 @@ export class ResourceInstanceItemsController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '创建实例检查项' })
   async insertResourceInstanceItems(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -70,6 +72,7 @@ export class ResourceInstanceItemsController {
   //   }
   // });
   @Put(':item_id')
+  @ApiOperation({ summary: '更显实例检查项' })
   async updateResourceInstanceItems(
     // @Request() req: any,
     // @Headers('project_id') project_id: string,
@@ -90,6 +93,7 @@ export class ResourceInstanceItemsController {
   //   }
   // });
   @Delete(':item_id')
+  @ApiOperation({ summary: '删除实例检查项' })
   async deleteResourceInstanceItems(
     // @Request() req: any,
     // @Headers('project_id') project_id: string,
@@ -108,6 +112,7 @@ export class ResourceInstanceItemsController {
   //   }
   // });
   @Post(':item_id/copy')
+  @ApiOperation({ summary: '复制实例检查项' })
   async copyResourceInstanceItems(
     // @Request() req: any,
     // @Headers('project_id') project_id: string,

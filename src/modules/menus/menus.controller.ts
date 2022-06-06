@@ -27,6 +27,7 @@ export class MenusController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取所有菜单' })
   async getAllMenus() {
     return await this.menusService.getAllMenus();
   }
@@ -38,6 +39,7 @@ export class MenusController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建菜单' })
   async insertMenu(@Body() createMenuDto: CreateMenuDto) {
     return await this.menusService.insertMenu(createMenuDto);
   }
@@ -49,6 +51,7 @@ export class MenusController {
   //   }
   // });
   @Put(':id')
+  @ApiOperation({ summary: '更新菜单' })
   async updateMenu(
     @Param('id') id: number,
     @Body() updateMenuDto: UpdateMenuDto,
@@ -63,6 +66,7 @@ export class MenusController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除菜单' })
   async delMenu(@Param('id') id: number) {
     return await this.menusService.delMenu(id);
   }

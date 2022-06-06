@@ -1,11 +1,7 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
   Headers,
   Request,
   Query,
@@ -30,6 +26,7 @@ export class MinioClinentController {
   //   }
   // });
   @Get('presignedPostPolicy')
+  @ApiOperation({ summary: 'minio返回一个上传地址' })
   async presignedPostPolicy(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -46,6 +43,7 @@ export class MinioClinentController {
   //   }
   // });
   @Get('presignedPostPolicy/:project_id')
+  @ApiOperation({ summary: '根据项目返回上传地址' })
   async presignedPostPolicyByProjectId(
     @Request() req,
     @Param('project_id') project_id: string,
@@ -62,6 +60,7 @@ export class MinioClinentController {
   //   }
   // });
   @Get('listObjects')
+  @ApiOperation({ summary: '获取项目所有的上传结果' })
   async getProjectAssetBundles(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -81,6 +80,7 @@ export class MinioClinentController {
   //   }
   // });
   @Get('presignedGetObject')
+  @ApiOperation({ summary: '生成下载地址' })
   async presignedGetObject(@Query() getMinioDto: any) {
     return await this.minioClientService.presignedGetObject(getMinioDto);
   }
@@ -92,6 +92,7 @@ export class MinioClinentController {
   //   }
   // })
   @Get('presignedGetObject/file')
+  @ApiOperation({ summary: '对外的下载地址' })
   async presignedGetObject2(@Query() getMinioDto: any) {
     return await this.minioClientService.presignedGetObject(getMinioDto);
   }

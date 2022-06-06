@@ -31,6 +31,7 @@ export class TasksController {
   //   }
   // });
   @Get(':id')
+  @ApiOperation({ summary: '获取单个任务' })
   async getTask(@Param('id') id: number) {
     return await this.tasksService.getTask(id);
   }
@@ -57,6 +58,7 @@ export class TasksController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除任务' })
   async deleteTask(@Param('id') id: number) {
     return await this.tasksService.deleteTask(id);
   }
@@ -87,6 +89,7 @@ export class TasksController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取所有的任务' })
   async getAllTasks(
     @Request() req: any,
     @Headers('project_id') project_id: string,

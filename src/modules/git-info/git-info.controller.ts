@@ -27,6 +27,7 @@ export class GitInfoController {
   //     }
   // });
   @Put(':id')
+  @ApiOperation({ summary: '更新Git配置' })
   async updateGitInfo(@Param('id') id: string, @Body() updateGitInfoDto: any) {
     return await this.gitInfoService.updateGitInfo(+id, updateGitInfoDto);
   }
@@ -38,6 +39,7 @@ export class GitInfoController {
   //     }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除Git配置' })
   async deleteGitInfo(@Param('id') id: string) {
     return await this.gitInfoService.deleteGitInfo(+id);
   }
@@ -49,6 +51,7 @@ export class GitInfoController {
   //     }
   // });
   @Post()
+  @ApiOperation({ summary: '新建Git配置' })
   async createGitInfo(
     @Headers('project_id') project_id: string,
     @Body() createGitInfoDto: any,
@@ -66,6 +69,7 @@ export class GitInfoController {
   //     }
   // });
   @Get()
+  @ApiOperation({ summary: '获取Git配置' })
   async getGitInfos(@Headers('project_id') project_id: string) {
     return await this.gitInfoService.getGitInfos({ project_id: +project_id });
   }
@@ -77,6 +81,7 @@ export class GitInfoController {
   //   }
   // });
   @Get(':id/branchs')
+  @ApiOperation({ summary: '获取Git配置所有分支' })
   async getGitInfoBranches(@Param('id') id: string) {
     return await this.gitInfoService.getGitInfoBranches(+id);
   }

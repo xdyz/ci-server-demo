@@ -3,19 +3,19 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
   Request,
   Headers,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { ViewsService } from './views.service';
 import { CreateViewDto } from './dtos/create-view.dto';
 import { UpdateViewDto } from './dtos/update-view.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
 @ApiTags('视图')
 @ApiBearerAuth('jwt') // s
@@ -31,6 +31,7 @@ export class ViewsController {
   //   }
   // });
   @Get(':id')
+  @ApiOperation({ summary: '获取单个视图' })
   async getView(@Param('id') id: string) {
     return await this.viewsService.getView(+id);
   }
@@ -42,6 +43,7 @@ export class ViewsController {
   //   }
   // });
   @Get(':id/tasks')
+  @ApiOperation({ summary: '获取单个视图下所有的任务' })
   async getViewTasks(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -58,7 +60,8 @@ export class ViewsController {
   //     return await app.services.viewService.updateView(req.params.view_id, req.body);
   //   }
   // });
-  @Patch(':id')
+  @Put(':id')
+  @ApiOperation({ summary: '更新单个视图' })
   async updateView(@Param('id') id: string, @Body() updateViewDto: any) {
     return await this.viewsService.updateView(+id, updateViewDto);
   }
@@ -71,6 +74,7 @@ export class ViewsController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除单个视图' })
   async deleteView(@Param('id') id: string) {
     return await this.viewsService.deleteView(+id);
   }
@@ -94,6 +98,7 @@ export class ViewsController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建单个视图' })
   async createView(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -109,7 +114,8 @@ export class ViewsController {
   //     return await app.services.viewService.uploadIcon(req.params.id, req.body);
   //   }
   // });
-  @Patch('icons/:id')
+  @Put('icons/:id')
+  @ApiOperation({ summary: '更新单个视图图标' })
   async uploadIcon(@Param('id') id: string, @Body() body: any) {
     return await this.viewsService.uploadIcon(+id, body);
   }
