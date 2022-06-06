@@ -139,6 +139,7 @@ export class BuildsForeignController {
   // });
   @Post('upload/result_file')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: '对外构建结构 多个接口合一' })
   async uploadResultBuild2(
     @UploadedFile() file: any,
     @Query('build_type') build_type: string,

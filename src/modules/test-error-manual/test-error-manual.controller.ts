@@ -70,6 +70,7 @@ export class TestErrorManualController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建自动化测试错误手册' })
   async setManualError(
     @Request() req,
     @Headers('project_id') project_id: string,

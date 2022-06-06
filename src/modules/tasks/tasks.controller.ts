@@ -3,13 +3,13 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Headers,
   Request,
   Query,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dtos/create-task.dto';
@@ -44,7 +44,8 @@ export class TasksController {
   //     return result;
   //   }
   // });
-  @Patch(':id')
+  @Put(':id')
+  @ApiOperation({ summary: '更新单个任务' })
   async updateTask(@Param('id') id: number, @Body() updateTaskDto: any) {
     return await this.tasksService.updateTask(id, updateTaskDto);
   }
@@ -72,6 +73,7 @@ export class TasksController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '创建任务' })
   async createTask(
     @Headers('project_id') project_id: string,
     @Body() createTaskDto: any,

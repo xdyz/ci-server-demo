@@ -86,6 +86,7 @@ export class ViewsController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取所有视图' })
   async getViews(@Request() req, @Headers('project_id') project_id: string) {
     const user = { ...req.user, project_id: +project_id };
     return await this.viewsService.getViews(user);

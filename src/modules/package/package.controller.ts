@@ -1,11 +1,7 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
   Request,
   Query,
   Headers,
@@ -33,6 +29,7 @@ export class PackageController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取分页安装包' })
   async getPackages(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -51,6 +48,7 @@ export class PackageController {
   //   }
   // });
   @Get(':id')
+  @ApiOperation({ summary: '获取安装包详情' })
   async getPackageDetail(
     // @Request() req,
     @Param('id') id: string,
@@ -66,6 +64,7 @@ export class PackageController {
   //   }
   // });
   @Get('report/duration')
+  @ApiOperation({ summary: '获取安装包详情' })
   async getPackageReportDuration(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -85,6 +84,7 @@ export class PackageController {
   //   }
   // });
   @Get('report/pass_rate')
+  @ApiOperation({ summary: '获取安装包通过率' })
   async getPackageReportRate(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -102,6 +102,7 @@ export class PackageController {
   //   }
   // });
   @Get('report/result')
+  @ApiOperation({ summary: '获取安装包构建结果' })
   async getPackageReportResult(
     // @Request() req,
     @Headers('project_id') project_id: string,
@@ -123,6 +124,7 @@ export class PackageController {
   //   }
   // });
   @Get('report/result/noauth')
+  @ApiOperation({ summary: '对外获取安装包构建结果' })
   async getPackageReportResultNoAuth(@Query() getPackageDto: any) {
     return await this.packageService.getPackageReportResult(getPackageDto);
   }
@@ -134,6 +136,7 @@ export class PackageController {
   //   }
   // });
   @Get('report/category')
+  @ApiOperation({ summary: '获取安装包分类' })
   async getPackageReportCategory(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -162,6 +165,7 @@ export class PackageController {
   //   }
   // });
   @Get('report/failure_history')
+  @ApiOperation({ summary: '获取安装包失败历史' })
   async getFailureHistoryData(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -178,6 +182,7 @@ export class PackageController {
   //   }
   // });
   @Get('report/top_five')
+  @ApiOperation({ summary: '获取安装包失败历史top5' })
   async getTopFiveErrorManuals(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -197,6 +202,7 @@ export class PackageController {
   //   }
   // });
   @Get('build/jenkin_unity/manuals')
+  @ApiOperation({ summary: '获取安装包jenkins  unity 错误' })
   async getJenkinsAndUnityManuals(
     @Request() req,
     @Headers('project_id') project_id: string,
