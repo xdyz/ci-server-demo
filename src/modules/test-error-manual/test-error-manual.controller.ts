@@ -12,11 +12,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TestErrorManualService } from './test-error-manual.service';
-import { CreateTestErrorManualDto } from './dtos/create-test-error-manual.dto';
-import { UpdateTestErrorManualDto } from './dtos/update-test-error-manual.dto';
+import {
+  CreateTestErrorManualDto,
+  UpdateTestErrorManualDto,
+  GetTestErrorManualDto,
+} from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetTestErrorManualDto } from './dtos/get-test-error-manual.dto';
 
 @Controller('test-error-manual')
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式

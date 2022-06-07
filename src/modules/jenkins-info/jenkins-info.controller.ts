@@ -11,8 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JenkinsInfoService } from './jenkins-info.service';
-import { CreateJenkinsInfoDto } from './dtos/create-jenkins-info.dto';
-import { UpdateJenkinsInfoDto } from './dtos/update-jenkins-info.dto';
+import { CreateJenkinsInfoDto, UpdateJenkinsInfoDto } from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式

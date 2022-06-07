@@ -1,4 +1,6 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateServerManagerDto } from './create-server-manager.dto';
+import CreateServerManagerDto from './create-server-manager.dto';
 
-export class UpdateServerManagerDto extends PartialType(CreateServerManagerDto) {}
+export default class UpdateServerManagerDto extends PartialType(
+  CreateServerManagerDto,
+) {}

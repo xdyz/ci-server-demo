@@ -8,8 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 import { TasksEntity } from 'src/entities';
 import { Like, Repository } from 'typeorm';
-import { CreateTaskDto } from './dtos/create-task.dto';
-import { UpdateTaskDto } from './dtos/update-task.dto';
+import { CreateTaskDto, UpdateTaskDto } from './dtos/index.dto';
 
 @Injectable()
 export class TasksService implements OnModuleInit {

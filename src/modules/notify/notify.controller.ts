@@ -9,8 +9,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { NotifyService } from './notify.service';
-import { CreateNotifyDto } from './dtos/create-notify.dto';
-import { UpdateNotifyDto } from './dtos/update-notify.dto';
+import { CreateNotifyDto, UpdateNotifyDto } from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式

@@ -1,1 +1,1 @@
-export class CreatePackageDataEditDto {}
+export default class CreatePackageDataEditDto {}

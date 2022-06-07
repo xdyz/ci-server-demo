@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateMinioDto } from './create-minio.dto';
+import CreateMinioDto from './create-minio.dto';
 
-export class UpdateMinioDto extends PartialType(CreateMinioDto) {}
+export default class UpdateMinioDto extends PartialType(CreateMinioDto) {}

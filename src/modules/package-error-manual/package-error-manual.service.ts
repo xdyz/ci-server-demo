@@ -1,9 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PackageErrorManualEntity } from 'src/entities';
-import { Like, Repository } from 'typeorm';
-import { CreatePackageErrorManualDto } from './dtos/create-package-error-manual.dto';
-import { UpdatePackageErrorManualDto } from './dtos/update-package-error-manual.dto';
+import { In, Like, Repository } from 'typeorm';
+import {
+  CreatePackageErrorManualDto,
+  UpdatePackageErrorManualDto,
+} from './dtos/index.dto';
 
 @Injectable()
 export class PackageErrorManualService {
@@ -35,7 +37,9 @@ export class PackageErrorManualService {
     const manuals = await this.packageErrorManualRepository
       .createQueryBuilder('b')
       .where('b.project_id = :project_id', { project_id })
-      .andWhere('tags in (:tags)', { tags })
+      .andWhere({
+        tags: In(tags),
+      })
       .getMany();
 
     return manuals;

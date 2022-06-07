@@ -9,8 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { MenusService } from './menus.service';
-import { CreateMenuDto } from './dtos/create-menu.dto';
-import { UpdateMenuDto } from './dtos/update-menu.dto';
+import { CreateMenuDto, UpdateMenuDto } from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式

@@ -7,8 +7,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ServerManagersService } from './server-managers.service';
-import { CreateServerManagerDto } from './dtos/create-server-manager.dto';
-import { UpdateServerManagerDto } from './dtos/update-server-manager.dto';
+import {
+  CreateServerManagerDto,
+  UpdateServerManagerDto,
+} from './dtos/index.dto';
 import * as utils from 'src/utils/index.utils';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';

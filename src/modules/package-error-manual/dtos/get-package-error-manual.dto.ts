@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsString } from 'class-validator';
 
-export class GetPackageErrorManual {
+export default class GetPackageErrorManual {
   @Type(() => Number)
   page: number;
 

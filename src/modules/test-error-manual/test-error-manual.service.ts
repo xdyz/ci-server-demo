@@ -2,8 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TestErrorManualEntity } from 'src/entities';
 import { In, Like, Repository } from 'typeorm';
-import { CreateTestErrorManualDto } from './dtos/create-test-error-manual.dto';
-import { UpdateTestErrorManualDto } from './dtos/update-test-error-manual.dto';
+import {
+  CreateTestErrorManualDto,
+  UpdateTestErrorManualDto,
+  GetTestErrorManualDto,
+} from './dtos/index.dto';
 
 @Injectable()
 export class TestErrorManualService {

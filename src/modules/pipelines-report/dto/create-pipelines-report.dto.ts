@@ -1,1 +1,1 @@
-export class CreatePipelinesReportDto {}
+export default class CreatePipelinesReportDto {}

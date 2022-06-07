@@ -1,3 +1,1 @@
-import { Type } from 'class-transformer';
-
-export class CreatePackageDto {}
+export default class CreatePackageDto {}

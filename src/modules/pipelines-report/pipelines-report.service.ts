@@ -7,10 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PipelineRecordsEntity, PipelinesEntity } from 'src/entities';
-
 import { Repository } from 'typeorm';
 import { PipelinesService } from '../pipelines/pipelines.service';
-import { TasksService } from '../tasks/tasks.service';
 
 @Injectable()
 export class PipelinesReportService {

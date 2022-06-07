@@ -1,1 +1,1 @@
-export class CreateNotifyDto {}
+export default class CreateNotifyDto {}

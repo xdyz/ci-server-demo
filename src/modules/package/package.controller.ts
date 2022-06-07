@@ -8,12 +8,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PackageService } from './package.service';
-import { CreatePackageDto } from './dtos/create-package.dto';
-import { UpdatePackageDto } from './dtos/update-package.dto';
+import {
+  CreatePackageDto,
+  UpdatePackageDto,
+  GetPackageDto,
+  GetPackageReportDto,
+} from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetPackageDto } from './dtos/get-package.dto';
-import { GetPackageReportDto } from './dtos/get-package-report.dto';
 
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
 @ApiBearerAuth('jwt') // s

@@ -2,8 +2,10 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ParameterCoverageEntity } from 'src/entities';
 import { Repository } from 'typeorm';
-import { CreateParameterCoverageDto } from './dtos/create-parameter-coverage.dto';
-import { UpdateParameterCoverageDto } from './dtos/update-parameter-coverage.dto';
+import {
+  CreateParameterCoverageDto,
+  UpdateParameterCoverageDto,
+} from './dtos/index.dto';
 
 @Injectable()
 export class ParameterCoverageService {

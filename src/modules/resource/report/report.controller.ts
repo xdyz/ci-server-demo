@@ -7,8 +7,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ResourceReportService } from './report.service';
-import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
+import { CreateReportDto, UpdateReportDto } from './dtos/index.dto';
+import {} from './dtos/update-report.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式

@@ -6,8 +6,7 @@ import { Repository } from 'typeorm';
 import { ResourceCategoryService } from '../category/category.service';
 import { ResourceInstancesService } from '../instances/instances.service';
 import { ResourceTermsService } from '../terms/terms.service';
-import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
+import { CreateReportDto, UpdateReportDto } from './dtos/index.dto';
 import moment from 'moment';
 import * as utils from 'src/utils/index.utils';
 @Injectable()

@@ -11,8 +11,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PackageDataEditService } from './package-data-edit.service';
-import { CreatePackageDataEditDto } from './dto/create-package-data-edit.dto';
-import { UpdatePackageDataEditDto } from './dto/update-package-data-edit.dto';
+import {
+  CreatePackageDataEditDto,
+  UpdatePackageDataEditDto,
+} from './dto/index.dto';
+
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 

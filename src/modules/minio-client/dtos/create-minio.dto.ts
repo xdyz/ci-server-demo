@@ -1,1 +1,1 @@
-export class CreateMinioDto {}
+export default class CreateMinioDto {}

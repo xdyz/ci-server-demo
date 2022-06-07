@@ -1,1 +1,1 @@
-export class CreateJenkinsInfoDto {}
+export default class CreateJenkinsInfoDto {}

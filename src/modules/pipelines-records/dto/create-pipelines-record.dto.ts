@@ -1,1 +1,1 @@
-export class CreatePipelinesRecordDto {}
+export default class CreatePipelinesRecordDto {}

@@ -1,9 +1,8 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JenkinsInfoEntity } from 'src/entities';
 import { Repository } from 'typeorm';
-import { CreateJenkinsInfoDto } from './dtos/create-jenkins-info.dto';
-import { UpdateJenkinsInfoDto } from './dtos/update-jenkins-info.dto';
+import { CreateJenkinsInfoDto, UpdateJenkinsInfoDto } from './dtos/index.dto';
 // import { got } from 'got';
 // import axios from 'axios';
 import * as utils from 'src/utils/index.utils';

@@ -12,10 +12,10 @@ import {
   Put,
 } from '@nestjs/common';
 import { ViewsService } from './views.service';
-import { CreateViewDto } from './dtos/create-view.dto';
-import { UpdateViewDto } from './dtos/update-view.dto';
+import { CreateViewDto, UpdateViewDto } from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
 @ApiTags('视图')
 @ApiBearerAuth('jwt') // s

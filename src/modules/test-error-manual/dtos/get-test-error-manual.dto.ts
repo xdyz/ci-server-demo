@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 
-export class GetTestErrorManualDto {
+export default class GetTestErrorManualDto {
   @Type(() => Number)
   page: number;
 

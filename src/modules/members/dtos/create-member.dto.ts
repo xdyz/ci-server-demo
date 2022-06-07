@@ -1,1 +1,1 @@
-export class CreateMemberDto {}
+export default class CreateMemberDto {}

@@ -1,6 +1,6 @@
 import { IsArray, IsInt, IsString } from 'class-validator';
 
-export class CreateTestErrorManualDto {
+export default class CreateTestErrorManualDto {
   @IsInt({
     message: '错误码必须为整数',
   })

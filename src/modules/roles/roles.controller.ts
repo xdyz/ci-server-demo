@@ -10,11 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
-import { CreateRoleDto } from './dtos/create-role.dto';
-import { UpdateRoleDto } from './dtos/update-role.dto';
+import { CreateRoleDto, UpdateRoleDto, GetRoleDto } from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetRoleDto } from './dtos/get-role.dto';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
 @ApiTags('角色')
 @ApiBearerAuth('jwt') // s

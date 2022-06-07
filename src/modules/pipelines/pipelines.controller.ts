@@ -14,6 +14,7 @@ import {
 import { PipelinesService } from './pipelines.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreatePipelineDto, UpdatePipelineDto } from './dto/index.dto';
 
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
 @ApiBearerAuth('jwt') // s

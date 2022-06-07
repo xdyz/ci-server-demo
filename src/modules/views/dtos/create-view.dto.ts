@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class CreateViewDto {
+export default class CreateViewDto {
   @IsString({
     message: 'The name must be a string',
   })
