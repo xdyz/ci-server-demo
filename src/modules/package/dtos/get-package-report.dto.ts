@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 
-export class GetPackageReportDto {
+export default class GetPackageReportDto {
   @Type(() => Number)
   from: number;
 

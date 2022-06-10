@@ -9,8 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { MenusService } from './menus.service';
-import { CreateMenuDto } from './dtos/create-menu.dto';
-import { UpdateMenuDto } from './dtos/update-menu.dto';
+import { CreateMenuDto, UpdateMenuDto } from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
@@ -27,6 +26,7 @@ export class MenusController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取所有菜单' })
   async getAllMenus() {
     return await this.menusService.getAllMenus();
   }
@@ -38,6 +38,7 @@ export class MenusController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建菜单' })
   async insertMenu(@Body() createMenuDto: CreateMenuDto) {
     return await this.menusService.insertMenu(createMenuDto);
   }
@@ -49,6 +50,7 @@ export class MenusController {
   //   }
   // });
   @Put(':id')
+  @ApiOperation({ summary: '更新菜单' })
   async updateMenu(
     @Param('id') id: number,
     @Body() updateMenuDto: UpdateMenuDto,
@@ -63,6 +65,7 @@ export class MenusController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除菜单' })
   async delMenu(@Param('id') id: number) {
     return await this.menusService.delMenu(id);
   }

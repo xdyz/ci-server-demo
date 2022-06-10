@@ -4,8 +4,12 @@ import { BuildsEntity, TasksEntity } from 'src/entities';
 import { Like, Repository } from 'typeorm';
 import { JenkinsInfoService } from '../jenkins-info/jenkins-info.service';
 import { PackageErrorManualService } from '../package-error-manual/package-error-manual.service';
-import { CreatePackageDto } from './dtos/create-package.dto';
-import { UpdatePackageDto } from './dtos/update-package.dto';
+import {
+  CreatePackageDto,
+  UpdatePackageDto,
+  GetPackageDto,
+  GetPackageReportDto,
+} from './dtos/index.dto';
 // import { got } from 'got';
 import * as utils from 'src/utils/index.utils';
 import { HttpService } from '@nestjs/axios';

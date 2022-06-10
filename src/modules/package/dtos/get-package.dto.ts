@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsString } from 'class-validator';
 
-export class GetPackageDto {
+export default class GetPackageDto {
   @Type(() => Number)
   page: number;
 

@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class CreatePackageErrorManualDto {
+export default class CreatePackageErrorManualDto {
   @IsString()
   key_words: string;
 

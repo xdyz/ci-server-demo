@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BuildsEntity, TasksEntity } from 'src/entities';
 import { Repository } from 'typeorm';
-import { CreateServerManagerDto } from './dtos/create-server-manager.dto';
-import { UpdateServerManagerDto } from './dtos/update-server-manager.dto';
+import {
+  CreateServerManagerDto,
+  UpdateServerManagerDto,
+} from './dtos/index.dto';
 import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class ServerManagersService {

@@ -2,8 +2,10 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PackageDataEditEntity } from 'src/entities';
 import { Repository } from 'typeorm';
-import { CreatePackageDataEditDto } from './dto/create-package-data-edit.dto';
-import { UpdatePackageDataEditDto } from './dto/update-package-data-edit.dto';
+import {
+  CreatePackageDataEditDto,
+  UpdatePackageDataEditDto,
+} from './dto/index.dto';
 
 @Injectable()
 export class PackageDataEditService {

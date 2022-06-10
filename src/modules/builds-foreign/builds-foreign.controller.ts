@@ -61,6 +61,7 @@ export class BuildsForeignController {
   // });
   @Post('upload/result')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: '上传打包的结果' })
   async uploadResultBuild(@UploadedFile() file: any) {
     const { content, filePath } = await this.uploadFileToMinio(file);
     this.buildsForeignService.uploadResultBuild(JSON.parse(content), filePath);
@@ -79,6 +80,7 @@ export class BuildsForeignController {
   // });
   @Post('upload/test_result')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: '上传自动化测试的结果' })
   async uploadTestResultBuild(@UploadedFile() file: any) {
     const { content, filePath } = await this.uploadFileToMinio(file);
     this.buildsForeignService.uploadTestResultBuild(
@@ -101,6 +103,7 @@ export class BuildsForeignController {
   // });
   @Post('upload/server_result')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: '上传服务器测试的结果' })
   async uploadServerResultBuild(@UploadedFile() file: any) {
     const { content, filePath } = await this.uploadFileToMinio(file);
     this.buildsForeignService.uploadServerResultBuild(
@@ -136,6 +139,7 @@ export class BuildsForeignController {
   // });
   @Post('upload/result_file')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: '对外构建结构 多个接口合一' })
   async uploadResultBuild2(
     @UploadedFile() file: any,
     @Query('build_type') build_type: string,

@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateTestErrorManualDto } from './create-test-error-manual.dto';
+import CreateTestErrorManualDto from './create-test-error-manual.dto';
 
-export class UpdateTestErrorManualDto extends PartialType(
+export default class UpdateTestErrorManualDto extends PartialType(
   CreateTestErrorManualDto,
 ) {}

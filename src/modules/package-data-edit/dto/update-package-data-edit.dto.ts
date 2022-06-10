@@ -1,4 +1,6 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreatePackageDataEditDto } from './create-package-data-edit.dto';
+import CreatePackageDataEditDto from './create-package-data-edit.dto';
 
-export class UpdatePackageDataEditDto extends PartialType(CreatePackageDataEditDto) {}
+export default class UpdatePackageDataEditDto extends PartialType(
+  CreatePackageDataEditDto,
+) {}

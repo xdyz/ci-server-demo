@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateViewDto } from './create-view.dto';
+import CreateViewDto from './create-view.dto';
 
-export class UpdateViewDto extends PartialType(CreateViewDto) {}
+export default class UpdateViewDto extends PartialType(CreateViewDto) {}

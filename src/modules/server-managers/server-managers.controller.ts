@@ -1,21 +1,19 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   Headers,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { ServerManagersService } from './server-managers.service';
-import { CreateServerManagerDto } from './dtos/create-server-manager.dto';
-import { UpdateServerManagerDto } from './dtos/update-server-manager.dto';
+import {
+  CreateServerManagerDto,
+  UpdateServerManagerDto,
+} from './dtos/index.dto';
 import * as utils from 'src/utils/index.utils';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
 @ApiTags('自动化测试错误手册')
 @ApiBearerAuth('jwt') // s
@@ -31,6 +29,7 @@ export class ServerManagersController {
   //   }
   // });
   @Get('result')
+  @ApiOperation({ summary: '获取服务器结果' })
   async getServerTaskFrequency(
     @Headers('project_id') project_id: string,
     @Body() getServerManagerDto: any,
@@ -50,6 +49,7 @@ export class ServerManagersController {
   //   }
   // });
   @Get('report/result/noauth')
+  @ApiOperation({ summary: '对外获取服务器结果' })
   async getServerTaskFrequencyNoAuth(@Body() getServerManagerDto: any) {
     const query = await utils.parseTimeToSeconds(getServerManagerDto);
     return await this.serverManagersService.getServerTaskFrequency({
@@ -65,6 +65,7 @@ export class ServerManagersController {
   //   }
   // });
   @Get('rate')
+  @ApiOperation({ summary: '获取服务器通过率' })
   async getServerTaskRate(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -84,6 +85,7 @@ export class ServerManagersController {
   //   }
   // });
   @Get('average_duration')
+  @ApiOperation({ summary: '获取服务器平均耗时' })
   async getServerTaskDuration(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -103,6 +105,7 @@ export class ServerManagersController {
   //   }
   // });
   @Get('latest/build')
+  @ApiOperation({ summary: '获取每个服务器最后一次构建记录' })
   async getCategoryLatestBuild(
     @Request() req,
     @Headers('project_id') project_id: string,

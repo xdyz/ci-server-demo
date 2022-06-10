@@ -1,6 +1,6 @@
 import { IsInt } from 'class-validator';
 
-export class CreateParameterCoverageDto {
+export default class CreateParameterCoverageDto {
   @IsInt()
   task_id: number;
 

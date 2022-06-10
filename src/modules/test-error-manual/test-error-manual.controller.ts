@@ -12,11 +12,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TestErrorManualService } from './test-error-manual.service';
-import { CreateTestErrorManualDto } from './dtos/create-test-error-manual.dto';
-import { UpdateTestErrorManualDto } from './dtos/update-test-error-manual.dto';
+import {
+  CreateTestErrorManualDto,
+  UpdateTestErrorManualDto,
+  GetTestErrorManualDto,
+} from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { GetTestErrorManualDto } from './dtos/get-test-error-manual.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('test-error-manual')
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
@@ -34,6 +36,7 @@ export class TestErrorManualController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取自动化测试分页的错误手册' })
   async getManualErrors(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -53,6 +56,7 @@ export class TestErrorManualController {
   //   }
   // });
   @Get('all')
+  @ApiOperation({ summary: '获取自动化测试所有的错误手册' })
   async getAllManualErrors(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -68,6 +72,7 @@ export class TestErrorManualController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建自动化测试错误手册' })
   async setManualError(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -87,6 +92,7 @@ export class TestErrorManualController {
   //   }
   // });
   @Put(':id')
+  @ApiOperation({ summary: '更新自动化测试错误手册' })
   async updateManualError(
     // @Request() req,
     // @Headers('project_id') project_id: string,
@@ -107,6 +113,7 @@ export class TestErrorManualController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除自动化测试错误手册' })
   async deleteManualError(
     // @Request() req,
     // @Headers('project_id') project_id: string,
@@ -125,6 +132,7 @@ export class TestErrorManualController {
   //   }
   // });
   @Get('ids')
+  @ApiOperation({ summary: '获取自动化测试批量的错误手册' })
   async getManualErrorsByIds(
     @Request() req,
     @Headers('project_id') project_id: string,

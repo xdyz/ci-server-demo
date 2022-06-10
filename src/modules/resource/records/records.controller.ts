@@ -1,11 +1,7 @@
 import {
   Controller,
-  Delete,
   Get,
   Headers,
-  Param,
-  Post,
-  Put,
   Query,
   Request,
   UseGuards,
@@ -29,6 +25,7 @@ export class ResourceRecordsController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取资源检查构建记录' })
   async getResourceRecords(
     @Request() req: any,
     @Headers('project_id') project_id: string,

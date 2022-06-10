@@ -6,7 +6,6 @@ import {
   Param,
   Delete,
   Headers,
-  ValidationPipe,
   Put,
   UseInterceptors,
   ClassSerializerInterceptor,

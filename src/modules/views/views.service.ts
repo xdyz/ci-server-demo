@@ -3,8 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TasksEntity, ViewsEntity } from 'src/entities';
 import { Repository } from 'typeorm';
 import { TasksService } from '../tasks/tasks.service';
-import { CreateViewDto } from './dtos/create-view.dto';
-import { UpdateViewDto } from './dtos/update-view.dto';
+import { CreateViewDto, UpdateViewDto } from './dtos/index.dto';
 
 @Injectable()
 export class ViewsService {

@@ -31,6 +31,7 @@ export class ResourceInstancesController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取实例' })
   async getResourceInstances(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -50,6 +51,7 @@ export class ResourceInstancesController {
   //   }
   // });
   @Get('all')
+  @ApiOperation({ summary: '获取所有实例' })
   async getAllResourceInstances(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -65,6 +67,7 @@ export class ResourceInstancesController {
   //   }
   // });
   @Get(':id')
+  @ApiOperation({ summary: '获取单个实例详情' })
   async getOneResourceInstance(
     // @Request() req: any,
     // @Headers('project_id') project_id: string,
@@ -81,6 +84,7 @@ export class ResourceInstancesController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建实例' })
   async insertResourceInstances(
     @Request() req: any,
     @Headers('project_id') project_id: string,
@@ -100,6 +104,7 @@ export class ResourceInstancesController {
   //   }
   // });
   @Put(':id')
+  @ApiOperation({ summary: '更新实例' })
   async updateResourceInstances(
     // @Request() req: any,
     // @Headers('project_id') project_id: string,
@@ -120,6 +125,7 @@ export class ResourceInstancesController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除实例' })
   async deleteResourceInstances(
     // @Request() req: any,
     // @Headers('project_id') project_id: string,

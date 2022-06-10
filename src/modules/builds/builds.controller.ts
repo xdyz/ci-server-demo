@@ -26,6 +26,7 @@ export class BuildsController {
   //   }
   // });
   @Get(':id')
+  @ApiOperation({ summary: '获取单个构建记录' })
   async getBuild(@Param('id') id: string, @Param('task_id') task_id: string) {
     return await this.buildsService.getBuild(+task_id, +id);
   }
@@ -44,6 +45,7 @@ export class BuildsController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取构建记录' })
   async getBuilds(@Param('task_id') task_id: string, @Query() query: any) {
     return await this.buildsService.getBuilds(+task_id, query);
   }
@@ -62,6 +64,7 @@ export class BuildsController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '创建构建记录' })
   async createBuild(
     @Request() req,
     @Param('task_id') task_id: string,
@@ -80,6 +83,7 @@ export class BuildsController {
   // });
 
   @Get('list')
+  @ApiOperation({ summary: '分页获取构建记录' })
   async getTaskBuilds(@Param('task_id') task_id: string, @Query() query: any) {
     return await this.buildsService.getTaskBuilds(+task_id, query);
   }

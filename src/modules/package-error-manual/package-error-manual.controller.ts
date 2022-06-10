@@ -12,8 +12,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PackageErrorManualService } from './package-error-manual.service';
-import { CreatePackageErrorManualDto } from './dtos/create-package-error-manual.dto';
-import { UpdatePackageErrorManualDto } from './dtos/update-package-error-manual.dto';
+import {
+  CreatePackageErrorManualDto,
+  UpdatePackageErrorManualDto,
+} from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
@@ -32,6 +34,7 @@ export class PackageErrorManualController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '分页获取安装包错误配置' })
   async getManualErrors(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -51,6 +54,7 @@ export class PackageErrorManualController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建安装包错误配置' })
   async setManualError(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -70,6 +74,7 @@ export class PackageErrorManualController {
   //   }
   // });
   @Put(':id')
+  @ApiOperation({ summary: '更新安装包错误配置' })
   async updateManualError(
     // @Request() req,
     // @Headers('project_id') project_id: string,
@@ -90,6 +95,7 @@ export class PackageErrorManualController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除安装包错误配置' })
   async deleteManualError(
     // @Request() req,
     // @Headers('project_id') project_id: string,
@@ -108,6 +114,7 @@ export class PackageErrorManualController {
   //   }
   // });
   @Get('ids')
+  @ApiOperation({ summary: '根据多id获取安装包错误配置' })
   async getManualErrorsByIds(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -128,6 +135,7 @@ export class PackageErrorManualController {
   //   }
   // });
   @Get('all')
+  @ApiOperation({ summary: '获取所有安装包错误配置' })
   async getAllErrorsManuals(
     @Request() req,
     @Headers('project_id') project_id: string,

@@ -1,12 +1,11 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BuildsEntity } from 'src/entities';
-import { Between, In, Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { TasksService } from '../tasks/tasks.service';
 import { TestErrorManualService } from '../test-error-manual/test-error-manual.service';
-import { CreateAutoTestDto } from './dtos/create-auto-test.dto';
-import { UpdateAutoTestDto } from './dtos/update-auto-test.dto';
+import { CreateAutoTestDto, UpdateAutoTestDto } from './dtos/index.dto';
 import * as utils from 'src/utils/index.utils';
 @Injectable()
 export class AutoTestService {

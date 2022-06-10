@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 
-export class GetRoleDto {
+export default class GetRoleDto {
   @Type(() => Number)
   page: number;
 

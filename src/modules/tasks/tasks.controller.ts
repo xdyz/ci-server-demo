@@ -3,17 +3,16 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Headers,
   Request,
   Query,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto } from './dtos/create-task.dto';
-import { UpdateTaskDto } from './dtos/update-task.dto';
+import { CreateTaskDto, UpdateTaskDto } from './dtos/index.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -31,6 +30,7 @@ export class TasksController {
   //   }
   // });
   @Get(':id')
+  @ApiOperation({ summary: '获取单个任务' })
   async getTask(@Param('id') id: number) {
     return await this.tasksService.getTask(id);
   }
@@ -43,7 +43,8 @@ export class TasksController {
   //     return result;
   //   }
   // });
-  @Patch(':id')
+  @Put(':id')
+  @ApiOperation({ summary: '更新单个任务' })
   async updateTask(@Param('id') id: number, @Body() updateTaskDto: any) {
     return await this.tasksService.updateTask(id, updateTaskDto);
   }
@@ -57,6 +58,7 @@ export class TasksController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除任务' })
   async deleteTask(@Param('id') id: number) {
     return await this.tasksService.deleteTask(id);
   }
@@ -70,6 +72,7 @@ export class TasksController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '创建任务' })
   async createTask(
     @Headers('project_id') project_id: string,
     @Body() createTaskDto: any,
@@ -87,6 +90,7 @@ export class TasksController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取所有的任务' })
   async getAllTasks(
     @Request() req: any,
     @Headers('project_id') project_id: string,

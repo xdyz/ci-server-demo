@@ -1,1 +1,1 @@
-export class CreateAutoTestDto {}
+export default class CreateAutoTestDto {}

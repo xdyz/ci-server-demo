@@ -11,8 +11,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ParameterCoverageService } from './parameter-coverage.service';
-import { CreateParameterCoverageDto } from './dtos/create-parameter-coverage.dto';
-import { UpdateParameterCoverageDto } from './dtos/update-parameter-coverage.dto';
+import {
+  CreateParameterCoverageDto,
+  UpdateParameterCoverageDto,
+} from './dtos/index.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @UseGuards(AuthGuard('jwt')) // 使用 jwt 作为认证方式
@@ -31,6 +33,7 @@ export class ParameterCoverageController {
   //   }
   // });
   @Get()
+  @ApiOperation({ summary: '获取参数覆盖' })
   async getParameterCoverage(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -46,6 +49,7 @@ export class ParameterCoverageController {
   //   }
   // });
   @Post()
+  @ApiOperation({ summary: '新建参数覆盖' })
   async createParameterCoverage(
     @Request() req,
     @Headers('project_id') project_id: string,
@@ -65,6 +69,7 @@ export class ParameterCoverageController {
   //   }
   // });
   @Put(':id')
+  @ApiOperation({ summary: '更新参数覆盖' })
   async updateParameterCoverage(
     // @Request() req,
     // @Headers('project_id') project_id: string,
@@ -85,6 +90,7 @@ export class ParameterCoverageController {
   //   }
   // });
   @Delete(':id')
+  @ApiOperation({ summary: '删除参数覆盖' })
   async deleteParameterCoverage(
     // @Request() req,
     // @Headers('project_id') project_id: string,

@@ -1,1 +1,1 @@
-export class CreateServerManagerDto {}
+export default class CreateServerManagerDto {}

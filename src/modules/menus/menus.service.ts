@@ -2,8 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MenusEntity } from 'src/entities';
 import { Repository } from 'typeorm';
-import { CreateMenuDto } from './dtos/create-menu.dto';
-import { UpdateMenuDto } from './dtos/update-menu.dto';
+import { CreateMenuDto, UpdateMenuDto } from './dtos/index.dto';
 
 @Injectable()
 export class MenusService {

@@ -1,13 +1,6 @@
-import {
-  forwardRef,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ProjectsService } from '../projects/projects.service';
-import { CreateMinioDto } from './dtos/create-minio.dto';
-import { UpdateMinioDto } from './dtos/update-minio.dto';
+import { CreateMinioDto, UpdateMinioDto } from './dtos/index.dto';
 import moment from 'moment';
 import { Client } from 'minio';
 import { MINIO_CONNECTION } from 'nestjs-minio';
@@ -43,9 +36,7 @@ export class MinioClientService {
       policy.setKey(`${pathDir}/${label}/${fileName}`);
       const data = await this.client.presignedPostPolicy(policy);
 
-      return {
-        data,
-      };
+      return data;
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -86,8 +77,7 @@ export class MinioClientService {
   // 生成一个下载地址
   async presignedGetObject({ pathDir }) {
     try {
-      const data = await this.client.presignedGetObject('devops', pathDir);
-      return data;
+      return await this.client.presignedGetObject('devops', pathDir);
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

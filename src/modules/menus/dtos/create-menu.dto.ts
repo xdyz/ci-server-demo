@@ -1,6 +1,6 @@
 import { IsInt, IsString } from 'class-validator';
 
-export class CreateMenuDto {
+export default class CreateMenuDto {
   @IsString({
     message: '菜单名称 必须为字符串',
   })

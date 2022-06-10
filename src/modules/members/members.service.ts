@@ -2,8 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MembersEntity } from 'src/entities';
 import { Like, Repository } from 'typeorm';
-import { CreateMemberDto } from './dtos/create-member.dto';
-import { UpdateMemberDto } from './dtos/update-member.dto';
+import { CreateMemberDto, UpdateMemberDto } from './dtos/index.dto';
 
 @Injectable()
 export class MembersService {
